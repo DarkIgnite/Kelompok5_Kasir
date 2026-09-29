@@ -58,19 +58,19 @@
         <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-8 xl:px-16 bg-white overflow-y-auto">
             
             <!-- Mobile Brand Header (Visible on smaller screens where banner is hidden) -->
-            <div class="lg:hidden flex items-center gap-2.5 mb-6 self-start sm:self-center">
+            <!-- <div class="lg:hidden flex items-center gap-2.5 mb-6 self-start sm:self-center">
                 <div class="w-9 h-9 bg-black rounded-xl flex items-center justify-center p-1.5 shadow-sm">
                     <img src="{{ asset('images/logo-black.png') }}" alt="KasirAja" class="w-full h-full object-contain">
                 </div>
                 <span class="text-lg font-bold tracking-tight text-gray-900">KasirAja</span>
-            </div>
+            </div> -->
 
             <!-- Form Container (max width 380px) -->
             <div class="w-full max-w-[380px] mx-auto flex flex-col items-center">
                 
                 <!-- Center Square Logo Icon -->
                 <div class="mb-4 sm:mb-5 flex justify-center">
-                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-black rounded-2xl flex items-center justify-center p-1.5 shadow-sm hover:scale-[1.02] transition-transform">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 bg-black flex items-center justify-center p-1.5 shadow-sm">
                         <img 
                             src="{{ asset('images/logo-black.png') }}" 
                             alt="KasirAja Logo" 
@@ -125,7 +125,7 @@
                                 placeholder="Username" 
                                 autocomplete="username"
                                 required
-                                class="w-full px-4 py-2.5 sm:py-3 pr-11 text-xs sm:text-sm bg-white border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition shadow-none"
+                                class="w-full px-4 py-2.5 sm:py-3 pr-11 text-xs sm:text-sm bg-white border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 shadow-none"
                             />
                             <div class="absolute right-3.5 pointer-events-none text-neutral-700">
                                 <!-- Person / User Outline Icon -->
@@ -149,7 +149,7 @@
                                 placeholder="Password" 
                                 autocomplete="current-password"
                                 required
-                                class="w-full px-4 py-2.5 sm:py-3 pr-11 text-xs sm:text-sm bg-white border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition shadow-none"
+                                class="w-full px-4 py-2.5 sm:py-3 pr-11 text-xs sm:text-sm bg-white border border-neutral-300 rounded-xl text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 shadow-none"
                             />
                             <!-- Password Toggle Eye Icon -->
                             <button 
