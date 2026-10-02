@@ -45,14 +45,14 @@
     <div class="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
         
         <!-- Left Side: Hero Image Banner (Desktop & Tablet) -->
-        <div class="hidden lg:relative lg:flex lg:w-1/2 h-full overflow-hidden select-none" style="background-color: #1b1b1b;">
-            <img 
-                src="{{ asset('images/auth-banner.png') }}" 
-                alt="KasirAja - Move in Silence." 
-                class="w-5/6 h-5/6 object-contain object-left pointer-events-none"
-                loading="eager"
-            />
-        </div>
+<div class="hidden lg:relative lg:flex lg:w-1/2 h-full items-end justify-start overflow-hidden select-none" style="background-color: #1b1b1b;">
+    <img 
+        src="{{ asset('images/auth-banner.png') }}" 
+        alt="KasirAja - Move in Silence." 
+        class="w-auto h-auto max-w-full max-h-[50%] object-contain pointer-events-none"
+        loading="eager"
+    />
+</div>
 
         <!-- Right Side: Login Form Area (Centered vertically & horizontally) -->
         <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-8 xl:px-16 bg-white overflow-y-auto">
