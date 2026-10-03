@@ -45,11 +45,11 @@
     <div class="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
         
         <!-- Left Side: Hero Image Banner (Desktop & Tablet) -->
-<div class="hidden lg:relative lg:flex lg:w-1/2 h-full items-end justify-start overflow-hidden select-none" style="background-color: #1b1b1b;">
+<div class="hidden lg:relative lg:flex lg:w-1/2 h-full overflow-hidden select-none" style="background-color: #1b1b1b;">
     <img 
         src="{{ asset('images/auth-banner.png') }}" 
         alt="KasirAja - Move in Silence." 
-        class="w-auto h-auto max-w-full max-h-[50%] object-contain pointer-events-none"
+        class="w-auto h-auto object-contain object-left pointer-events-none"
         loading="eager"
     />
 </div>
