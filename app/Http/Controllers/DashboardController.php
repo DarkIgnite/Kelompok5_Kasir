@@ -63,10 +63,21 @@ class DashboardController extends Controller
         ];
 
         $slowMoving = [
-            'name' => 'WaterJyordan',
-            'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
-            'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
-            'status' => 'Overstock',
+            [
+                'name' => 'WaterJyordan',
+                'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
+                'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
+                'status' => 'Overstock',
+            ],
+            /*
+            // Salin / aktifkan baris ini untuk menambah data stok menumpuk baru:
+            [
+                'name' => 'AirMax Classic',
+                'detail' => 'Size 39 - 40 EUR - Putih - Biru',
+                'note' => 'Sisa <strong>45 - 2</strong> terjual bulan ini',
+                'status' => 'Overstock',
+            ],
+            */
         ];
 
         $shoeCatalog = [

@@ -495,21 +495,42 @@
                             </h2>
                         </div>
 
-                        <div class="pt-1 flex items-start justify-between gap-3">
-                            <div>
-                                <div class="text-xs font-bold text-neutral-900">
-                                    {{ $slowMoving['name'] ?? 'WaterJyordan' }}
+                        <div class="divide-y divide-black/10">
+                            @php
+                                $slowItems = $slowMoving ?? [
+                                    [
+                                        'name' => 'WaterJyordan',
+                                        'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
+                                        'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
+                                        'status' => 'Overstock',
+                                    ],
+                                ];
+
+                                if (isset($slowItems['name'])) {
+                                    $slowItems = [$slowItems];
+                                }
+                            @endphp
+
+                            @foreach ($slowItems as $item)
+                                <div class="py-3 first:pt-1 last:pb-1 flex items-start justify-between gap-3">
+                                    <div>
+                                        <div class="text-xs font-bold text-neutral-900">
+                                            {{ $item['name'] }}
+                                        </div>
+                                        <div class="text-[11px] text-neutral-500 mt-0.5">
+                                            {{ $item['detail'] }}
+                                        </div>
+                                        @if (!empty($item['note']))
+                                            <div class="text-[11px] text-neutral-500 mt-1">
+                                                {!! $item['note'] !!}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
+                                        {{ $item['status'] ?? 'Overstock' }}
+                                    </span>
                                 </div>
-                                <div class="text-[11px] text-neutral-500 mt-0.5">
-                                    {{ $slowMoving['detail'] ?? 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam' }}
-                                </div>
-                                <div class="text-[11px] text-neutral-500 mt-1">
-                                    {!! $slowMoving['note'] ?? 'Sisa <strong>66 - 1</strong> terjual bulan ini' !!}
-                                </div>
-                            </div>
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
-                                {{ $slowMoving['status'] ?? 'Overstock' }}
-                            </span>
+                            @endforeach
                         </div>
                     </div>
 
