@@ -7,10 +7,10 @@
 
     <title>Login</title>
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Vite Styles & Scripts with Tailwind CDN Fallback -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -22,7 +22,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                            sans: ['Inter', 'sans-serif'],
                         }
                     }
                 }
@@ -37,7 +37,7 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
@@ -45,14 +45,14 @@
     <div class="h-screen w-full flex flex-col lg:flex-row overflow-hidden">
         
         <!-- Left Side: Hero Image Banner (Desktop & Tablet) -->
-<div class="hidden lg:relative lg:flex lg:w-1/2 h-full items-end justify-start overflow-hidden select-none" style="background-color: #1b1b1b;">
-    <img 
-        src="{{ asset('images/auth-banner.png') }}" 
-        alt="KasirAja - Move in Silence." 
-        class="w-auto h-auto max-w-full max-h-[50%] object-contain pointer-events-none"
-        loading="eager"
-    />
-</div>
+        <div class="hidden lg:relative lg:flex lg:w-1/2 h-full overflow-hidden select-none" style="background-color: #1b1b1b;">
+            <img 
+                src="{{ asset('images/auth-banner.png') }}" 
+                alt="KasirAja - Move in Silence." 
+                class="w-auto h-auto object-contain object-left pointer-events-none"
+                loading="eager"
+            />
+        </div>
 
         <!-- Right Side: Login Form Area (Centered vertically & horizontally) -->
         <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-8 xl:px-16 bg-white overflow-y-auto">
