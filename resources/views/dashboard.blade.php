@@ -159,8 +159,22 @@
                         </p>
                     </div>
 
-                    <!-- Filter Dropdown: Bulan Ini -->
+                    <!-- User Badge & Filter Dropdown -->
                     <div class="flex items-center gap-3">
+                        @auth
+                            <div class="flex items-center gap-2.5 px-3 py-1.5 bg-neutral-100 rounded-xl border border-neutral-200">
+                                <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center text-xs font-bold uppercase">
+                                    {{ substr(Auth::user()->nama_lengkap ?? Auth::user()->username, 0, 1) }}
+                                </div>
+                                <div class="text-left">
+                                    <div class="text-xs font-bold text-neutral-900 leading-tight">{{ Auth::user()->nama_lengkap ?? Auth::user()->username }}</div>
+                                    <span class="inline-block px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider {{ Auth::user()->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ Auth::user()->role }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endauth
+
                         <div class="relative inline-block text-left">
                             <button 
                                 type="button" 

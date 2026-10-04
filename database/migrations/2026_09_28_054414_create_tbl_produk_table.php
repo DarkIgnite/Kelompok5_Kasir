@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produk', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('kategori_id')->constrained('kategori')->cascadeOnDelete();
+        Schema::create('tbl_produk', function (Blueprint $table) {
+            $table->id('id_produk');
+            $table->foreignId('id_kategori')->constrained('tbl_kategori', 'id_kategori')->cascadeOnDelete();
             $table->string('kode_produk', 30)->unique();
             $table->string('nama_produk', 100);
             $table->string('merek', 50);
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('produk');
+        Schema::dropIfExists('tbl_produk');
     }
 };

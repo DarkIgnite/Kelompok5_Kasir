@@ -10,15 +10,23 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_user_can_log_in_with_name(): void
+    public function test_user_can_view_login_page(): void
+    {
+        $response = $this->get('/login');
+        $response->assertStatus(200);
+        $response->assertSee('Selamat Datang di Sistem KasirAja');
+    }
+
+    public function test_user_can_log_in_with_username(): void
     {
         $user = User::factory()->create([
-            'name' => 'Kasir Toko',
+            'username' => 'kasir1',
             'password' => 'password',
+            'status' => 'aktif',
         ]);
 
         $response = $this->post('/login', [
-            'username' => 'Kasir Toko',
+            'username' => 'kasir1',
             'password' => 'password',
         ]);
 
@@ -26,19 +34,21 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
     }
 
-    public function test_user_can_log_in_with_email(): void
+    public function test_inactive_user_cannot_log_in(): void
     {
-        $user = User::factory()->create([
-            'email' => 'kasir@example.com',
+        User::factory()->create([
+            'username' => 'kasir_nonaktif',
+            'password' => 'password',
+            'status' => 'nonaktif',
+        ]);
+
+        $response = $this->post('/login', [
+            'username' => 'kasir_nonaktif',
             'password' => 'password',
         ]);
 
-        $this->post('/login', [
-            'username' => 'kasir@example.com',
-            'password' => 'password',
-        ])->assertRedirect(route('dashboard'));
-
-        $this->assertAuthenticatedAs($user);
+        $response->assertSessionHasErrors('username');
+        $this->assertGuest();
     }
 
     public function test_invalid_credentials_are_rejected(): void
