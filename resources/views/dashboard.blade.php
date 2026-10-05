@@ -662,11 +662,11 @@
                                     <tr class="hover:bg-neutral-50/70 transition-colors shoe-row">
                                         <!-- Checkbox / Accordion Toggle -->
                                         <td class="py-3 px-3 text-center align-middle">
-                                            <button type="button" class="w-5 h-5 rounded border border-neutral-300 flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:border-neutral-400 transition mx-auto">
+                                            <!-- <button type="button" class="w-5 h-5 rounded border border-neutral-300 flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:border-neutral-400 transition mx-auto">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                                                 </svg>
-                                            </button>
+                                            </button> -->
                                         </td>
 
                                         <!-- Shoe Image & Name / Code -->
