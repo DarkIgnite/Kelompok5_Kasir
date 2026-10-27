@@ -34,7 +34,7 @@ class DashboardController extends Controller
         } else {
             $stats = [
                 'total_penjualan'   => 435400000,
-                'persen_penjualan'  => 14.8,
+                'persen_penjualan'  => 19.8,
                 'total_transaksi'   => 3,
                 'rata_rata_nota'    => 145133333,
                 'total_terjual'     => 71,

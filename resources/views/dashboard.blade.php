@@ -209,12 +209,12 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-                                Rp{{ number_format($stats['total_penjualan'] ?? 435400000, 0, ',', '.') }}
+                                Rp{{ number_format($stats['total_penjualan'] ?? 0, 0, ',', '.') }}
                             </div>
                         </div>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
-                                ↗ +{{ $stats['persen_penjualan'] ?? '14.8' }}%
+                                ↗ +{{ $stats['persen_penjualan'] ?? '0' }}%
                             </span>
                             <span class="text-[11px] text-neutral-400 font-medium ml-2">
                                 vs bulan sebelumnya
@@ -237,12 +237,12 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-                                {{ $stats['total_transaksi'] ?? 3 }} Struk
+                                {{ $stats['total_transaksi'] ?? 0 }} Struk
                             </div>
                         </div>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-600">
-                                Rp{{ number_format($stats['rata_rata_nota'] ?? 145133333, 0, ',', '.') }}
+                                Rp{{ number_format($stats['rata_rata_nota'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span class="text-[11px] text-neutral-400 font-medium ml-2">
                                 Rata-rata per nota
@@ -265,12 +265,12 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">
-                                {{ $stats['total_terjual'] ?? 71 }} Pasang
+                                {{ $stats['total_terjual'] ?? 0 }} Pasang
                             </div>
                         </div>
                         <div class="mt-4 flex items-center justify-between">
                             <span class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
-                                ↗ +{{ $stats['persen_penjualan'] ?? '14.8' }}%
+                                ↗ +{{ $stats['persen_penjualan'] ?? '0' }}%
                             </span>
                             <span class="text-[11px] text-neutral-400 font-medium ml-2">
                                 Target bulanan tercapai
@@ -293,7 +293,7 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-xl sm:text-2xl font-black text-red-600 tracking-tight">
-                                {{ $stats['peringatan_stok'] ?? 1 }} Varian
+                                {{ $stats['peringatan_stok'] ?? 0 }} Varian
                             </div>
                         </div>
                         <div class="mt-4 flex items-center justify-end">
@@ -323,18 +323,18 @@
                         <div class="h-64 sm:h-72 flex items-end justify-between gap-1.5 sm:gap-3 pt-8 pb-2 px-1">
                             @php
                                 $months = $monthlySales ?? [
-                                    ['month' => 'Nov', 'height' => 52, 'amount' => 'Rp 226,4jt'],
-                                    ['month' => 'Des', 'height' => 70, 'amount' => 'Rp 305,2jt'],
-                                    ['month' => 'Jan', 'height' => 48, 'amount' => 'Rp 209,1jt'],
-                                    ['month' => 'Feb', 'height' => 36, 'amount' => 'Rp 156,8jt'],
-                                    ['month' => 'Mar', 'height' => 44, 'amount' => 'Rp 191,5jt'],
-                                    ['month' => 'Apr', 'height' => 60, 'amount' => 'Rp 261,3jt'],
-                                    ['month' => 'Mei', 'height' => 64, 'amount' => 'Rp 278,7jt'],
-                                    ['month' => 'Jun', 'height' => 48, 'amount' => 'Rp 209,0jt'],
-                                    ['month' => 'Jul', 'height' => 68, 'amount' => 'Rp 296,2jt'],
-                                    ['month' => 'Agu', 'height' => 82, 'amount' => 'Rp 357,0jt'],
-                                    ['month' => 'Sep', 'height' => 74, 'amount' => 'Rp 322,2jt'],
-                                    ['month' => 'Okt', 'height' => 96, 'amount' => 'Rp 435,4jt'],
+                                    ['month' => 'Nov', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Des', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Jan', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Feb', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Mar', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Apr', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Mei', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Jun', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Jul', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Agu', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Sep', 'height' => 0, 'amount' => 'Rp 0'],
+                                    ['month' => 'Okt', 'height' => 0, 'amount' => 'Rp 0'],
                                 ];
                             @endphp
 
@@ -407,10 +407,10 @@
                             <div class="space-y-4">
                                 @php
                                     $categories = $topCategories ?? [
-                                        ['name' => 'Lifestyle', 'count' => 67, 'percent' => 94],
-                                        ['name' => 'Running',   'count' => 2,  'percent' => 3],
-                                        ['name' => 'Sports',    'count' => 1,  'percent' => 2],
-                                        ['name' => 'Casual',    'count' => 1,  'percent' => 1],
+                                        ['name' => 'Lifestyle', 'count' => 0, 'percent' => 0],
+                                        ['name' => 'Running',   'count' => 0,  'percent' => 0],
+                                        ['name' => 'Sports',    'count' => 0,  'percent' => 0],
+                                        ['name' => 'Casual',    'count' => 0,  'percent' => 0],
                                     ];
                                 @endphp
 
@@ -441,8 +441,8 @@
                                 <div class="divide-y divide-black/10">
                                     @php
                                         $restocks = $restockAlerts ?? [
-                                            ['name' => 'FayerJyordan', 'detail' => 'Size 44 EUR - Hitam - sisa 0, min. 10', 'status' => 'Kritis'],
-                                            ['name' => 'ErthJyordan',  'detail' => 'Size 40 EUR - Abu - sisa 4, min. 5',   'status' => 'Kritis'],
+                                            ['name' => 'FayerJyordan', 'detail' => 'Size 0 EUR - Hitam - sisa 0, min. 0', 'status' => 'Kritis'],
+                                            ['name' => 'ErthJyordan',  'detail' => 'Size 0 EUR - Abu - sisa 0, min. 0',   'status' => 'Kritis'],
                                             ['name' => 'LoremIpsum',   'detail' => 'LoremIpsum1234567890',                'status' => 'Kritis'],
                                         ];
                                     @endphp
@@ -482,10 +482,10 @@
                         <div class="divide-y divide-black/10">
                             @php
                                 $margins = $categoryMargins ?? [
-                                    ['category' => 'Lifestyle', 'margin' => '34%', 'is_highlight' => true],
-                                    ['category' => 'Running',   'margin' => '21%', 'is_highlight' => false],
-                                    ['category' => 'Sports',    'margin' => '25%', 'is_highlight' => false],
-                                    ['category' => 'Casual',    'margin' => '41%', 'is_highlight' => true],
+                                    ['category' => 'Lifestyle', 'margin' => '0%', 'is_highlight' => false],
+                                    ['category' => 'Running',   'margin' => '0%', 'is_highlight' => false],
+                                    ['category' => 'Sports',    'margin' => '0%', 'is_highlight' => false],
+                                    ['category' => 'Casual',    'margin' => '0%', 'is_highlight' => false],
                                 ];
                             @endphp
 
@@ -514,8 +514,8 @@
                                 $slowItems = $slowMoving ?? [
                                     [
                                         'name' => 'WaterJyordan',
-                                        'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
-                                        'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
+                                        'detail' => 'Size 0 - 0 - 0 - 0 - 0 EUR - Merah - Hitam',
+                                        'note' => 'Sisa <strong>0 - 0</strong> terjual bulan ini',
                                         'status' => 'Overstock',
                                     ],
                                 ];
