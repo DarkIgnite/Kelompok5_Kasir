@@ -3,6 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\PenggunaController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -13,10 +17,25 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth')
-    ->name('dashboard');
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/data', [DashboardController::class, 'getRealtimeData'])->name('dashboard.data');
+    Route::post('/dashboard/simulate-sale', [DashboardController::class, 'simulateSale'])->name('dashboard.simulate');
 
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-    ->middleware('auth')
-    ->name('logout');
+    // Sidebar Page Routes (Bisa diakses oleh Kasir & Admin)
+    Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
+    Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'show'])->name('transaksi.show');
+
+    // Halaman khusus Administrator (Kategori, Produk, Pengguna)
+    Route::middleware('can:admin')->group(function () {
+        Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
+
+        Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
+        Route::get('/produk/{produk}', [ProdukController::class, 'show'])->name('produk.show');
+
+        Route::get('/pengguna', [PenggunaController::class, 'index'])->name('pengguna.index');
+    });
+
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+});
+

@@ -113,8 +113,8 @@
 
                     <!-- Username Field -->
                     <div class="space-y-1.5">
-                        <label for="username" class="block text-xs font-bold text-neutral-900 tracking-wider uppercase">
-                            USERNAME
+                        <label for="username" class="block text-xs font-bold text-neutral-900 tracking-wider">
+                            Username
                         </label>
                         <div class="relative flex items-center">
                             <input 
@@ -138,8 +138,8 @@
 
                     <!-- Password Field -->
                     <div class="space-y-1.5">
-                        <label for="password" class="block text-xs font-bold text-neutral-900 tracking-wider uppercase">
-                            PASSWORD
+                        <label for="password" class="block text-xs font-bold text-neutral-900 tracking-wider">
+                            Password
                         </label>
                         <div class="relative flex items-center">
                             <input 

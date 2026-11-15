@@ -171,30 +171,50 @@ class DatabaseSeeder extends Seeder
             ['id_produk' => $spt4->id_produk, 'ukuran' => '41', 'warna' => 'Putih', 'stok' => 5, 'stok_minimum' => 5]
         );
 
-        // 5. Transaksi Contoh
-        $trx1 = Transaksi::firstOrCreate(
-            ['no_nota' => 'TRX-20261001-001'],
-            [
-                'id_pengguna' => $kasir1->id_pengguna,
-                'tanggal_transaksi' => now()->subDays(2),
-                'total_item' => 2,
-                'subtotal' => 6220000,
-                'diskon' => 0,
-                'total_bayar' => 6220000,
-                'jumlah_bayar' => 6500000,
-                'kembalian' => 280000,
-                'metode_pembayaran' => 'cash',
-                'status' => 'selesai',
-            ]
-        );
+        // 5. Transaksi Contoh (Didistribusikan ke 12 Bulan Terakhir)
+        $sampleMonths = [
+            11 => ['qty' => 4, 'total' => 12440000],
+            10 => ['qty' => 3, 'total' => 9330000],
+            9  => ['qty' => 2, 'total' => 6220000],
+            8  => ['qty' => 3, 'total' => 9330000],
+            7  => ['qty' => 3, 'total' => 9330000],
+            6  => ['qty' => 2, 'total' => 6220000],
+            5  => ['qty' => 3, 'total' => 9330000],
+            4  => ['qty' => 3, 'total' => 9330000],
+            3  => ['qty' => 3, 'total' => 9330000],
+            2  => ['qty' => 3, 'total' => 9330000],
+            1  => ['qty' => 5, 'total' => 15550000],
+            0  => ['qty' => 5, 'total' => 15550000],
+        ];
 
-        DetailTransaksi::firstOrCreate(
-            ['id_transaksi' => $trx1->id_transaksi, 'id_varian' => $var1->id_varian],
-            [
-                'jumlah' => 2,
-                'harga_satuan' => 3110000,
-                'subtotal' => 6220000,
-            ]
-        );
+        foreach ($sampleMonths as $subMonth => $data) {
+            $date = $subMonth === 0 ? now() : now()->subMonths($subMonth);
+            $nota = 'TRX-' . $date->format('Ym') . '-001';
+
+            $trx = Transaksi::firstOrCreate(
+                ['no_nota' => $nota],
+                [
+                    'id_pengguna'       => $kasir1->id_pengguna,
+                    'tanggal_transaksi' => $date,
+                    'total_item'        => $data['qty'],
+                    'subtotal'          => $data['total'],
+                    'diskon'            => 0,
+                    'total_bayar'       => $data['total'],
+                    'jumlah_bayar'      => $data['total'],
+                    'kembalian'         => 0,
+                    'metode_pembayaran' => 'cash',
+                    'status'            => 'selesai',
+                ]
+            );
+
+            DetailTransaksi::firstOrCreate(
+                ['id_transaksi' => $trx->id_transaksi, 'id_varian' => $var1->id_varian],
+                [
+                    'jumlah'       => $data['qty'],
+                    'harga_satuan' => 3110000,
+                    'subtotal'     => $data['total'],
+                ]
+            );
+        }
     }
 }
