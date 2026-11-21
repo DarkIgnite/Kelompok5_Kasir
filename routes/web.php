@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\PenggunaController;
@@ -23,8 +23,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/dashboard/simulate-sale', [DashboardController::class, 'simulateSale'])->name('dashboard.simulate');
 
     // Sidebar Page Routes (Bisa diakses oleh Kasir & Admin)
-    Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
-    Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'show'])->name('transaksi.show');
+    Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
+    Route::post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
+    Route::get('/kasir/{kasir}', [KasirController::class, 'show'])->name('kasir.show');
+
+    // Route alias /transaksi untuk kompatibilitas tautan / riwayat
+    Route::get('/transaksi', [KasirController::class, 'index'])->name('transaksi.index');
+    Route::post('/transaksi', [KasirController::class, 'store'])->name('transaksi.store');
+    Route::get('/transaksi/{kasir}', [KasirController::class, 'show'])->name('transaksi.show');
 
     // Halaman khusus Administrator (Kategori, Produk, Pengguna)
     Route::middleware('can:admin')->group(function () {

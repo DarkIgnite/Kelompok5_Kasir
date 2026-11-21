@@ -47,12 +47,12 @@
 
         <!-- 2. Kasir / Transaksi -->
         @php
-            $isTransaksi = request()->routeIs('transaksi*');
+            $isKasir = request()->routeIs('kasir*') || request()->routeIs('transaksi*');
         @endphp
         <div class="w-full flex justify-center py-1">
             <a 
-                href="{{ route('transaksi.index') }}" 
-                class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isTransaksi ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                href="{{ route('kasir.index') }}" 
+                class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isKasir ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                 title="Kasir / Transaksi"
             >
                 <!-- Cash Register Icon -->

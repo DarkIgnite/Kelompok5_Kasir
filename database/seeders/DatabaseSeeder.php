@@ -19,33 +19,33 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Akun Pengguna (Admin & Kasir)
-        $admin = User::firstOrCreate(
-            ['username' => 'admin'],
+        $admin = User::updateOrCreate(
+            ['username' => 'AdminKasir123'],
             [
                 'nama_lengkap' => 'Administrator Toko',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin'),
                 'role' => 'admin',
                 'no_telepon' => '081234567890',
                 'status' => 'aktif',
             ]
         );
 
-        $kasir1 = User::firstOrCreate(
+        $kasir1 = User::updateOrCreate(
             ['username' => 'kasir1'],
             [
                 'nama_lengkap' => 'Kasir 1 (Shift Pagi)',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('kasir'),
                 'role' => 'kasir',
                 'no_telepon' => '081234567891',
                 'status' => 'aktif',
             ]
         );
 
-        $kasir2 = User::firstOrCreate(
+        $kasir2 = User::updateOrCreate(
             ['username' => 'kasir2'],
             [
                 'nama_lengkap' => 'Kasir 2 (Shift Siang)',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('kasir'),
                 'role' => 'kasir',
                 'no_telepon' => '081234567892',
                 'status' => 'aktif',
@@ -53,28 +53,28 @@ class DatabaseSeeder extends Seeder
         );
 
         // 2. Kategori Sepatu
-        $katLifestyle = Kategori::firstOrCreate(
+        $katLifestyle = Kategori::updateOrCreate(
             ['nama_kategori' => 'Lifestyle'],
             ['keterangan' => 'Sepatu kasual harian gaya modern']
         );
 
-        $katRunning = Kategori::firstOrCreate(
+        $katRunning = Kategori::updateOrCreate(
             ['nama_kategori' => 'Running'],
             ['keterangan' => 'Sepatu lari ringan & fleksibel']
         );
 
-        $katSports = Kategori::firstOrCreate(
+        $katSports = Kategori::updateOrCreate(
             ['nama_kategori' => 'Sports'],
             ['keterangan' => 'Sepatu olahraga basket & futsal']
         );
 
-        $katCasual = Kategori::firstOrCreate(
+        $katCasual = Kategori::updateOrCreate(
             ['nama_kategori' => 'Casual'],
             ['keterangan' => 'Sepatu santai slip-on & loafers']
         );
 
         // 3. Produk Sepatu
-        $spt1 = Produk::firstOrCreate(
+        $spt1 = Produk::updateOrCreate(
             ['kode_produk' => 'kodeprdk01'],
             [
                 'id_kategori' => $katLifestyle->id_kategori,
@@ -88,7 +88,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $spt2 = Produk::firstOrCreate(
+        $spt2 = Produk::updateOrCreate(
             ['kode_produk' => 'kodeprdk02'],
             [
                 'id_kategori' => $katLifestyle->id_kategori,
@@ -102,7 +102,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $spt3 = Produk::firstOrCreate(
+        $spt3 = Produk::updateOrCreate(
             ['kode_produk' => 'kodeprdk03'],
             [
                 'id_kategori' => $katRunning->id_kategori,
@@ -116,7 +116,7 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        $spt4 = Produk::firstOrCreate(
+        $spt4 = Produk::updateOrCreate(
             ['kode_produk' => 'kodeprdk04'],
             [
                 'id_kategori' => $katSports->id_kategori,
@@ -132,41 +132,41 @@ class DatabaseSeeder extends Seeder
 
         // 4. Varian Produk
         // WaterJyordan
-        $var1 = VarianProduk::firstOrCreate(
+        $var1 = VarianProduk::updateOrCreate(
             ['sku' => 'WTR-40-RED'],
             ['id_produk' => $spt1->id_produk, 'ukuran' => '40', 'warna' => 'Merah', 'stok' => 20, 'stok_minimum' => 5]
         );
-        $var2 = VarianProduk::firstOrCreate(
+        $var2 = VarianProduk::updateOrCreate(
             ['sku' => 'WTR-41-RED'],
             ['id_produk' => $spt1->id_produk, 'ukuran' => '41', 'warna' => 'Merah', 'stok' => 16, 'stok_minimum' => 5]
         );
-        $var3 = VarianProduk::firstOrCreate(
+        $var3 = VarianProduk::updateOrCreate(
             ['sku' => 'WTR-42-BLK'],
             ['id_produk' => $spt1->id_produk, 'ukuran' => '42', 'warna' => 'Hitam', 'stok' => 15, 'stok_minimum' => 5]
         );
-        $var4 = VarianProduk::firstOrCreate(
+        $var4 = VarianProduk::updateOrCreate(
             ['sku' => 'WTR-43-BLK'],
             ['id_produk' => $spt1->id_produk, 'ukuran' => '43', 'warna' => 'Hitam', 'stok' => 15, 'stok_minimum' => 5]
         );
 
         // FayerJyordan (habis)
-        $var5 = VarianProduk::firstOrCreate(
+        $var5 = VarianProduk::updateOrCreate(
             ['sku' => 'FYR-44-BLK'],
             ['id_produk' => $spt2->id_produk, 'ukuran' => '44', 'warna' => 'Hitam', 'stok' => 0, 'stok_minimum' => 10]
         );
 
         // ErthJyordan (kritis)
-        $var6 = VarianProduk::firstOrCreate(
+        $var6 = VarianProduk::updateOrCreate(
             ['sku' => 'ERTH-40-GRY'],
             ['id_produk' => $spt3->id_produk, 'ukuran' => '40', 'warna' => 'Abu', 'stok' => 4, 'stok_minimum' => 5]
         );
 
         // WhinJyordan (kritis)
-        $var7 = VarianProduk::firstOrCreate(
+        $var7 = VarianProduk::updateOrCreate(
             ['sku' => 'WHN-40-BLU'],
             ['id_produk' => $spt4->id_produk, 'ukuran' => '40', 'warna' => 'Biru', 'stok' => 5, 'stok_minimum' => 5]
         );
-        $var8 = VarianProduk::firstOrCreate(
+        $var8 = VarianProduk::updateOrCreate(
             ['sku' => 'WHN-41-WHT'],
             ['id_produk' => $spt4->id_produk, 'ukuran' => '41', 'warna' => 'Putih', 'stok' => 5, 'stok_minimum' => 5]
         );
@@ -191,7 +191,7 @@ class DatabaseSeeder extends Seeder
             $date = $subMonth === 0 ? now() : now()->subMonths($subMonth);
             $nota = 'TRX-' . $date->format('Ym') . '-001';
 
-            $trx = Transaksi::firstOrCreate(
+            $trx = Transaksi::updateOrCreate(
                 ['no_nota' => $nota],
                 [
                     'id_pengguna'       => $kasir1->id_pengguna,
@@ -207,7 +207,7 @@ class DatabaseSeeder extends Seeder
                 ]
             );
 
-            DetailTransaksi::firstOrCreate(
+            DetailTransaksi::updateOrCreate(
                 ['id_transaksi' => $trx->id_transaksi, 'id_varian' => $var1->id_varian],
                 [
                     'jumlah'       => $data['qty'],

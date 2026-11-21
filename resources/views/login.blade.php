@@ -54,7 +54,7 @@
             />
         </div>
 
-        <!-- Right Side: Login Form Area (Centered vertically & horizontally) -->
+        <!--Right Side: Login Form Area-->
         <div class="w-full lg:w-1/2 h-full flex flex-col justify-center items-center px-6 sm:px-12 lg:px-8 xl:px-16 bg-white overflow-y-auto">
             
             <!-- Mobile Brand Header (Visible on smaller screens where banner is hidden) -->
@@ -65,7 +65,7 @@
                 <span class="text-lg font-bold tracking-tight text-gray-900">KasirAja</span>
             </div> -->
 
-            <!-- Form Container (max width 380px) -->
+            <!--Form Container-->
             <div class="w-full max-w-[380px] mx-auto flex flex-col items-center">
                 
                 <!-- Center Square Logo Icon -->
