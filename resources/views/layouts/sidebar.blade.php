@@ -148,6 +148,41 @@
             <!-- Subtle divider line -->
             <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
 
+            <!-- 5. Varian Produk -->
+            @php
+                $isVarian = request()->routeIs('varian*');
+            @endphp
+            <div class="w-full flex justify-center py-1">
+                <a 
+                    href="{{ route('varian.index') }}" 
+                    class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isVarian ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                    title="Varian Produk"
+                >
+                    <!-- 3 Stacked Isometric Cubes -->
+                    <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Top Cube -->
+                        <path d="M14 2.5L19.5 5.5L14 8.5L8.5 5.5Z"></path>
+                        <path d="M8.5 5.5V11.5L14 14.5V8.5"></path>
+                        <path d="M19.5 5.5V11.5L14 14.5"></path>
+                        <!-- Bottom Left Cube -->
+                        <path d="M8.5 13.5L14 16.5L8.5 19.5L3 16.5Z"></path>
+                        <path d="M3 16.5V22.5L8.5 25.5V19.5"></path>
+                        <path d="M14 16.5V22.5L8.5 25.5"></path>
+                        <!-- Bottom Right Cube -->
+                        <path d="M19.5 13.5L25 16.5L19.5 19.5L14 16.5Z"></path>
+                        <path d="M14 16.5V22.5L19.5 25.5V19.5"></path>
+                        <path d="M25 16.5V22.5L19.5 25.5"></path>
+                    </svg>
+
+                    <span class="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-xs font-semibold rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 shadow-xl border border-neutral-800">
+                        Varian Produk
+                    </span>
+                </a>
+            </div>
+
+            <!-- Subtle divider line -->
+            <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
+
             <!-- 5. Pengguna / Pelanggan -->
             @php
                 $isPengguna = request()->routeIs('pengguna*');

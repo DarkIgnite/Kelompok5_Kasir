@@ -74,27 +74,29 @@
             <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
 
                 <!-- TOP HEADER BAR -->
-                <header class="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-neutral-200/90 gap-4">
+                <header class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-4">
                     <div>
-                        <h1 class="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-neutral-900 tracking-tight leading-snug">
+                        <h1 class="text-2xl lg:text-[28px] font-black text-neutral-900 tracking-tight leading-snug">
                             @yield('page_title', 'Halaman')
                         </h1>
-                        <p class="text-xs sm:text-sm text-neutral-500 font-normal mt-1 flex items-center gap-2">
-                            <span>@yield('page_subtitle', 'Sistem Kasir & Manajemen Toko')</span>
-                        </p>
+                        @if (trim($__env->yieldContent('page_subtitle')))
+                            <p class="text-xs sm:text-sm text-neutral-500 font-normal mt-1 flex items-center gap-2">
+                                <span>@yield('page_subtitle')</span>
+                            </p>
+                        @endif
                     </div>
 
                     <!-- Right Controls: User Badge -->
                     <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
                         @auth
-                            <div class="flex items-center gap-2.5 px-3 py-1.5 bg-neutral-100 rounded-xl border border-neutral-200">
-                                <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center text-xs font-bold uppercase">
-                                    {{ substr(Auth::user()->nama_lengkap ?? Auth::user()->username, 0, 1) }}
+                            <div class="flex items-center gap-3 px-3.5 py-1.5 bg-white rounded-xl border border-neutral-200 shadow-2xs">
+                                <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center text-sm font-bold uppercase">
+                                    {{ substr(Auth::user()->nama_lengkap ?? Auth::user()->username ?? 'A', 0, 1) }}
                                 </div>
                                 <div class="text-left hidden sm:block">
-                                    <div class="text-xs font-bold text-neutral-900 leading-tight">{{ Auth::user()->nama_lengkap ?? Auth::user()->username }}</div>
-                                    <span class="inline-block px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider {{ Auth::user()->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
-                                        {{ Auth::user()->role }}
+                                    <div class="text-xs font-bold text-neutral-900 leading-tight">{{ Auth::user()->nama_lengkap ?? Auth::user()->username ?? 'Administrator Toko' }}</div>
+                                    <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider {{ Auth::user()->role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ strtoupper(Auth::user()->role ?? 'admin') }}
                                     </span>
                                 </div>
                             </div>

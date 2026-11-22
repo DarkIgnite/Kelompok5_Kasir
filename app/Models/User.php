@@ -26,6 +26,7 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
+        'jabatan',
         'no_telepon',
         'status',
     ];
@@ -61,11 +62,51 @@ class User extends Authenticatable
     }
 
     /**
+     * Jabatan Accessor dengan fallback cerdas.
+     */
+    public function getJabatanAttribute($value): string
+    {
+        if (!empty($value)) {
+            return ucfirst($value);
+        }
+        if ($this->id_pengguna == 1 || $this->username === 'admin') {
+            return 'Owner';
+        }
+        return $this->role === 'admin' ? 'Manager' : 'Kasir';
+    }
+
+    /**
+     * Hierarki level jabatan:
+     * Level 3: Owner (Tertinggi)
+     * Level 2: Manager
+     * Level 1: Kasir (Bawahan)
+     */
+    public function getJabatanRank(): int
+    {
+        $j = strtolower($this->jabatan ?? '');
+        if ($j === 'owner' || $this->id_pengguna == 1) {
+            return 3;
+        }
+        if ($j === 'manager' || $this->role === 'admin') {
+            return 2;
+        }
+        return 1; // Kasir
+    }
+
+    /**
+     * Cek apakah user adalah Owner.
+     */
+    public function isOwner(): bool
+    {
+        return $this->getJabatanRank() === 3;
+    }
+
+    /**
      * Check if user is admin.
      */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return $this->role === 'admin' || $this->isOwner();
     }
 
     /**
@@ -73,7 +114,7 @@ class User extends Authenticatable
      */
     public function isKasir(): bool
     {
-        return $this->role === 'kasir';
+        return $this->role === 'kasir' && !$this->isOwner();
     }
 
     /**
@@ -82,6 +123,23 @@ class User extends Authenticatable
     public function isActive(): bool
     {
         return $this->status === 'aktif';
+    }
+
+    /**
+     * Cek apakah user saat ini dapat mengedit target user.
+     */
+    public function canEditUser(User $target): bool
+    {
+        return true;
+    }
+
+    /**
+     * Cek apakah user saat ini dapat menghapus target user.
+     */
+    public function canDeleteUser(User $target): bool
+    {
+        // Hanya cegah menghapus akun sendiri agar tidak terkunci keluar
+        return $this->id_pengguna !== $target->id_pengguna;
     }
 
     /**
