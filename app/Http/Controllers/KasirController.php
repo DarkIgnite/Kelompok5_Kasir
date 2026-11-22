@@ -170,7 +170,11 @@ class KasirController extends Controller
                 'total_bayar' => $totalBayar,
                 'jumlah_bayar' => $jumlahBayar,
                 'kembalian' => $kembalian,
-                'metode_pembayaran' => ucfirst($metodeValid),
+                'metode_pembayaran' => match ($metodeValid) {
+                'cash' => 'Tunai',
+                'qris' => 'QRIS',
+                default => ucfirst($metodeValid),
+            },
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

@@ -76,6 +76,8 @@
 </head>
 <body class="min-h-screen text-neutral-900 antialiased selection:bg-neutral-900 selection:text-white">
 
+<!-- To do: Cek TODO_BACKEND.md -->
+
     <div class="relative w-full min-h-screen flex">
         
         <!-- SIDEBAR -->
@@ -92,7 +94,7 @@
                 <header class="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-neutral-200/90 gap-4">
                     <div>
                         <div class="flex items-center gap-3">
-                            <h1 class="text-xl sm:text-2xl lg:text-[26px] font-extrabold text-neutral-900 tracking-tight leading-snug">
+                            <h1 class="text-xl sm:text-2xl lg:text-4xl font-extrabold text-neutral-900 tracking-tight leading-snug">
                                 Dashboard Penjualan & Inventaris
                             </h1>
                         </div>
@@ -103,15 +105,15 @@
 
                     <!-- Right Controls: Administrator Toko Box (Sesuai Page Dashboard (2).png) -->
                     <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-3 px-4 py-2 bg-white rounded-2xl border border-neutral-300 shadow-xs">
-                            <div class="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center text-sm font-extrabold uppercase flex-shrink-0">
+                        <div class="flex items-center gap-3 px-2 py-1.5 bg-white rounded-[10px] border border-neutral-300 shadow-xs">
+                            <div class="w-[42px] h-[42px] rounded-lg bg-black text-white flex items-center justify-center text-sm font-extrabold uppercase flex-shrink-0">
                                 {{ substr(Auth::user()->nama_lengkap ?? Auth::user()->username ?? 'A', 0, 1) }}
                             </div>
                             <div class="text-left">
                                 <div class="text-xs sm:text-sm font-bold text-neutral-900 leading-snug">
                                     {{ Auth::user()->nama_lengkap ?? 'Administrator Toko' }}
                                 </div>
-                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-[#F3E8FF] text-[#7E22CE] border border-purple-200/60">
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-[#F3E8FF] text-[#7E22CE] border border-[#7E22CE]/35">
                                     {{ strtoupper(Auth::user()->role ?? 'ADMIN') }}
                                 </span>
                             </div>
@@ -120,28 +122,33 @@
                 </header>
 
                 <!--ROW OF 4 SUMMARY METRIC CARDS-->
-                <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+                <section class="space-y-2">
+                    <div id="kpi-periode-label" class="text-xs text-neutral-500 font-normal">
+                        Periode: Nov 2025 – Okt 2026
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                     
                     <!-- Card : TOTAL PENJUALAN -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
-                                    TOTAL PENJUALAN
-                                </span>
-                                <div class="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <rect x="2" y="6" width="20" height="12" rx="2"/>
-                                        <circle cx="12" cy="12" r="2.5"/>
-                                        <path d="M6 12h.01M18 12h.01"/>
-                                    </svg>
+                        <div class="flex items-center justify-center gap-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
+                                        TOTAL PENJUALAN
+                                    </span>
+                                </div>
+                                <div id="stat-total-penjualan" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_penjualan_formatted'] ?? 'Rp435.400.000' }}
                                 </div>
                             </div>
-                            <div id="stat-total-penjualan" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                {{ $stats['total_penjualan_formatted'] ?? 'Rp435.400.000' }}
+                            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0051D5] flex items-center justify-center shrink-0">
+                            <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 9C12.1667 9 11.4583 8.70833 10.875 8.125C10.2917 7.54167 10 6.83333 10 6C10 5.16667 10.2917 4.45833 10.875 3.875C11.4583 3.29167 12.1667 3 13 3C13.8333 3 14.5417 3.29167 15.125 3.875C15.7083 4.45833 16 5.16667 16 6C16 6.83333 15.7083 7.54167 15.125 8.125C14.5417 8.70833 13.8333 9 13 9V9M6 12C5.45 12 4.97917 11.8042 4.5875 11.4125C4.19583 11.0208 4 10.55 4 10V2C4 1.45 4.19583 0.979167 4.5875 0.5875C4.97917 0.195833 5.45 0 6 0H20C20.55 0 21.0208 0.195833 21.4125 0.5875C21.8042 0.979167 22 1.45 22 2V10C22 10.55 21.8042 11.0208 21.4125 11.4125C21.0208 11.8042 20.55 12 20 12H6V12M8 10H18C18 9.45 18.1958 8.97917 18.5875 8.5875C18.9792 8.19583 19.45 8 20 8V4C19.45 4 18.9792 3.80417 18.5875 3.4125C18.1958 3.02083 18 2.55 18 2H8C8 2.55 7.80417 3.02083 7.4125 3.4125C7.02083 3.80417 6.55 4 6 4V8C6.55 8 7.02083 8.19583 7.4125 8.5875C7.80417 8.97917 8 9.45 8 10V10M19 16H2C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14V3H2V14V14V14H19V16V16M6 10V10V10V10V2V2V2V2V2V2V10V10V10V10" fill="#0051D5"/>
+                            </svg>
                             </div>
                         </div>
-                        <div class="mt-4 flex items-center">
+                        <div class="mt-5 flex items-center">
                             <span id="stat-persen-penjualan" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
                                 Naik - 14.8%
                             </span>
@@ -150,22 +157,24 @@
 
                     <!-- Card : TOTAL ITEM TERJUAL -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
-                                    TOTAL ITEM TERJUAL
-                                </span>
-                                <div class="w-10 h-10 rounded-xl bg-[#E6F9F0] text-[#00A854] flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-[#00A854]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                                    </svg>
+                        <div class="flex items-center justify-center gap-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
+                                        TOTAL ITEM TERJUAL
+                                    </span>
+                                </div>
+                                <div id="stat-total-terjual" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_terjual'] ?? 71 }} Pasang
                                 </div>
                             </div>
-                            <div id="stat-total-terjual" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                {{ $stats['total_terjual'] ?? 71 }} Pasang
+                            <div class="w-10 h-10 rounded-lg bg-[#E6F9F0] text-[#00A854] flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#00A854]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                </svg>
                             </div>
                         </div>
-                        <div class="mt-4 flex items-center">
+                        <div class="mt-5 flex items-center">
                             <span id="stat-persen-terjual" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
                                 Target bulanan tercapai - ↗14.8%
                             </span>
@@ -174,65 +183,66 @@
 
                     <!-- Card : TOTAL TRANSAKSI -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
-                                    TOTAL TRANSAKSI
-                                </span>
-                                <div class="w-10 h-10 rounded-xl bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-                                    </svg>
+                        <div class="flex items-center justify-center gap-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
+                                        TOTAL TRANSAKSI
+                                    </span>
+                                </div>
+                                <div id="stat-total-transaksi" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_transaksi'] ?? 32 }} Struk
                                 </div>
                             </div>
-                            <div id="stat-total-transaksi" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                {{ $stats['total_transaksi'] ?? 32 }} Struk
+                            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                                </svg>
                             </div>
                         </div>
-                        <div class="mt-4 flex items-center justify-end">
+                        <div class="mt-5 flex items-center justify-end">
                             {{-- Bersih sesuai visual Page Dashboard (2).png --}}
                         </div>
                     </div>
 
                     <!-- Card : PERINGATAN STOK -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
-                                    PERINGATAN STOK
-                                </span>
-                                <div class="w-10 h-10 rounded-xl bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
-                                    <svg class="w-5 h-5 text-[#DC2626]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                                    </svg>
+                        <div class="flex items-center justify-center gap-1">
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
+                                        PERINGATAN STOK
+                                    </span>
+                                </div>
+                                <div id="stat-peringatan-stok" class="mt-2 text-2xl sm:text-3xl font-black text-[#DC2626] tracking-tight transition-all duration-300">
+                                    {{ $stats['peringatan_stok'] ?? 3 }} Varian
                                 </div>
                             </div>
-                            <div id="stat-peringatan-stok" class="mt-2 text-2xl sm:text-3xl font-black text-[#DC2626] tracking-tight transition-all duration-300">
-                                {{ $stats['peringatan_stok'] ?? 3 }} Varian
+                            <div class="w-10 h-10 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
+                                <svg class="w-5 h-5 text-[#DC2626]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                                </svg>
                             </div>
                         </div>
-                        <div class="mt-4 flex items-center justify-end">
+                        <div class="mt-5 flex items-center justify-end">
                             <a href="#katalog-stok" class="text-xs font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
                                 Lihat detail →
                             </a>
                         </div>
                     </div>
-
+                    </div>
                 </section>
 
                 <!--DASHBOARD CHARTS AND INVENTORY PANELS-->
                 <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
                     
-                    <!-- Left: Tren Penjualan Bulanan (8 cols on XL, 7 cols on LG) -->
+                    <!-- Left: Tren Penjualan (8 cols on XL, 7 cols on LG) -->
                     <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl border border-neutral-200/90 p-5 sm:p-6 flex flex-col justify-between shadow-sm relative">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h2 class="text-base font-bold text-neutral-900 tracking-tight">
-                                    Tren Penjualan Bulanan
+                                <h2 class="text-2xl font-bold text-neutral-900 tracking-tight">
+                                    Tren Penjualan
                                 </h2>
-                                <p class="text-xs text-neutral-500 mt-0.5">
-                                    Perbandingan volume penjualan per-bulan.
-                                </p>
                             </div>
 
                             <!-- Date Range Dropdown Button & Popover Modal (Sesuai Page Dashboard (2).png) -->
@@ -396,7 +406,7 @@
                     <div class="lg:col-span-5 xl:col-span-4 flex flex-col gap-5 lg:h-full">
                         
                         <!-- Card : Perlu Restock Segera -->
-                        <div class="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-sm">
+                        <div class="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-sm divide-y divide-neutral-100">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0 animate-pulse"></span>
                                 <h2 class="text-sm font-bold text-neutral-900 tracking-tight">
@@ -432,7 +442,7 @@
                         </div>
 
                         <!-- Card : Stok Menumpuk / Slow-Moving -->
-                        <div class="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-sm">
+                        <div class="bg-white rounded-2xl border border-neutral-200/90 p-5 shadow-sm divide-y divide-neutral-100">
                             <div class="flex items-center gap-2 mb-3">
                                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></span>
                                 <h2 class="text-sm font-bold text-neutral-900 tracking-tight">
@@ -449,7 +459,7 @@
                                 @endphp
 
                                 @forelse ($slowItems as $item)
-                                    <div class="py-3 first:pt-1 last:pb-1 flex items-start justify-between gap-3">
+                                    <div class="py-3 first:pt-1 last:pb-1 flex items-center justify-between gap-3">
                                         <div>
                                             <div class="text-xs font-bold text-neutral-900">
                                                 {{ $item['name'] }}
@@ -481,63 +491,65 @@
 
                 <!--KATALOG STOK SEPATU-->
                 <section id="katalog-stok" class="w-full bg-white rounded-2xl border border-neutral-200/90 p-5 sm:p-6 shadow-sm">
-                    
                     <!-- Search Input & Filter Dropdown Bar (Sesuai Page Dashboard (2).png) -->
-                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <!-- Search Box with Icon -->
-                        <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
-                                </svg>
+                    <div class="flex flex-col gap-[15px]">
+                    <h2 class="text-2xl font-bold text-neutral-900 tracking-tight">
+                        Katalog Stok Sepatu
+                    </h2>
+                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <!-- Search Box with Icon -->
+                            <div class="relative flex-1">
+                                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                                    </svg>
+                                </div>
+                                <input
+                                    type="text"
+                                    id="shoe-search"
+                                    placeholder="Cari nama sepatu atau brand"
+                                    class="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 transition"
+                                />
                             </div>
-                            <input 
-                                type="text" 
-                                id="shoe-search" 
-                                placeholder="Cari nama sepatu atau brand" 
-                                class="w-full pl-10 pr-4 py-2.5 bg-white border border-neutral-300 rounded-xl text-xs sm:text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-500 transition"
-                            />
-                        </div>
-
-                        <!-- Show [ 100 ⌵ ] Dropdown Button (Sesuai Page Dashboard (2).png) -->
-                        <div class="relative" id="show-count-wrapper">
-                            <button 
-                                type="button" 
-                                id="btn-show-count"
-                                class="px-4 py-2.5 border border-neutral-300 rounded-xl text-xs sm:text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-50 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition shadow-xs"
-                            >
-                                <span>Show</span>
-                                <span id="show-count-val" class="font-bold underline decoration-neutral-300 underline-offset-2">100</span>
-                                <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                                </svg>
-                            </button>
-                            <div id="show-count-menu" class="hidden absolute right-0 mt-1 w-28 bg-white border border-neutral-200 rounded-xl shadow-lg py-1 z-30">
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="10">Show 10</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="25">Show 25</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="50">Show 50</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-bold show-option text-blue-600" data-val="100">Show 100</button>
+                            <!-- Show [ 100 ⌵ ] Dropdown Button (Sesuai Page Dashboard (2).png) -->
+                            <div class="relative" id="show-count-wrapper">
+                                <button
+                                    type="button"
+                                    id="btn-show-count"
+                                    class="px-4 py-2.5 border border-neutral-300 rounded-xl text-xs sm:text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-50 flex items-center gap-1.5 whitespace-nowrap cursor-pointer transition shadow-xs"
+                                >
+                                    <span>Show</span>
+                                    <span id="show-count-val" class="font-bold underline decoration-neutral-300 underline-offset-2">100</span>
+                                    <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                                    </svg>
+                                </button>
+                                <div id="show-count-menu" class="hidden absolute right-0 mt-1 w-28 bg-white border border-neutral-200 rounded-xl shadow-lg py-1 z-30">
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="10">Show 10</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="25">Show 25</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium show-option" data-val="50">Show 50</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-bold show-option text-blue-600" data-val="100">Show 100</button>
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Filter by Kategori ⌵ Dropdown Button (Sesuai Page Dashboard (2).png) -->
-                        <div class="relative" id="category-filter-wrapper">
-                            <button 
-                                type="button" 
-                                id="btn-category-filter"
-                                class="px-4 py-2.5 border border-neutral-300 rounded-xl text-xs sm:text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-50 flex items-center gap-2 whitespace-nowrap cursor-pointer transition shadow-xs"
-                            >
-                                <span id="category-filter-label">Filter by Kategori</span>
-                                <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
-                                </svg>
-                            </button>
-                            <div id="category-filter-menu" class="hidden absolute right-0 mt-1 w-44 bg-white border border-neutral-200 rounded-xl shadow-lg py-1 z-30">
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-bold text-blue-600 category-option" data-cat="">Semua Kategori</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="lifestyle">Lifestyle</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="running">Running</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="sports">Sports</button>
-                                <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="casual">Casual</button>
+                            <!-- Filter by Kategori ⌵ Dropdown Button (Sesuai Page Dashboard (2).png) -->
+                            <div class="relative" id="category-filter-wrapper">
+                                <button
+                                    type="button"
+                                    id="btn-category-filter"
+                                    class="px-4 py-2.5 border border-neutral-300 rounded-xl text-xs sm:text-sm font-medium text-neutral-800 bg-white hover:bg-neutral-50 flex items-center gap-2 whitespace-nowrap cursor-pointer transition shadow-xs"
+                                >
+                                    <span id="category-filter-label">Filter by Kategori</span>
+                                    <svg class="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                                    </svg>
+                                </button>
+                                <div id="category-filter-menu" class="hidden absolute right-0 mt-1 w-44 bg-white border border-neutral-200 rounded-xl shadow-lg py-1 z-30">
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-bold text-blue-600 category-option" data-cat="">Semua Kategori</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="lifestyle">Lifestyle</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="running">Running</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="sports">Sports</button>
+                                    <button type="button" class="w-full px-3 py-1.5 text-left text-xs hover:bg-neutral-100 font-medium category-option" data-cat="casual">Casual</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -562,11 +574,20 @@
                                 @endphp
 
                                 @foreach ($shoes as $index => $item)
-                                    <tr class="hover:bg-neutral-50/70 transition-colors shoe-row" data-id="{{ $item['id'] ?? $index }}" data-brand="{{ strtolower($item['brand'] ?? '') }}">
+                                    @php
+                                        $rowId = $item['id'] ?? $index;
+                                        $variants = $item['variants'] ?? [];
+                                    @endphp
+                                    <tr class="hover:bg-neutral-50/70 transition-colors shoe-row" data-id="{{ $rowId }}" data-brand="{{ strtolower($item['brand'] ?? '') }}">
                                         <!-- Expand Arrow Button -->
                                         <td class="py-3.5 px-3 text-center align-middle">
-                                            <button type="button" class="w-6 h-6 rounded-md border border-neutral-300 hover:bg-neutral-100 flex items-center justify-center text-neutral-600 transition cursor-pointer mx-auto">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <button 
+                                                type="button" 
+                                                class="btn-toggle-varian w-6 h-6 rounded-md border border-neutral-300 bg-white text-neutral-600 hover:border-neutral-900 flex items-center justify-center transition-colors cursor-pointer mx-auto"
+                                                data-target="varian-row-{{ $rowId }}"
+                                                aria-expanded="false"
+                                            >
+                                                <svg class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                                                 </svg>
                                             </button>
@@ -631,6 +652,65 @@
                                             @endif
                                         </td>
                                     </tr>
+
+                                    <!-- SUB-ROW ACCORDION VARIAN -->
+                                    <tr id="varian-row-{{ $rowId }}" class="varian-sub-row hidden bg-white border-t-0!" data-parent-id="{{ $rowId }}">
+                                        <td class="p-0"></td>
+                                        <td colspan="6" class="pt-1 pb-4 px-4">
+                                            <div class="bg-[#FAFAFA] border border-neutral-200/90 rounded-xl p-4">
+                                                <!-- Header Sub-Card -->
+                                                <div class="flex items-center gap-2 mb-3 text-xs">
+                                                    <span class="font-bold text-neutral-900">Varian {{ $item['name'] }}</span>
+                                                    <span class="text-neutral-500">{{ count($variants) }} varian - {{ $item['total_stock'] }}</span>
+                                                </div>
+
+                                                @if (count($variants) > 0)
+                                                    <div class="overflow-x-auto">
+                                                        <table class="w-full text-left border-collapse text-xs">
+                                                            <thead>
+                                                                <tr class="text-[11px] font-medium text-neutral-500 border-b border-neutral-200/80">
+                                                                    <th class="pb-2 pr-4 font-medium">SKU</th>
+                                                                    <th class="pb-2 px-3 font-medium">Ukuran</th>
+                                                                    <th class="pb-2 px-3 font-medium">Warna</th>
+                                                                    <th class="pb-2 px-3 font-medium">Stok</th>
+                                                                    <th class="pb-2 px-3 font-medium">Min.</th>
+                                                                    <th class="pb-2 pl-3 font-medium text-center w-24">Status</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="divide-y divide-neutral-200/70">
+                                                                @foreach ($variants as $v)
+                                                                    <tr>
+                                                                        <td class="py-2.5 pr-4 text-neutral-700 font-normal">{{ $v['sku'] }}</td>
+                                                                        <td class="py-2.5 px-3 text-neutral-800">{{ $v['ukuran'] }}</td>
+                                                                        <td class="py-2.5 px-3 text-neutral-800">{{ $v['warna'] }}</td>
+                                                                        <td class="py-2.5 px-3 font-bold text-neutral-900">{{ $v['stok'] }}</td>
+                                                                        <td class="py-2.5 px-3 text-neutral-700">{{ $v['stok_minimum'] }}</td>
+                                                                        <td class="py-2.5 pl-3 text-center">
+                                                                            @if ($v['status_type'] === 'aman')
+                                                                                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]">
+                                                                                    {{ $v['status'] }}
+                                                                                </span>
+                                                                            @elseif ($v['status_type'] === 'habis' || $v['status_type'] === 'kritis')
+                                                                                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FEE2E2] text-[#DC2626] border border-[#FECACA]">
+                                                                                    {{ $v['status'] }}
+                                                                                </span>
+                                                                            @else
+                                                                                <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-600 border border-neutral-200">
+                                                                                    {{ $v['status'] }}
+                                                                                </span>
+                                                                            @endif
+                                                                        </td>
+                                                                    </tr>
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                @else
+                                                    <div class="text-xs text-neutral-400 py-2">Belum ada data varian untuk produk ini.</div>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
@@ -654,9 +734,6 @@
         </main>
 
     </div>
-
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
 
     <!-- Client-side Interactive Search & Real-Time Engine -->
     <script>
@@ -756,6 +833,13 @@
                     } else {
                         dateFilterLabel.textContent = `${dateInputStart.value} - ${dateInputEnd.value}`;
                     }
+
+                    // <-- TAMBAH 4 BARIS INI
+                    const kpiPeriode = document.getElementById('kpi-periode-label');
+                    if (kpiPeriode) {
+                        kpiPeriode.textContent = `Periode: ${dateFilterLabel.textContent}`;
+                    }
+                    
                     toggleDatePopover();
                     showToast('Rentang Tanggal Diterapkan', `Filter grafik disetel ke ${dateFilterLabel.textContent} (${currentSegment.toUpperCase()}).`);
                 });
@@ -829,37 +913,73 @@
             });
 
             // Client-side Table Search & Filter
-            function applyTableFilter() {
-                const q = searchInput?.value.toLowerCase().trim() || '';
-                const rows = document.querySelectorAll('.shoe-row');
-                const maxShow = parseInt(showCountVal?.textContent || '100', 10);
-                let visibleCount = 0;
+                        function applyTableFilter() {
+                            const q = searchInput?.value.toLowerCase().trim() || '';
+                            const rows = document.querySelectorAll('.shoe-row');
+                            const maxShow = parseInt(showCountVal?.textContent || '100', 10);
+                            let visibleCount = 0;
 
-                rows.forEach(row => {
-                    const name = row.querySelector('.shoe-name')?.textContent.toLowerCase() || '';
-                    const brand = row.querySelector('.shoe-brand')?.textContent.toLowerCase() || '';
-                    const code = row.querySelector('.shoe-code')?.textContent.toLowerCase() || '';
-                    
-                    const matchQuery = !q || name.includes(q) || brand.includes(q) || code.includes(q);
-                    const matchCategory = !selectedCategory || name.includes(selectedCategory) || brand.includes(selectedCategory);
+                            rows.forEach(row => {
+                                const name = row.querySelector('.shoe-name')?.textContent.toLowerCase() || '';
+                                const brand = row.querySelector('.shoe-brand')?.textContent.toLowerCase() || '';
+                                const code = row.querySelector('.shoe-code')?.textContent.toLowerCase() || '';
+                                
+                                const matchQuery = !q || name.includes(q) || brand.includes(q) || code.includes(q);
+                                const matchCategory = !selectedCategory || name.includes(selectedCategory) || brand.includes(selectedCategory);
 
-                    if (matchQuery && matchCategory && visibleCount < maxShow) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                                if (matchQuery && matchCategory && visibleCount < maxShow) {
+                                    row.style.display = '';
+                                    visibleCount++;
+                                } else {
+                                    row.style.display = 'none';
+                                    // Ikut tutup sub-row varian & reset tombol panah jika baris terfilter
+                                    const rowId = row.getAttribute('data-id');
+                                    const subRow = document.getElementById('varian-row-' + rowId);
+                                    const btn = row.querySelector('.btn-toggle-varian');
+                                    if (subRow) subRow.classList.add('hidden');
+                                    if (btn) {
+                                        btn.setAttribute('aria-expanded', 'false');
+                                        btn.classList.remove('bg-black', 'text-white', 'border-black');
+                                        btn.classList.add('bg-white', 'text-neutral-600', 'border-neutral-300');
+                                        btn.querySelector('svg')?.classList.remove('rotate-180');
+                                    }
+                                }
+                            });
 
-                const countEl = document.getElementById('shoe-count-text');
-                if (countEl) {
-                    countEl.innerHTML = `Menampilkan <span class="font-semibold text-neutral-800">${visibleCount > 0 ? '1-' + visibleCount : '0'}</span> dari <span class="font-semibold text-neutral-800">${rows.length}</span> produk`;
-                }
-            }
+                            const countEl = document.getElementById('shoe-count-text');
+                            if (countEl) {
+                                countEl.innerHTML = `Menampilkan <span class="font-semibold text-neutral-800">${visibleCount > 0 ? '1-' + visibleCount : '0'}</span> dari <span class="font-semibold text-neutral-800">${rows.length}</span> produk`;
+                            }
+                        }
 
-            if (searchInput) {
-                searchInput.addEventListener('input', applyTableFilter);
-            }
+                        if (searchInput) {
+                            searchInput.addEventListener('input', applyTableFilter);
+                        }
+
+                        // Toggle Expand/Collapse Varian di Katalog Stok Sepatu
+                        document.querySelectorAll('.btn-toggle-varian').forEach(btn => {
+                            btn.addEventListener('click', () => {
+                                const targetId = btn.getAttribute('data-target');
+                                const subRow = document.getElementById(targetId);
+                                const icon = btn.querySelector('svg');
+                                if (!subRow) return;
+
+                                const isHidden = subRow.classList.contains('hidden');
+                                if (isHidden) {
+                                    subRow.classList.remove('hidden');
+                                    btn.setAttribute('aria-expanded', 'true');
+                                    btn.classList.remove('bg-white', 'text-neutral-600', 'border-neutral-300');
+                                    btn.classList.add('bg-black', 'text-white', 'border-black');
+                                    if (icon) icon.classList.add('rotate-180');
+                                } else {
+                                    subRow.classList.add('hidden');
+                                    btn.setAttribute('aria-expanded', 'false');
+                                    btn.classList.remove('bg-black', 'text-white', 'border-black');
+                                    btn.classList.add('bg-white', 'text-neutral-600', 'border-neutral-300');
+                                    if (icon) icon.classList.remove('rotate-180');
+                                }
+                            });
+                        });
 
             // Floating Toast Notification
             function showToast(title, message, type = 'success') {

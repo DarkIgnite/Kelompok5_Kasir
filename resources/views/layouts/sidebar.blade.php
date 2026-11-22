@@ -1,6 +1,6 @@
 <!-- SIDEBAR (Fixed, Height 100vh, matching design in Page Dashboard) -->
 <aside 
-    class="fixed top-0 left-0 bottom-0 z-50 bg-black flex flex-col items-center py-6 transition-all select-none shadow-2xl overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+    class="fixed top-0 left-0 bottom-0 z-50 bg-black flex flex-col items-center py-6 transition-all select-none shadow-2xl overflow-visible"
     style="width: var(--sidebar-width, 76px); height: 100vh;"
     aria-label="Sidebar Menu"
 >
@@ -13,11 +13,8 @@
         <img src="{{ asset('images/logo-white.svg') }}" alt="Logo KasirAja" class="w-7 h-7">
     </a>
 
-    <!-- Subtle divider line -->
-    <div class="w-full h-[1px] bg-neutral-900/90 my-4"></div>
-
     <!-- Navigation Menu Items -->
-    <nav class="flex flex-col items-center w-full">
+    <nav class="flex flex-col items-center w-full mt-8 gap-3">
         <!-- 1. Dashboard -->
         @php
             $isDashboard = request()->routeIs('dashboard*');
@@ -41,9 +38,6 @@
                 </span>
             </a>
         </div>
-
-        <!-- Subtle divider line -->
-        <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
 
         <!-- 2. Kasir / Transaksi -->
         @php
@@ -85,9 +79,6 @@
             <!-- White dash separator -->
             <div class="w-6 h-[2.5px] bg-white rounded-full my-4"></div>
 
-            <!-- Subtle divider line -->
-            <div class="w-full h-[1px] bg-neutral-900/90 my-1"></div>
-
             <!-- 3. Kategori -->
             @php
                 $isKategori = request()->routeIs('kategori*');
@@ -114,9 +105,6 @@
                 </a>
             </div>
 
-            <!-- Subtle divider line -->
-            <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
-
             <!-- 4. Produk / Inventaris -->
             @php
                 $isProduk = request()->routeIs('produk*');
@@ -125,7 +113,7 @@
                 <a 
                     href="{{ route('produk.index') }}" 
                     class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isProduk ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
-                    title="Produk & Inventaris"
+                    title="Produk"
                 >
                     <!-- 3D Box / Isometric Cube with Tape -->
                     <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
@@ -140,13 +128,10 @@
                     </svg>
 
                     <span class="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-xs font-semibold rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 shadow-xl border border-neutral-800">
-                        Produk & Inventaris
+                        Produk
                     </span>
                 </a>
             </div>
-
-            <!-- Subtle divider line -->
-            <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
 
             <!-- 5. Varian Produk -->
             @php
@@ -180,10 +165,7 @@
                 </a>
             </div>
 
-            <!-- Subtle divider line -->
-            <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
-
-            <!-- 5. Pengguna / Pelanggan -->
+            <!-- 5. Pengguna -->
             @php
                 $isPengguna = request()->routeIs('pengguna*');
             @endphp
@@ -191,7 +173,7 @@
                 <a 
                     href="{{ route('pengguna.index') }}" 
                     class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isPengguna ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
-                    title="Pengguna & Pelanggan"
+                    title="Pengguna"
                 >
                     <!-- Users Icon: Front silhouette white + back silhouette muted -->
                     <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
@@ -204,7 +186,7 @@
                     </svg>
 
                     <span class="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-xs font-semibold rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 shadow-xl border border-neutral-800">
-                        Pengguna / Pelanggan
+                        Pengguna
                     </span>
                 </a>
             </div>
@@ -213,9 +195,6 @@
 
     <!-- Spacer to push Logout to bottom -->
     <div class="flex-1"></div>
-
-    <!-- Divider line above Logout -->
-    <div class="w-full h-[1px] bg-neutral-900/90 my-2"></div>
 
     <!-- Bottom: Logout Button -->
     <div class="w-full flex justify-center py-1 mb-2">

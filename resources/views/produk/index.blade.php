@@ -32,7 +32,7 @@
     {{-- TOOLBAR / FILTER & ACTION ROW --}}
     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
         <!-- Search Field -->
-        <div class="relative flex-1 max-w-2xl">
+        <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="11" cy="11" r="7"></circle>
@@ -144,15 +144,15 @@
             <table class="w-full text-left border-collapse" id="produkTable">
                 <thead>
                     <tr class="border-b border-neutral-100">
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-16">No.</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Nama Produk</th>
+                        <th class="py-4 pl-6 pr-2 text-xs font-bold text-neutral-800 w-16 text-center">No.</th>
+                        <th class="py-4 pl-2 pr-6 text-xs font-bold text-neutral-800">Nama Produk</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Merek</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Kategori</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Harga Jual</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Status</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Akumulasi Stok</th>
                         <th class="py-4 px-6 text-xs font-bold text-neutral-800">Created at</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-48">Aksi</th>
+                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-48 text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-neutral-100" id="produkTbody">
@@ -169,12 +169,12 @@
                             data-id="{{ $item->id_produk }}"
                         >
                             {{-- 1. No. --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-800 align-middle">
+                            <td class="py-4 pl-6 pr-2 text-sm font-medium text-neutral-800 align-middle text-center">
                                 {{ $loop->iteration }}
                             </td>
 
                             {{-- 2. Nama Produk (with thumbnail) --}}
-                            <td class="py-4 px-6 align-middle">
+                            <td class="py-4 pl-2 pr-6 align-middle">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 rounded-lg bg-neutral-100/90 border border-neutral-200/80 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                                         @if($item->gambar && file_exists(public_path($item->gambar)))

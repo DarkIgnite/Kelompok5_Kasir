@@ -201,16 +201,21 @@
                                     </div>
 
                                     <!-- Product Meta: Warna, Ukuran, Stok -->
-                                    <div class="mt-3 pt-3 border-t border-neutral-100 text-[11px] text-neutral-500 space-y-1">
+                                    <div class="mt-3 text-[11px] text-neutral-500">
+                                        <div class="flex items-center">
+                                            <span class="w-14 font-normal">Merek</span>
+                                            <span class="mr-1.5">:</span>
+                                            <span class="text-neutral-700 font-normal truncate">{{ $p->merek ?? '-' }}</span>
+                                        </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Warna</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal truncate">{{ $p->warna_text ?? 'Merah, Hitam' }}</span>
+                                            <span class="text-neutral-700 font-normal truncate">{{ $p->warna_text ?? '-' }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Ukuran</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal truncate">{{ $p->ukuran_text ?? '40 - 44EUR' }}</span>
+                                            <span class="text-neutral-700 font-normal truncate">{{ $p->ukuran_text ?? '-' }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Stok</span>
@@ -278,7 +283,15 @@
 
                     <!-- Summary & Checkout Section -->
                     <div class="p-6 border-t border-neutral-100 bg-white space-y-2.5">
-                        <!-- Subtotal -->
+                        <!-- Summary & Checkout Section -->
+                        <div class="p-6 border-t border-neutral-100 bg-white space-y-2.5">
+                        <!-- Total Item -->
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="text-neutral-500 font-normal">Total Item</span>
+                            <span id="cartTotalItem" class="font-normal text-neutral-900">0 pcs</span>
+                        </div>
+
+
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-neutral-500 font-normal">Subtotal</span>
                             <span id="cartSubtotal" class="font-normal text-neutral-900">Rp0</span>
@@ -742,9 +755,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none"></div>
-
     <!--JAVASCRIPT: POS CART, PAYMENT & RECEIPT CONTROLLER-->
     <script>
         // Currency formatter
@@ -861,7 +871,7 @@
             return { totalQty, subtotal, pajak, diskon, total };
         }
 
-        // Render Cart items in Catalog Sidebar
+// Render Cart items in Catalog Sidebar
         function renderCart() {
             const container = document.getElementById('cartList');
             if (!container) return;
@@ -880,6 +890,7 @@
                 let html = '';
                 cart.forEach((item, index) => {
                     const bgBox = item.isBlack ? 'bg-black' : 'bg-neutral-100';
+                    const varText = item.variant || 'Ukuran 40 · Merah';
                     html += `
                         <div class="flex items-center justify-between gap-3 group">
                             <div class="w-14 h-12 rounded-lg ${bgBox} border border-neutral-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
@@ -888,6 +899,7 @@
 
                             <div class="flex-1 min-w-0 pr-1">
                                 <h4 class="text-xs font-bold text-neutral-900 truncate leading-snug">${item.name}</h4>
+                                <p class="text-[11px] text-neutral-500 font-normal mt-0.5">${varText}</p>
                                 <p class="text-[11px] font-semibold text-neutral-900 mt-0.5">Rp${formatRupiah(item.price)}</p>
                             </div>
 
@@ -910,7 +922,8 @@
                 container.innerHTML = html;
             }
 
-            const { subtotal, pajak, diskon, total } = calculateCart();
+            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
+            document.getElementById('cartTotalItem').textContent = `${totalQty} pcs`;
             document.getElementById('cartSubtotal').textContent = 'Rp' + formatRupiah(subtotal);
             document.getElementById('cartPajak').textContent = 'Rp' + formatRupiah(pajak);
             document.getElementById('cartDiskon').textContent = 'Rp' + formatRupiah(diskon);

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
+// To do: Cek TODO_BACKEND.md
 {
     /**
      * Render dashboard view dengan data real-time awal.
@@ -441,6 +442,33 @@ class DashboardController extends Controller
                         $statusType = 'overstock';
                     }
 
+            // Mapping detail varian untuk sub-tabel accordion
+                $variantsList = $prod->varian->sortBy('ukuran')->values()->map(function ($v) {
+                    if ($v->stok == 0 && $v->stok_minimum == 0) {
+                        $vStatus = 'Kosong';
+                        $vType = 'kosong';
+                    } elseif ($v->stok == 0) {
+                        $vStatus = 'Habis';
+                        $vType = 'habis';
+                    } elseif ($v->stok_minimum > 0 && $v->stok < $v->stok_minimum) {
+                        $vStatus = 'Kritis';
+                        $vType = 'kritis';
+                    } else {
+                        $vStatus = 'Aman';
+                        $vType = 'aman';
+                    }
+
+                    return [
+                        'sku'          => $v->sku,
+                        'ukuran'       => $v->ukuran,
+                        'warna'        => $v->warna,
+                        'stok'         => $v->stok,
+                        'stok_minimum' => $v->stok_minimum,
+                        'status'       => $vStatus,
+                        'status_type'  => $vType,
+                    ];
+                })->toArray();
+
                     return [
                         'id' => $prod->id_produk,
                         'name' => $prod->nama_produk,
@@ -453,6 +481,7 @@ class DashboardController extends Controller
                         'total_stock_num' => $totalStock,
                         'status' => $status,
                         'status_type' => $statusType,
+                        'variants'        => $variantsList,
                     ];
                 })->toArray();
             } else {
