@@ -6,27 +6,27 @@
 >
     <!-- 1. Top Logo KasirAja (White Square with "K") -->
     <a 
-        href="{{ route('dashboard') }}" 
-        class="w-11 h-11 bg-white flex items-center justify-center p-1 cursor-pointer transition-transform duration-200 hover:scale-105 shadow-sm group" 
+        href="{{ route(Auth::user()?->homeRoute() ?? 'login') }}" 
+        class="w-[52px] h-[52px] bg-white flex items-center justify-center p-1 cursor-pointer transition-transform duration-200 hover:scale-105 shadow-sm group" 
         title="KasirAja"
     >
-        <img src="{{ asset('images/logo-white.svg') }}" alt="Logo KasirAja" class="w-7 h-7">
+        <img src="{{ asset('images/logo-white.svg') }}" alt="Logo KasirAja" class="w-9 h-9">
     </a>
 
     <!-- Navigation Menu Items -->
-    <nav class="flex flex-col items-center w-full mt-8 gap-3">
-        <!-- 1. Dashboard -->
+    <nav class="flex flex-col items-center w-full mt-[48px] gap-[24px]">
+        <!-- 1. Dashboard (admin & kasir) -->
         @php
             $isDashboard = request()->routeIs('dashboard*');
         @endphp
-        <div class="w-full flex justify-center py-1">
+        <div class="w-full flex justify-center">
             <a 
                 href="{{ route('dashboard') }}" 
-                class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isDashboard ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isDashboard ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                 title="Dashboard"
             >
                 <!-- Rounded 3-block grid icon (1 tall left, 2 stacked right) -->
-                <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3.5" y="3.5" width="8" height="21" rx="2.5"></rect>
                     <rect x="15" y="3.5" width="9.5" height="9" rx="2"></rect>
                     <rect x="15" y="15.5" width="9.5" height="9" rx="2"></rect>
@@ -39,18 +39,20 @@
             </a>
         </div>
 
+
+        @if (Auth::check() && Auth::user()->role === 'kasir')
         <!-- 2. Kasir / Transaksi -->
         @php
-            $isKasir = request()->routeIs('kasir*') || request()->routeIs('transaksi*');
+            $isKasir = request()->routeIs('kasir*');
         @endphp
-        <div class="w-full flex justify-center py-1">
+        <div class="w-full flex justify-center">
             <a 
                 href="{{ route('kasir.index') }}" 
-                class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isKasir ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isKasir ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                 title="Kasir / Transaksi"
             >
                 <!-- Cash Register Icon -->
-                <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                     <!-- Top Display -->
                     <rect x="8" y="2.5" width="12" height="4" rx="1.5"></rect>
                     <!-- Body -->
@@ -69,28 +71,53 @@
                 </svg>
 
                 <span class="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-xs font-semibold rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 shadow-xl border border-neutral-800">
-                    Kasir & Transaksi
+                    Kasir
                 </span>
             </a>
         </div>
 
+        <!-- 3. Riwayat Transaksi (khusus kasir) -->
+        @php
+            $isRiwayat = request()->routeIs('transaksi*');
+        @endphp
+        <div class="w-full flex justify-center">
+            <a 
+                href="{{ route('transaksi.index') }}" 
+                class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isRiwayat ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                title="Riwayat Transaksi"
+            >
+                <!-- Receipt / Nota Icon -->
+                <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 3.5h16v21l-2.7-1.8-2.6 1.8-2.7-1.8-2.7 1.8-2.6-1.8L6 24.5z"></path>
+                    <line x1="10" y1="9.5" x2="18" y2="9.5"></line>
+                    <line x1="10" y1="14" x2="18" y2="14"></line>
+                    <line x1="10" y1="18.5" x2="15" y2="18.5"></line>
+                </svg>
+
+                <span class="absolute left-full ml-3 px-2.5 py-1 bg-neutral-900 text-white text-xs font-semibold rounded-md opacity-0 pointer-events-none group-hover:opacity-100 transition whitespace-nowrap z-50 shadow-xl border border-neutral-800">
+                    Riwayat Transaksi
+                </span>
+            </a>
+        </div>
+        @endif
+
         {{-- Menu khusus Admin (Kategori, Produk, Pengguna) --}}
         @if (Auth::check() && Auth::user()->role === 'admin')
             <!-- White dash separator -->
-            <div class="w-6 h-[2.5px] bg-white rounded-full my-4"></div>
+            <div class="w-[18px] h-px bg-white my-[-4px]"></div>
 
             <!-- 3. Kategori -->
             @php
                 $isKategori = request()->routeIs('kategori*');
             @endphp
-            <div class="w-full flex justify-center py-1">
+            <div class="w-full flex justify-center">
                 <a 
                     href="{{ route('kategori.index') }}" 
-                    class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isKategori ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                    class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isKategori ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                     title="Kategori Produk"
                 >
                     <!-- Geometric Shapes: Top Triangle + Bottom-Left Square + Bottom-Right Circle -->
-                    <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Top Triangle -->
                         <polygon points="14,2.5 21.5,13.5 6.5,13.5"></polygon>
                         <!-- Bottom-Left Square -->
@@ -109,14 +136,14 @@
             @php
                 $isProduk = request()->routeIs('produk*');
             @endphp
-            <div class="w-full flex justify-center py-1">
+            <div class="w-full flex justify-center">
                 <a 
                     href="{{ route('produk.index') }}" 
-                    class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isProduk ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                    class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isProduk ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                     title="Produk"
                 >
                     <!-- 3D Box / Isometric Cube with Tape -->
-                    <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Top diamond/rhombus -->
                         <polygon points="14,2.5 25,8.5 14,14.5 3,8.5"></polygon>
                         <!-- Center tape line across top face -->
@@ -137,14 +164,14 @@
             @php
                 $isVarian = request()->routeIs('varian*');
             @endphp
-            <div class="w-full flex justify-center py-1">
+            <div class="w-full flex justify-center">
                 <a 
                     href="{{ route('varian.index') }}" 
-                    class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isVarian ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                    class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isVarian ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                     title="Varian Produk"
                 >
                     <!-- 3 Stacked Isometric Cubes -->
-                    <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Top Cube -->
                         <path d="M14 2.5L19.5 5.5L14 8.5L8.5 5.5Z"></path>
                         <path d="M8.5 5.5V11.5L14 14.5V8.5"></path>
@@ -169,14 +196,14 @@
             @php
                 $isPengguna = request()->routeIs('pengguna*');
             @endphp
-            <div class="w-full flex justify-center py-1">
+            <div class="w-full flex justify-center">
                 <a 
                     href="{{ route('pengguna.index') }}" 
-                    class="w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative group {{ $isPengguna ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
+                    class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center transition-all duration-200 relative group {{ $isPengguna ? 'text-white' : 'text-neutral-500 hover:text-white' }}"
                     title="Pengguna"
                 >
                     <!-- Users Icon: Front silhouette white + back silhouette muted -->
-                    <svg class="w-7 h-7 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="w-9 h-9 transition-colors duration-200" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Back user silhouette (offset to right) -->
                         <path d="M19 6a4.5 4.5 0 0 1 1.2 8.5" stroke="#737373"></path>
                         <path d="M19.5 21a7 7 0 0 1 3.2 4.5" stroke="#737373"></path>
@@ -202,11 +229,11 @@
             @csrf
             <button 
                 type="submit" 
-                class="w-11 h-11 rounded-xl flex items-center justify-center text-neutral-400 hover:text-red-400 transition-all duration-200 relative group cursor-pointer"
+                class="w-[52px] h-[52px] rounded-[5px] flex items-center justify-center text-neutral-400 hover:text-red-400 transition-all duration-200 relative group cursor-pointer"
                 title="Keluar / Logout"
             >
                 <!-- Door Frame with Arrow Pointing Right -->
-                <svg class="w-7 h-7" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <svg class="w-9 h-9" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                     <!-- Door Frame -->
                     <path d="M15 4H8a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h7"></path>
                     <!-- Arrow Right -->

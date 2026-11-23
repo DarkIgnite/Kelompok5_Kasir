@@ -29,13 +29,8 @@ class PenggunaController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        if ($request->filled('role')) {
-            $roleFilter = $request->input('role');
-            if (in_array(strtolower($roleFilter), ['owner', 'manager', 'kasir'])) {
-                $query->where('jabatan', ucfirst($roleFilter));
-            } else {
-                $query->where('role', $roleFilter);
-            }
+        if (in_array($request->input('role'), ['admin', 'kasir'], true)) {
+            $query->where('role', $request->input('role'));
         }
 
         $limit = min(max((int) $request->input('limit', 100), 10), 100); // dibatasi 10–100 baris per halaman
@@ -50,116 +45,84 @@ class PenggunaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Tambah akun pengguna (DFD 4.4). Role mengikuti tbl_pengguna: admin / kasir.
      */
     public function store(Request $request)
     {
-        /** @var User $currentUser */
-        $currentUser = Auth::user();
-
         $validated = $request->validate([
-            'nama_user' => ['required', 'string', 'max:100'],
-            'password' => ['required', 'string', 'min:4'],
-            'jabatan' => ['required', 'string', 'in:Owner,Manager,Kasir'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
+            'nama_lengkap' => ['required', 'string', 'max:100'],
+            'password'     => ['required', 'string', 'min:4'],
+            'role'         => ['required', 'in:admin,kasir'],
+            'status'       => ['required', 'in:aktif,nonaktif'],
+            'no_telepon'   => ['nullable', 'string', 'max:20'],
         ], [
-            'nama_user.required' => 'Nama user wajib diisi.',
-            'password.required' => 'Password wajib diisi.',
-            'jabatan.required' => 'Jabatan wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
+            'nama_lengkap.required' => 'Nama user wajib diisi.',
+            'password.required'     => 'Password wajib diisi.',
+            'role.required'         => 'Jabatan wajib dipilih.',
+            'role.in'               => 'Jabatan harus Admin atau Kasir.',
+            'status.required'       => 'Status wajib dipilih.',
         ]);
 
-        // Cegah privilege escalation: hanya Owner yang boleh membuat akun Owner
-        if (! $currentUser->canAssignJabatan($validated['jabatan'])) {
-            return redirect()->route('pengguna.index')
-                ->with('error', 'Anda tidak berhak membuat user dengan jabatan ' . $validated['jabatan'] . '.');
-        }
-
-        // Map jabatan to role auth
-        $role = strtolower($validated['jabatan']) === 'kasir' ? 'kasir' : 'admin';
-
-        // Generate username unik dari nama_user
-        $baseUsername = Str::slug($validated['nama_user'], '');
-        if (empty($baseUsername)) {
-            $baseUsername = 'user';
-        }
+        // Username dibuat otomatis dari nama, dijamin unik
+        $baseUsername = Str::slug($validated['nama_lengkap'], '') ?: 'user';
         $username = $baseUsername;
         $counter = 1;
         while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
+            $username = $baseUsername . $counter++;
         }
 
         User::create([
-            'nama_lengkap' => $validated['nama_user'],
-            'username' => $username,
-            // Model User memakai cast 'password' => 'hashed', jadi kirim plain text
-            // (Hash::make di sini membuat kode bergantung pada pengecekan anti double-hash).
-            'password' => $validated['password'],
-            'role' => $role,
-            'jabatan' => $validated['jabatan'],
-            'status' => $validated['status'],
-            'no_telepon' => $validated['no_telepon'] ?? null,
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'username'     => $username,
+            'password'     => $validated['password'], // di-hash otomatis oleh cast 'hashed' di model
+            'role'         => $validated['role'],
+            'status'       => $validated['status'],
+            'no_telepon'   => $validated['no_telepon'] ?? null,
         ]);
 
-        return redirect()->route('pengguna.index')->with('success', 'User berhasil ditambahkan.');
+        return redirect()->route('pengguna.index')->with('success', "User berhasil ditambahkan dengan username: {$username}");
     }
 
     /**
-     * Update the specified resource in storage.
+     * Edit data pengguna (DFD 4.5).
      */
     public function update(Request $request, User $pengguna)
     {
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        // Hierarki role: Admin/Manager tidak boleh mengedit Owner atau Manager lain
         if (! $currentUser->canEditUser($pengguna)) {
-            abort(403, 'Anda tidak berhak mengedit user ini.');
+            abort(403, 'Admin tidak dapat mengedit akun admin lain.');
         }
 
         $validated = $request->validate([
-            'nama_user' => ['required', 'string', 'max:100'],
-            'password' => ['nullable', 'string', 'min:4'],
-            'jabatan' => ['required', 'string', 'in:Owner,Manager,Kasir'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
+            'nama_lengkap' => ['required', 'string', 'max:100'],
+            'password'     => ['nullable', 'string', 'min:4'],
+            'role'         => ['required', 'in:admin,kasir'],
+            'status'       => ['required', 'in:aktif,nonaktif'],
+            'no_telepon'   => ['nullable', 'string', 'max:20'],
         ], [
-            'nama_user.required' => 'Nama user wajib diisi.',
-            'jabatan.required' => 'Jabatan wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
+            'nama_lengkap.required' => 'Nama user wajib diisi.',
+            'role.required'         => 'Jabatan wajib dipilih.',
+            'role.in'               => 'Jabatan harus Admin atau Kasir.',
+            'status.required'       => 'Status wajib dipilih.',
         ]);
 
-        $newJabatan = $validated['jabatan'];
-
-        // Cegah privilege escalation (mis. Manager menjadikan dirinya / orang lain Owner).
-        // Jabatan yang tidak berubah tetap boleh disimpan apa adanya.
-        $jabatanBerubah = strtolower($newJabatan) !== strtolower($pengguna->jabatan);
-        if ($jabatanBerubah && ! $currentUser->canAssignJabatan($newJabatan)) {
+        // Admin tidak boleh menurunkan / menonaktifkan akunnya sendiri (bisa terkunci keluar)
+        $isSelf = (int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna;
+        if ($isSelf && ($validated['role'] !== 'admin' || $validated['status'] !== 'aktif')) {
             return redirect()->route('pengguna.index')
-                ->with('error', 'Anda tidak berhak mengubah jabatan menjadi ' . $newJabatan . '.');
+                ->with('error', 'Anda tidak dapat mengubah jabatan atau menonaktifkan akun Anda sendiri.');
         }
-
-        // Owner tidak boleh menurunkan jabatannya sendiri jika ia Owner terakhir
-        if ($jabatanBerubah && (int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna
-            && $currentUser->isOwner() && strtolower($newJabatan) !== 'owner') {
-            return redirect()->route('pengguna.index')
-                ->with('error', 'Owner tidak dapat menurunkan jabatannya sendiri.');
-        }
-
-        $role = strtolower($newJabatan) === 'kasir' ? 'kasir' : 'admin';
 
         $updateData = [
-            'nama_lengkap' => $validated['nama_user'],
-            'role' => $role,
-            'jabatan' => $newJabatan,
-            'status' => $validated['status'],
-            'no_telepon' => $validated['no_telepon'] ?? null,
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'role'         => $validated['role'],
+            'status'       => $validated['status'],
+            'no_telepon'   => $validated['no_telepon'] ?? null,
         ];
 
-        // Password hanya diganti jika diisi. Tidak di-Hash::make manual karena
-        // model sudah memakai cast 'hashed' (menghindari double-hash).
+        // Password hanya diganti jika diisi (di-hash otomatis oleh cast model)
         if ($request->filled('password')) {
             $updateData['password'] = $validated['password'];
         }
@@ -182,13 +145,11 @@ class PenggunaController extends Controller
             return redirect()->route('pengguna.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
-        // Hierarki role: Admin/Manager tidak boleh menghapus Owner atau Manager lain
         if (! $currentUser->canDeleteUser($pengguna)) {
-            abort(403, 'Anda tidak berhak menghapus user ini.');
+            abort(403, 'Admin tidak dapat menghapus akun admin lain.');
         }
 
-        // tbl_transaksi.id_pengguna memakai cascadeOnDelete: menghapus user yang sudah
-        // pernah bertransaksi akan ikut MENGHAPUS riwayat penjualannya.
+        // Kasir yang sudah pernah bertransaksi tidak dihapus agar riwayat nota tetap utuh (DFD 4.6: nonaktifkan)
         if ($pengguna->transaksi()->exists()) {
             return redirect()->route('pengguna.index')
                 ->with('error', 'User ini sudah memiliki riwayat transaksi. Ubah statusnya menjadi Nonaktif agar riwayat penjualan tidak ikut terhapus.');

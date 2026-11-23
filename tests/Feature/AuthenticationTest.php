@@ -30,7 +30,7 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('kasir.index')); // kasir masuk ke halaman kasir
         $this->assertAuthenticatedAs($user);
     }
 

@@ -47,4 +47,9 @@
             setTimeout(() => alert.remove(), 300);
         }, 4000);
     };
+
+    // Pesan dari redirect server (mis. "Halaman tersebut khusus Admin.")
+    @if(session('error'))
+        document.addEventListener('DOMContentLoaded', () => window.showFlash('Akses Ditolak', @json(session('error')), 'error'));
+    @endif
 </script>

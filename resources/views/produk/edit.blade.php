@@ -82,7 +82,7 @@
                 
                 {{-- ROW 1: Nama Produk & Status --}}
                 <div>
-                    <label for="nama_produk" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="nama_produk" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Nama Produk <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -93,7 +93,7 @@
                         value="{{ old('nama_produk', $produk->nama_produk) }}"
                         placeholder="Masukkan nama produk" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                         oninput="document.getElementById('namaCharCount').textContent = this.value.length"
                     >
                     <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -102,7 +102,7 @@
                 </div>
 
                 <div>
-                    <label for="status" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="status" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Status <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -110,7 +110,7 @@
                             name="status" 
                             id="status" 
                             required 
-                            class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                            class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
                             <option value="aktif" {{ old('status', $produk->status) === 'aktif' ? 'selected' : '' }}>Aktif</option>
                             <option value="nonaktif" {{ old('status', $produk->status) === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
@@ -125,7 +125,7 @@
 
                 {{-- ROW : Merek & Kategori --}}
                 <div>
-                    <label for="merek" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="merek" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Merek <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -136,7 +136,7 @@
                         value="{{ old('merek', $produk->merek) }}"
                         placeholder="Masukkan merek produk" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                         oninput="document.getElementById('merekCharCount').textContent = this.value.length"
                     >
                     <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -145,7 +145,7 @@
                 </div>
 
                 <div>
-                    <label for="id_kategori" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="id_kategori" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Kategori <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -153,7 +153,7 @@
                             name="id_kategori" 
                             id="id_kategori" 
                             required 
-                            class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                            class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
                             @foreach($kategori as $kat)
                                 <option value="{{ $kat->id_kategori }}" {{ old('id_kategori', $produk->id_kategori) == $kat->id_kategori ? 'selected' : '' }}>
@@ -171,7 +171,7 @@
 
                 {{-- ROW : Harga Beli & Harga Jual --}}
                 <div>
-                    <label for="harga_beli" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="harga_beli" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Harga Beli <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -181,14 +181,14 @@
                             id="harga_beli" 
                             value="Rp {{ number_format(old('harga_beli', $produk->harga_beli), 0, ',', '.') }}" 
                             required 
-                            class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                            class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                             oninput="formatRupiahInput(this)"
                         >
                     </div>
                 </div>
 
                 <div>
-                    <label for="harga_jual" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="harga_jual" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Harga Jual <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -198,7 +198,7 @@
                             id="harga_jual" 
                             value="Rp {{ number_format(old('harga_jual', $produk->harga_jual), 0, ',', '.') }}" 
                             required 
-                            class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                            class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                             oninput="formatRupiahInput(this)"
                         >
                     </div>
@@ -213,7 +213,7 @@
                     <button 
                         type="button" 
                         onclick="document.getElementById('modalHapusProdukEdit').classList.remove('hidden'); document.getElementById('modalHapusProdukEdit').classList.add('flex');"
-                        class="px-4 py-2.5 rounded-xl border border-red-200 bg-white text-xs font-semibold text-red-500 hover:bg-red-50 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
+                        class="h-[30px] px-3 py-0 rounded-[5px] border border-red-200 bg-white text-[12px] font-semibold text-red-500 hover:bg-red-50 transition shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                         <svg class="w-4 h-4 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="3 6 5 6 21 6"></polyline>
@@ -229,13 +229,13 @@
                 <div class="flex items-center justify-end gap-3">
                     <a 
                         href="{{ route('produk.index') }}" 
-                        class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                        class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                     >
                         Batal
                     </a>
                     <button 
                         type="submit" 
-                        class="px-6 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                        class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                     >
                         Simpan Perubahan
                     </button>
@@ -247,7 +247,7 @@
 </div>
 
 {{-- MODAL KONFIRMASI HAPUS PRODUK DARI EDIT --}}
-<div id="modalHapusProdukEdit" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
+<div id="modalHapusProdukEdit" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative animate-in fade-in zoom-in-95 duration-150 text-center">
         <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

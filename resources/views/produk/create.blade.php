@@ -70,7 +70,7 @@
                 
                 {{-- ROW : Nama Produk & Status --}}
                 <div>
-                    <label for="nama_produk" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="nama_produk" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Nama Produk <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -81,7 +81,7 @@
                         value="{{ old('nama_produk') }}"
                         placeholder="Masukkan nama produk" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                         oninput="document.getElementById('namaCharCount').textContent = this.value.length"
                     >
                     <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -90,7 +90,7 @@
                 </div>
 
                 <div>
-                    <label for="status" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="status" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Status <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -98,7 +98,7 @@
                             name="status" 
                             id="status" 
                             required 
-                            class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                            class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
                             <option value="aktif" {{ old('status') === 'aktif' ? 'selected' : '' }}>Aktif</option>
                             <option value="nonaktif" {{ old('status') === 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
@@ -113,7 +113,7 @@
 
                 {{-- ROW : Merek & Kategori --}}
                 <div>
-                    <label for="merek" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="merek" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Merek <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -124,7 +124,7 @@
                         value="{{ old('merek') }}"
                         placeholder="Masukkan merek produk" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                         oninput="document.getElementById('merekCharCount').textContent = this.value.length"
                     >
                     <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -133,7 +133,7 @@
                 </div>
 
                 <div>
-                    <label for="id_kategori" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="id_kategori" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Kategori <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -141,7 +141,7 @@
                             name="id_kategori" 
                             id="id_kategori" 
                             required 
-                            class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                            class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
                             <option value="" disabled {{ old('id_kategori') ? '' : 'selected' }}>Pilih kategori</option>
                             @foreach($kategori as $kat)
@@ -160,7 +160,7 @@
 
                 {{-- ROW : Harga Beli & Harga Jual --}}
                 <div>
-                    <label for="harga_beli" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="harga_beli" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Harga Beli <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -170,14 +170,14 @@
                             id="harga_beli" 
                             value="{{ old('harga_beli') ? 'Rp ' . number_format(old('harga_beli'), 0, ',', '.') : 'Rp 0' }}" 
                             required 
-                            class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                            class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                             oninput="formatRupiahInput(this)"
                         >
                     </div>
                 </div>
 
                 <div>
-                    <label for="harga_jual" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="harga_jual" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Harga Jual <span class="text-red-500">*</span>
                     </label>
                     <div class="relative">
@@ -187,7 +187,7 @@
                             id="harga_jual" 
                             value="{{ old('harga_jual') ? 'Rp ' . number_format(old('harga_jual'), 0, ',', '.') : 'Rp 0' }}" 
                             required 
-                            class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                            class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                             oninput="formatRupiahInput(this)"
                         >
                     </div>
@@ -199,13 +199,13 @@
             <div class="border-t border-neutral-200/80 pt-6 mt-8 flex items-center justify-end gap-3">
                 <a 
                     href="{{ route('produk.index') }}" 
-                    class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                 >
                     Batal
                 </a>
                 <button 
                     type="submit" 
-                    class="px-6 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                     Tambah Data
                 </button>

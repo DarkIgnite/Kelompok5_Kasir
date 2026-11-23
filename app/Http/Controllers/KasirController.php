@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\CheckoutException;
-use App\Models\Kasir;
 use App\Models\Transaksi;
 use App\Models\DetailTransaksi;
 use App\Models\Produk;
@@ -238,18 +237,5 @@ class KasirController extends Controller
         } while (Transaksi::where('no_nota', $nota)->exists());
 
         return $nota;
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show($id)
-    {
-        $kasir = Kasir::with(['pengguna', 'detail.varian.produk'])->find($id);
-        if (!$kasir) {
-            $kasir = Transaksi::with(['pengguna', 'detail.varian.produk'])->findOrFail($id);
-        }
-        return view('kasir.show', ['kasir' => $kasir, 'transaksi' => $kasir]);
-        return view('kasir.show', compact('kasir'));
     }
 }

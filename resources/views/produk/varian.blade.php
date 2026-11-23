@@ -57,7 +57,7 @@
                 id="searchVarian" 
                 placeholder="Cari SKU, Nama Produk" 
                 value="{{ request('search') }}"
-                class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-neutral-300 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
+                class="w-full h-[46px] pl-10 pr-4 rounded-[13px] bg-white border border-black/30 text-[15px] text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
             >
         </div>
 
@@ -68,7 +68,7 @@
                 <button 
                     type="button" 
                     id="btnDropdownFilter" 
-                    class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm text-neutral-700 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                    class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] text-black hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
                 >
                     <svg class="w-4 h-4 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
@@ -96,7 +96,7 @@
                 <button 
                     type="button" 
                     id="btnDropdownShow" 
-                    class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm text-neutral-700 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                    class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] text-black hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
                 >
                     <span>Show <span class="underline decoration-neutral-400 underline-offset-2">{{ request('limit', 100) }}</span></span>
                     <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -116,7 +116,7 @@
             <button 
                 type="button" 
                 onclick="exportVarianCSV()" 
-                class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
             >
                 <svg class="w-4 h-4 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -131,7 +131,7 @@
             <button 
                 type="button" 
                 onclick="openTambahVarianModal()" 
-                class="h-11 px-5 bg-black text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
+                class="h-[46px] px-[10px] bg-black text-white border border-black/30 rounded-[10px] flex items-center gap-[6px] text-[15px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
             >
                 <span class="text-base font-bold leading-none">+</span>
                 <span>Tambah Data</span>
@@ -141,22 +141,22 @@
 
     {{-- TABLE CARD --}}
     <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-2xs overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto px-5">
             <table class="w-full text-left border-collapse" id="varianTable">
                 <thead>
-                    <tr class="border-b border-neutral-100">
-                        <th class="py-4 pl-6 pr-2 text-xs font-bold text-neutral-800 w-16 text-center">No.</th>
-                        <th class="py-4 pl-2 pr-6 text-xs font-bold text-neutral-800">SKU</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Nama Produk</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Ukuran</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Warna</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Stok</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Stok Minimum</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Created at</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-48 text-center">Aksi</th>
+                    <tr class="border-b border-black/10">
+                        <th class="h-[46px] py-0 w-[60px] px-0 text-[12px] font-semibold text-black text-center">No.</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">SKU</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Nama Produk</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Ukuran</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Warna</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Stok</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Stok Minimum</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Created at</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black w-48 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-neutral-100" id="varianTbody">
+                <tbody class="divide-y divide-black/10" id="varianTbody">
                     @forelse($varian as $item)
                         <tr class="hover:bg-neutral-50/60 transition-colors row-varian" 
                             data-sku="{{ strtolower($item->sku) }}" 
@@ -166,12 +166,12 @@
                             data-id="{{ $item->id_varian }}"
                         >
                             {{-- 1. No. --}}
-                            <td class="py-4 pl-6 pr-2 text-sm font-medium text-neutral-800 align-middle text-center">
+                            <td class="h-[59px] py-0 w-[60px] px-0 text-[12px] font-medium text-neutral-800 align-middle text-center">
                                 {{ $loop->iteration }}
                             </td>
 
                             {{-- 2. SKU --}}
-                            <td class="py-4 pl-2 pr-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="text-sm font-semibold text-neutral-900 leading-tight">
                                     {{ $item->sku }}
                                 </div>
@@ -181,37 +181,37 @@
                             </td>
 
                             {{-- 3. Nama Produk --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-800 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-800 align-middle">
                                 {{ $item->produk->nama_produk ?? '-' }}
                             </td>
 
                             {{-- 4. Ukuran --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->ukuran }}
                             </td>
 
                             {{-- 5. Warna --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->warna }}
                             </td>
 
                             {{-- 6. Stok --}}
-                            <td class="py-4 px-6 text-sm font-bold align-middle {{ $item->stok <= $item->stok_minimum ? 'text-red-500' : 'text-neutral-900' }}">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-bold align-middle {{ $item->stok <= $item->stok_minimum ? 'text-red-500' : 'text-neutral-900' }}">
                                 {{ $item->stok }}
                             </td>
 
                             {{-- 7. Stok Minimum --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->stok_minimum }}
                             </td>
 
                             {{-- 8. Created at --}}
-                            <td class="py-4 px-6 text-sm font-normal text-neutral-700 align-middle whitespace-nowrap">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-normal text-neutral-700 align-middle whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMMM Y') }}
                             </td>
 
                             {{-- 9. Aksi --}}
-                            <td class="py-4 px-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="flex items-center gap-2">
                                     <!-- Edit Button -->
                                     <button 
@@ -255,7 +255,7 @@
         </div>
 
         {{-- TABLE FOOTER / PAGINATION --}}
-        <div class="px-6 py-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="px-5 min-h-[56px] py-3 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-xs font-medium text-neutral-600">
                 Menampilkan <span id="labelShowingVarian">1–{{ $varian->count() }}</span> dari <span id="labelTotalVarian">{{ method_exists($varian, 'total') ? $varian->total() : $varian->count() }}</span> varian
             </div>
@@ -295,13 +295,13 @@
 </div>
 
 {{-- MODAL TAMBAH VARIAN  --}}
-<div id="modalTambahVarian" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-150">
+<div id="modalTambahVarian" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-[#E7E7E7]/90 w-full max-w-[462px] p-5 relative animate-in fade-in zoom-in-95 duration-150">
         <!-- Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <h3 class="text-base font-bold text-neutral-900 tracking-tight">Tambah Varian Produk</h3>
-            <button type="button" onclick="closeTambahVarianModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <div class="flex items-center justify-between pb-[18px] border-b border-black/10">
+            <h3 class="text-base font-semibold text-black">Tambah Varian Produk</h3>
+            <button type="button" onclick="closeTambahVarianModal()" class="w-[22px] h-[22px] rounded-[3px] border border-black/25 flex items-center justify-center text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -309,10 +309,10 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('varian.store') }}" method="POST" id="formTambahVarian" class="mt-5 space-y-4">
+        <form action="{{ route('varian.store') }}" method="POST" id="formTambahVarian" class="pt-5 space-y-4">
             @csrf
             <div>
-                <label for="id_produk_tambah" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="id_produk_tambah" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Produk <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
@@ -320,7 +320,7 @@
                         name="id_produk" 
                         id="id_produk_tambah" 
                         required 
-                        class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                        class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                     >
                         <option value="" disabled selected>Pilih Produk</option>
                         @foreach($produkList as $pr)
@@ -337,7 +337,7 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label for="ukuran_tambah" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="ukuran_tambah" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Ukuran <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -346,11 +346,11 @@
                         id="ukuran_tambah" 
                         placeholder="0" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                     >
                 </div>
                 <div>
-                    <label for="warna_tambah" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="warna_tambah" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Warna <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -359,13 +359,13 @@
                         id="warna_tambah" 
                         placeholder="Masukkan warna" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                     >
                 </div>
             </div>
 
             <div>
-                <label for="stok_minimum_tambah" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="stok_minimum_tambah" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Stok minimum <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -376,22 +376,22 @@
                     value="0"
                     min="0"
                     required 
-                    class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                    class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                 >
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-2.5 pt-3">
+            <div class="flex items-center justify-end gap-[10px] pt-5 mt-5 border-t border-black/15">
                 <button 
                     type="button" 
                     onclick="closeTambahVarianModal()" 
-                    class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                 >
                     Batal
                 </button>
                 <button 
                     type="submit" 
-                    class="px-5 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                     Tambah Data
                 </button>
@@ -401,13 +401,13 @@
 </div>
 
 {{-- MODAL EDIT VARIAN --}}
-<div id="modalEditVarian" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-150">
+<div id="modalEditVarian" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-[#E7E7E7]/90 w-full max-w-[462px] p-5 relative animate-in fade-in zoom-in-95 duration-150">
         <!-- Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <h3 class="text-base font-bold text-neutral-900 tracking-tight">Edit Varian Produk</h3>
-            <button type="button" onclick="closeEditVarianModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <div class="flex items-center justify-between pb-[18px] border-b border-black/10">
+            <h3 class="text-base font-semibold text-black">Edit Varian Produk</h3>
+            <button type="button" onclick="closeEditVarianModal()" class="w-[22px] h-[22px] rounded-[3px] border border-black/25 flex items-center justify-center text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -415,11 +415,11 @@
         </div>
 
         <!-- Form -->
-        <form action="" method="POST" id="formEditVarian" class="mt-5 space-y-4">
+        <form action="" method="POST" id="formEditVarian" class="pt-5 space-y-4">
             @csrf
             @method('PUT')
             <div>
-                <label for="id_produk_edit" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="id_produk_edit" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Produk <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
@@ -427,7 +427,7 @@
                         name="id_produk" 
                         id="id_produk_edit" 
                         required 
-                        class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
+                        class="w-full h-[46px] px-[15px] pr-10 rounded-[13px] border border-black/30 text-[15px] text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                     >
                         @foreach($produkList as $pr)
                             <option value="{{ $pr->id_produk }}">{{ $pr->nama_produk }}</option>
@@ -443,7 +443,7 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label for="ukuran_edit" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="ukuran_edit" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Ukuran <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -451,11 +451,11 @@
                         name="ukuran" 
                         id="ukuran_edit" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                     >
                 </div>
                 <div>
-                    <label for="warna_edit" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                    <label for="warna_edit" class="block text-[14px] font-semibold text-black mb-[5px]">
                         Warna <span class="text-red-500">*</span>
                     </label>
                     <input 
@@ -463,13 +463,13 @@
                         name="warna" 
                         id="warna_edit" 
                         required 
-                        class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                        class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                     >
                 </div>
             </div>
 
             <div>
-                <label for="stok_minimum_edit" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="stok_minimum_edit" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Stok minimum <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -478,22 +478,22 @@
                     id="stok_minimum_edit" 
                     min="0"
                     required 
-                    class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
+                    class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 focus:outline-none focus:border-neutral-900 transition-colors"
                 >
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-2.5 pt-3">
+            <div class="flex items-center justify-end gap-[10px] pt-5 mt-5 border-t border-black/15">
                 <button 
                     type="button" 
                     onclick="closeEditVarianModal()" 
-                    class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                 >
                     Batal
                 </button>
                 <button 
                     type="submit" 
-                    class="px-5 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                     Simpan Perubahan
                 </button>
@@ -503,7 +503,7 @@
 </div>
 
 {{-- MODAL HAPUS VARIAN --}}
-<div id="modalHapusVarian" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
+<div id="modalHapusVarian" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative animate-in fade-in zoom-in-95 duration-150 text-center">
         <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

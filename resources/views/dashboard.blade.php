@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#FBFBFB]">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-white">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,10 +11,10 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <!-- Google Fonts: Inter (sama dengan desain Figma) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CDN Fallback & Vite -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -26,7 +26,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                            sans: ['Inter', 'sans-serif'],
                         }
                     }
                 }
@@ -41,8 +41,8 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #FBFBFB;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FFFFFF;
         }
 
         /* Custom Scrollbar */
@@ -89,7 +89,7 @@
 
         <!-- MAIN CONTENT AREA -->
         <main 
-            class="min-h-screen flex-1 bg-[#FBFBFB] transition-all"
+            class="min-h-screen flex-1 bg-white transition-all"
             style="margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width));"
         >
             <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">

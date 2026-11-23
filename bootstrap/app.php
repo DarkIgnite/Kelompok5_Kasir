@@ -11,7 +11,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => \App\Http\Middleware\EnsureRole::class,
+        ]);
+        // User yang sudah login lalu membuka /login diarahkan ke halaman utama role-nya
+        $middleware->redirectUsersTo(fn ($request) => route($request->user()?->homeRoute() ?? 'dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
