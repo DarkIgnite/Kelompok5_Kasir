@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kategori;
+use App\Models\DetailTransaksi;
 use App\Models\Produk;
 use App\Models\VarianProduk;
 use Illuminate\Http\Request;
@@ -34,7 +35,7 @@ class ProdukController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $limit = $request->input('limit', 100);
+        $limit = min(max((int) $request->input('limit', 100), 10), 100); // dibatasi 10–100 baris per halaman
         $produk = $query->orderBy('id_produk', 'asc')->paginate($limit)->withQueryString();
         $kategoriList = Kategori::all();
 
@@ -193,6 +194,13 @@ class ProdukController extends Controller
      */
     public function destroy(Produk $produk)
     {
+        // Jangan hapus produk yang sudah pernah terjual: riwayat nota & laporan ikut hilang (cascade)
+        $pernahTerjual = DetailTransaksi::whereIn('id_varian', $produk->varian()->pluck('id_varian'))->exists();
+        if ($pernahTerjual) {
+            return redirect()->route('produk.index')->with('error',
+                "Produk \"{$produk->nama_produk}\" tidak bisa dihapus karena sudah ada di riwayat transaksi. Ubah statusnya menjadi Nonaktif agar tidak tampil di kasir.");
+        }
+
         $produk->delete();
 
         return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus.');
@@ -215,7 +223,7 @@ class ProdukController extends Controller
             });
         }
 
-        $limit = $request->input('limit', 100);
+        $limit = min(max((int) $request->input('limit', 100), 10), 100); // dibatasi 10–100 baris per halaman
         $varian = $query->orderBy('id_varian', 'asc')->paginate($limit)->withQueryString();
         $produkList = Produk::all();
 
@@ -236,8 +244,14 @@ class ProdukController extends Controller
         ]);
 
         $produk = Produk::findOrFail($validated['id_produk']);
-        $warnaKode = strtoupper(substr($validated['warna'], 0, 3));
-        $sku = $produk->kode_produk . '-' . $validated['ukuran'] . '-' . $warnaKode;
+
+        if ($this->varianSudahAda($produk->id_produk, $validated['ukuran'], $validated['warna'])) {
+            return back()->withInput()->withErrors([
+                'ukuran' => "Varian ukuran {$validated['ukuran']} warna {$validated['warna']} untuk {$produk->nama_produk} sudah ada. Edit stok varian tersebut saja.",
+            ]);
+        }
+
+        $sku = $this->buatSkuUnik($produk, $validated['ukuran'], $validated['warna']);
 
         VarianProduk::create([
             'id_produk' => $validated['id_produk'],
@@ -264,6 +278,23 @@ class ProdukController extends Controller
             'stok' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        if ($this->varianSudahAda($validated['id_produk'], $validated['ukuran'], $validated['warna'], $varian->id_varian)) {
+            return back()->withInput()->withErrors([
+                'ukuran' => "Varian ukuran {$validated['ukuran']} warna {$validated['warna']} untuk produk ini sudah ada.",
+            ]);
+        }
+
+        // SKU ikut diperbarui jika produk/ukuran/warna berubah
+        $berubah = $varian->id_produk != $validated['id_produk']
+            || $varian->ukuran !== $validated['ukuran']
+            || strcasecmp($varian->warna, $validated['warna']) !== 0;
+        if ($berubah) {
+            $validated['sku'] = $this->buatSkuUnik(Produk::findOrFail($validated['id_produk']), $validated['ukuran'], $validated['warna'], $varian->id_varian);
+        }
+        if (! array_key_exists('stok', $validated) || $validated['stok'] === null) {
+            unset($validated['stok']);
+        }
+
         $varian->update($validated);
 
         return redirect()->route('varian.index')->with('success', 'Varian produk berhasil diperbarui.');
@@ -274,8 +305,40 @@ class ProdukController extends Controller
      */
     public function varianDestroy(VarianProduk $varian)
     {
+        if ($varian->detailTransaksi()->exists()) {
+            return redirect()->route('varian.index')->with('error',
+                "Varian {$varian->sku} tidak bisa dihapus karena sudah ada di riwayat transaksi. Set stoknya ke 0 atau nonaktifkan produknya.");
+        }
+
         $varian->delete();
 
         return redirect()->route('varian.index')->with('success', 'Varian produk berhasil dihapus.');
+    }
+
+    /**
+     * Cek kombinasi produk + ukuran + warna yang sama (case-insensitive).
+     */
+    private function varianSudahAda(int|string $idProduk, string $ukuran, string $warna, ?int $kecualiId = null): bool
+    {
+        return VarianProduk::where('id_produk', $idProduk)
+            ->where('ukuran', $ukuran)
+            ->whereRaw('LOWER(warna) = ?', [mb_strtolower($warna)])
+            ->when($kecualiId, fn ($q) => $q->where('id_varian', '!=', $kecualiId))
+            ->exists();
+    }
+
+    /**
+     * SKU format KODE-UKURAN-WRN; jika bentrok (mis. "Merah" & "Merah Muda" => MER) diberi akhiran -2, -3, dst.
+     */
+    private function buatSkuUnik(Produk $produk, string $ukuran, string $warna, ?int $kecualiId = null): string
+    {
+        $dasar = $produk->kode_produk . '-' . $ukuran . '-' . strtoupper(substr(preg_replace('/\s+/', '', $warna), 0, 3));
+        $sku = $dasar;
+        $n = 2;
+        while (VarianProduk::where('sku', $sku)->when($kecualiId, fn ($q) => $q->where('id_varian', '!=', $kecualiId))->exists()) {
+            $sku = $dasar . '-' . $n++;
+        }
+
+        return $sku;
     }
 }

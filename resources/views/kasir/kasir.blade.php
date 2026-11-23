@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Kasir POS - {{ config('app.name', 'KasirAja') }}</title>
+    <title>Kasir POS - KasirAja</title>
+    <!-- Logo KasirAja di tab browser -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -84,6 +88,7 @@
         
         <!-- SIDEBAR -->
         @include('layouts.sidebar')
+        @include('layouts.flash-alert')
 
         <!-- MAIN LAYOUT WRAPPER -->
         <div 
@@ -122,7 +127,7 @@
                                 id="filterMenuBtn" 
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm font-normal text-neutral-700 hover:bg-neutral-50 transition cursor-pointer whitespace-nowrap"
                             >
-                                <span id="currentFilterLabel">Filter to "Option 2"</span>
+                                <span id="currentFilterLabel">Filter to "Semua Kategori"</span>
                                 <svg class="w-4 h-4 text-neutral-500 transition-transform duration-200" id="filterChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
@@ -141,14 +146,6 @@
                                         data-category-name="Semua Kategori"
                                     >
                                         <span>Semua Kategori</span>
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        class="category-filter-item w-full text-left px-3.5 py-2 text-xs font-medium text-neutral-800 hover:bg-neutral-50 flex items-center justify-between"
-                                        data-category-id="option2"
-                                        data-category-name='Option 2'
-                                    >
-                                        <span>Option 2 (Lifestyle)</span>
                                     </button>
                                 </div>
                                 <div class="py-1">
@@ -181,11 +178,11 @@
                             >
                                 <div>
                                     <!-- Thumbnail image -->
-                                    <div class="w-full h-44 rounded-xl flex items-center justify-center p-3 relative overflow-hidden {{ $isFayer ? 'bg-black' : 'bg-neutral-100' }}">
+                                    <div class="w-full h-44 rounded-xl flex items-center justify-center {{ $p->gambar_is_remote ? '' : 'p-3' }} relative overflow-hidden {{ $isFayer ? 'bg-black' : 'bg-neutral-100' }}">
                                         <img 
-                                            src="{{ asset($p->gambar) }}" 
+                                            src="{{ $p->gambar_url }}" 
                                             alt="{{ $p->nama_produk }}" 
-                                            class="max-h-full max-w-full object-contain pointer-events-none drop-shadow-sm"
+                                            class="{{ $p->gambar_is_remote ? 'w-full h-full object-cover' : 'max-h-full max-w-full object-contain drop-shadow-sm' }} pointer-events-none"
                                             loading="lazy"
                                         >
                                     </div>
@@ -220,7 +217,7 @@
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Stok</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal">{{ $p->total_stok ?? 67 }}</span>
+                                            <span class="text-neutral-700 font-normal">{{ $p->total_stok ?? 0 }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -229,15 +226,16 @@
                                 <div class="mt-4 pt-1">
                                     <button 
                                         type="button" 
-                                        class="btn-add-to-order w-full py-2.5 bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-xs font-semibold rounded-lg transition duration-150 shadow-xs flex items-center justify-center cursor-pointer"
+                                        class="btn-add-to-order w-full py-2.5 {{ $p->total_stok > 0 ? 'bg-black hover:bg-neutral-800 active:scale-[0.98] cursor-pointer' : 'bg-neutral-300 cursor-not-allowed' }} text-white text-xs font-semibold rounded-lg transition duration-150 shadow-xs flex items-center justify-center"
                                         data-product-id="{{ $p->id_produk }}"
                                         data-product-name="{{ $p->nama_produk }}"
                                         data-product-price="{{ $p->harga_jual }}"
-                                        data-product-image="{{ asset($p->gambar) }}"
+                                        data-product-image="{{ $p->gambar_url }}"
                                         data-is-black="{{ $isFayer ? '1' : '0' }}"
-                                        data-variant-id="{{ $p->first_variant_id ?? '' }}"
+                                        data-variants='@json($p->varian_json)'
+                                        {{ $p->total_stok > 0 ? '' : 'disabled' }}
                                     >
-                                        Add to order
+                                        {{ $p->total_stok > 0 ? 'Add to order' : 'Stok habis' }}
                                     </button>
                                 </div>
                             </div>
@@ -297,11 +295,6 @@
                             <span id="cartSubtotal" class="font-normal text-neutral-900">Rp0</span>
                         </div>
 
-                        <!-- Pajak -->
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Pajak</span>
-                            <span id="cartPajak" class="font-normal text-neutral-900">Rp0</span>
-                        </div>
 
                         <!-- Diskon -->
                         <div class="flex items-center justify-between text-sm">
@@ -520,10 +513,6 @@
                             <span id="paymentSubtotal" class="font-normal text-neutral-900">Rp419.850.000</span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Pajak</span>
-                            <span id="paymentPajak" class="font-normal text-neutral-900">Rp46.183.500</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
                             <span class="text-neutral-500 font-normal">Diskon</span>
                             <span id="paymentDiskon" class="font-normal text-neutral-900">Rp0</span>
                         </div>
@@ -602,10 +591,6 @@
                             <div class="flex justify-between">
                                 <span class="text-neutral-500" id="receiptSubtotalLabel">Subtotal (70 pasang)</span>
                                 <span id="receiptSubtotalVal" class="font-medium text-neutral-900">Rp466.033.500</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-neutral-500">Pajak 11%</span>
-                                <span id="receiptPajakVal" class="font-medium text-neutral-900">Rp000.000.000</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-neutral-500">Diskon</span>
@@ -755,6 +740,34 @@
         </div>
     </div>
 
+    <!-- POPUP PILIH UKURAN -->
+    <div id="sizeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="sizeModalTitle">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-5">
+            <div class="flex items-start gap-3">
+                <div class="w-16 h-16 rounded-xl bg-neutral-100 overflow-hidden shrink-0">
+                    <img id="sizeModalImage" src="" alt="" class="w-full h-full object-cover">
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 id="sizeModalTitle" class="text-sm font-bold text-neutral-900 leading-snug">Pilih Ukuran</h3>
+                    <p id="sizeModalPrice" class="text-xs font-semibold text-neutral-700 mt-1"></p>
+                    <p class="text-[11px] text-neutral-500 mt-0.5">Pilih ukuran yang dibeli pelanggan</p>
+                </div>
+                <button type="button" id="sizeModalClose" class="text-neutral-400 hover:text-neutral-900 text-xl leading-none cursor-pointer" aria-label="Tutup">&times;</button>
+            </div>
+            <div id="sizeModalOptions" class="mt-4 grid grid-cols-3 gap-2"></div>
+            <div class="mt-4 flex items-center justify-between gap-3">
+                <div class="flex items-center border border-neutral-300 rounded-lg text-sm font-semibold">
+                    <button type="button" id="sizeQtyMinus" class="px-3 py-2 cursor-pointer select-none">-</button>
+                    <span id="sizeQtyVal" class="w-8 text-center select-none">1</span>
+                    <button type="button" id="sizeQtyPlus" class="px-3 py-2 cursor-pointer select-none">+</button>
+                </div>
+                <button type="button" id="sizeModalAdd" disabled class="flex-1 py-2.5 rounded-lg text-xs font-semibold text-white bg-neutral-300 cursor-not-allowed transition">
+                    Pilih ukuran dulu
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!--JAVASCRIPT: POS CART, PAYMENT & RECEIPT CONTROLLER-->
     <script>
         // Currency formatter
@@ -762,57 +775,12 @@
             return new Intl.NumberFormat('id-ID').format(Math.round(number));
         }
 
-        // Demo Initial Cart Items matching Page Payment.png
-        const DEFAULT_CART_ITEMS = [
-            {
-                id: '1',
-                name: 'WaterJyordan',
-                variant: 'Ukuran 40 · Merah',
-                code: 'kodeprdk01-40-MRH',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/water-jyordan.png") }}',
-                isBlack: false,
-                variantId: '1'
-            },
-            {
-                id: '2',
-                name: 'FayerJyordan',
-                variant: 'Ukuran 40 · Biru',
-                code: 'kodeprdk02-40-BRU',
-                price: 6220000,
-                qty: 67,
-                image: '{{ asset("images/shoes/fayer-jyordan.png") }}',
-                isBlack: true,
-                variantId: '5'
-            },
-            {
-                id: '3',
-                name: 'ErthJyordan',
-                variant: 'Ukuran 41 · Abu',
-                code: 'kodeprdk03-41-ABU',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/erth-jyordan.png") }}',
-                isBlack: false,
-                variantId: '6'
-            },
-            {
-                id: '4',
-                name: 'WhinJyordan',
-                variant: 'Ukuran 42 · Coklat',
-                code: 'kodeprdk04-42-CKL',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/whin-jyordan.png") }}',
-                isBlack: false,
-                variantId: '7'
-            }
-        ];
+        // Keranjang dimulai kosong (dulu berisi 4 item demo produk lama yang sudah dihapus)
+        const DEFAULT_CART_ITEMS = [];
 
         let cart = [];
         try {
-            const saved = sessionStorage.getItem('kasir_cart');
+            const saved = sessionStorage.getItem('kasir_cart_v3');
             if (saved) {
                 cart = JSON.parse(saved);
             } else {
@@ -847,11 +815,23 @@
         }
 
         function saveCart() {
-            sessionStorage.setItem('kasir_cart', JSON.stringify(cart));
+            sessionStorage.setItem('kasir_cart_v3', JSON.stringify(cart));
             renderCart();
             if (!document.getElementById('viewPayment').classList.contains('hidden')) {
                 setupPaymentView();
             }
+        }
+
+        // Tambah 1 pasang, tidak boleh melebihi stok varian
+        function increaseQty(idx) {
+            const item = cart[idx];
+            if (!item) return;
+            if (item.stock !== undefined && item.qty >= item.stock) {
+                showFlash('Stok Tidak Cukup', `${item.name} ${item.variant} hanya tersisa ${item.stock} pasang.`, 'error');
+                return;
+            }
+            item.qty += 1;
+            saveCart();
         }
 
         function calculateCart() {
@@ -863,12 +843,11 @@
                 subtotal += (item.price * item.qty);
             });
 
-            // Sesuai rumus transaksi resmi POS (11% PPN)
-            let pajak = Math.round(subtotal * 0.11);
-            let diskon = 0;
-            let total = subtotal + pajak - diskon;
+            // Tanpa PPN. Total akhir tetap dihitung ulang oleh server dari harga di database.
+            const diskon = 0;
+            const total = subtotal - diskon;
 
-            return { totalQty, subtotal, pajak, diskon, total };
+            return { totalQty, subtotal, diskon, total };
         }
 
 // Render Cart items in Catalog Sidebar
@@ -890,11 +869,11 @@
                 let html = '';
                 cart.forEach((item, index) => {
                     const bgBox = item.isBlack ? 'bg-black' : 'bg-neutral-100';
-                    const varText = item.variant || 'Ukuran 40 · Merah';
+                    const varText = item.variant || '-';
                     html += `
                         <div class="flex items-center justify-between gap-3 group">
                             <div class="w-14 h-12 rounded-lg ${bgBox} border border-neutral-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/water-jyordan.png") }}'">
+                                <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/placeholder.svg") }}'">
                             </div>
 
                             <div class="flex-1 min-w-0 pr-1">
@@ -922,10 +901,9 @@
                 container.innerHTML = html;
             }
 
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
+            const { totalQty, subtotal, diskon, total } = calculateCart();
             document.getElementById('cartTotalItem').textContent = `${totalQty} pcs`;
             document.getElementById('cartSubtotal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('cartPajak').textContent = 'Rp' + formatRupiah(pajak);
             document.getElementById('cartDiskon').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('cartTotal').textContent = 'Rp' + formatRupiah(total);
 
@@ -944,9 +922,7 @@
 
             container.querySelectorAll('.btn-step-plus').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                    cart[idx].qty += 1;
-                    saveCart();
+                    increaseQty(parseInt(e.currentTarget.getAttribute('data-index')));
                 });
             });
 
@@ -962,7 +938,7 @@
         // Setup Layar Pembayaran (Page Payment.png)
         function setupPaymentView() {
             const paymentCartList = document.getElementById('paymentCartList');
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
+            const { totalQty, subtotal, diskon, total } = calculateCart();
 
             // 1. Render items list in right sidebar
             if (paymentCartList) {
@@ -972,11 +948,11 @@
                     let html = '';
                     cart.forEach((item, index) => {
                         const bgBox = item.isBlack ? 'bg-black' : 'bg-neutral-100';
-                        const varText = item.variant || 'Ukuran 40 · Merah';
+                        const varText = item.variant || '-';
                         html += `
                             <div class="flex items-center justify-between gap-3 group">
                                 <div class="w-14 h-12 rounded-lg ${bgBox} border border-neutral-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                    <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/water-jyordan.png") }}'">
+                                    <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/placeholder.svg") }}'">
                                 </div>
 
                                 <div class="flex-1 min-w-0 pr-1">
@@ -1017,9 +993,7 @@
 
                     paymentCartList.querySelectorAll('.btn-step-plus-pay').forEach(btn => {
                         btn.addEventListener('click', (e) => {
-                            const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                            cart[idx].qty += 1;
-                            saveCart();
+                            increaseQty(parseInt(e.currentTarget.getAttribute('data-index')));
                         });
                     });
 
@@ -1036,7 +1010,6 @@
             // Update totals in right sidebar
             document.getElementById('paymentTotalItem').textContent = `${totalQty} pcs`;
             document.getElementById('paymentSubtotal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('paymentPajak').textContent = 'Rp' + formatRupiah(pajak);
             document.getElementById('paymentDiskon').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('paymentTotal').textContent = 'Rp' + formatRupiah(total);
 
@@ -1154,7 +1127,7 @@
         if (btnContinueOrder) {
             btnContinueOrder.addEventListener('click', () => {
                 if (cart.length === 0) {
-                    showToast('Pesanan Kosong', 'Silakan pilih produk terlebih dahulu sebelum melanjutkan.', 'error');
+                    showFlash('Pesanan Kosong', 'Silakan pilih produk terlebih dahulu sebelum melanjutkan.', 'error');
                     return;
                 }
                 showView('payment');
@@ -1166,34 +1139,30 @@
         document.getElementById('btnClosePaymentDetail')?.addEventListener('click', () => showView('catalog'));
 
         // Process Transaction Function
+        // Server menghitung ulang harga, cek stok, dan menolak jika ada masalah (HTTP 422).
+        // Struk hanya ditampilkan kalau server benar-benar menyimpan transaksi.
+        let checkoutInFlight = false;
         async function processCheckout() {
-            const { total, subtotal, pajak, diskon, totalQty } = calculateCart();
+            if (checkoutInFlight) return;
+            const { total, diskon } = calculateCart();
             const inputVal = document.getElementById('inputPaymentReceived')?.value || '';
             const rawNumbers = inputVal.replace(/[^0-9]/g, '');
             let bayar = parseFloat(rawNumbers);
 
-            if (selectedPaymentMethod !== 'Tunai' || isNaN(bayar) || bayar < total) {
+            if (selectedPaymentMethod !== 'Tunai' || isNaN(bayar)) {
                 bayar = total;
             }
 
-            const kembalian = Math.max(0, bayar - total);
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-            // Loading state
-            const btnValidate = document.getElementById('btnValidatePayment');
-            if (btnValidate) {
-                btnValidate.disabled = true;
-                btnValidate.textContent = 'Memproses...';
-            }
+            const buttons = ['btnValidatePayment', 'btnValidateDebit', 'btnValidateQRIS']
+                .map(id => document.getElementById(id)).filter(Boolean);
+            const oldLabels = buttons.map(b => b.textContent);
+            checkoutInFlight = true;
+            buttons.forEach(b => { b.disabled = true; b.textContent = 'Memproses...'; });
 
             try {
                 const payload = {
-                    items: cart.map(item => ({
-                        id_produk: item.id,
-                        id_varian: item.variantId || null,
-                        jumlah: item.qty,
-                        harga: item.price
-                    })),
+                    items: cart.map(item => ({ id_varian: item.variantId, jumlah: item.qty })),
                     metode_pembayaran: selectedPaymentMethod,
                     jumlah_bayar: bayar,
                     diskon: diskon
@@ -1210,57 +1179,30 @@
                     body: JSON.stringify(payload)
                 });
 
-                let result;
-                if (response.ok) {
-                    result = await response.json();
-                } else {
-                    // Fallback simulated success
-                    result = {
-                        success: true,
-                        no_nota: 'TRX-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900),
-                        tanggal_transaksi: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                        kasir_nama: '{{ Auth::user()->nama_lengkap ?? Auth::user()->username ?? "Kasir 1" }}',
-                        total_item: totalQty,
-                        subtotal: subtotal,
-                        pajak: pajak,
-                        diskon: diskon,
-                        total_bayar: total,
-                        jumlah_bayar: bayar,
-                        kembalian: kembalian,
-                        metode_pembayaran: selectedPaymentMethod
-                    };
+                let result = {};
+                try { result = await response.json(); } catch (e) { /* bukan JSON */ }
+
+                if (!response.ok || !result.success) {
+                    let msg = result.message || 'Transaksi gagal diproses. Silakan coba lagi.';
+                    if (result.errors) {
+                        const first = Object.values(result.errors)[0];
+                        if (first && first[0]) msg = first[0];
+                    }
+                    if (response.status === 419) msg = 'Sesi login habis. Muat ulang halaman lalu coba lagi.';
+                    showFlash('Transaksi Gagal', msg, 'error');
+                    return;
                 }
 
                 lastTransactionResult = result;
                 renderReceipt(result);
                 showView('receipt');
-                showToast('Transaksi Berhasil!', `No. Nota: ${result.no_nota}. Pembayaran telah tervalidasi.`);
+                showFlash('Transaksi Berhasil!', `No. Nota: ${result.no_nota}. Pembayaran telah tervalidasi.`);
             } catch (err) {
-                console.warn('Network issue, using client verification:', err);
-                // Client fallback
-                const fallbackResult = {
-                    success: true,
-                    no_nota: 'TRX-20261120-003',
-                    tanggal_transaksi: '20 Nov 2026, 14:56',
-                    kasir_nama: 'Kasir 1',
-                    total_item: totalQty,
-                    subtotal: subtotal,
-                    pajak: pajak,
-                    diskon: diskon,
-                    total_bayar: total,
-                    jumlah_bayar: bayar,
-                    kembalian: kembalian,
-                    metode_pembayaran: selectedPaymentMethod
-                };
-                lastTransactionResult = fallbackResult;
-                renderReceipt(fallbackResult);
-                showView('receipt');
-                showToast('Transaksi Berhasil!', `No. Nota: ${fallbackResult.no_nota}`);
+                console.warn('Checkout gagal:', err);
+                showFlash('Koneksi Gagal', 'Tidak dapat terhubung ke server. Transaksi BELUM tersimpan, silakan coba lagi.', 'error');
             } finally {
-                if (btnValidate) {
-                    btnValidate.disabled = false;
-                    btnValidate.textContent = 'Validasi Pembayaran';
-                }
+                checkoutInFlight = false;
+                buttons.forEach((b, k) => { b.disabled = false; b.textContent = oldLabels[k]; });
             }
         }
 
@@ -1272,7 +1214,7 @@
             const bayar = parseFloat(rawNumbers) || 0;
 
             if (bayar < total) {
-                showToast('Nominal Kurang', 'Jumlah uang diterima belum mencukupi total tagihan.', 'error');
+                showFlash('Nominal Kurang', 'Jumlah uang diterima belum mencukupi total tagihan.', 'error');
                 return;
             }
             processCheckout();
@@ -1283,13 +1225,16 @@
 
         // Render Struk & Rinkasan Transaksi (Page Payment-1.png)
         function renderReceipt(data) {
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
-            const nota = data.no_nota || 'TRX-20261120-003';
-            const tgl = data.tanggal_transaksi || '20 Nov 2026, 14:56';
-            const kasir = data.kasir_nama || 'Kasir 1';
-            const bayar = data.jumlah_bayar || total;
-            const kembalian = data.kembalian || (bayar - total);
-            const metode = data.metode_pembayaran || 'Tunai';
+            const totalQty = data.total_item ?? 0;
+            const subtotal = data.subtotal ?? 0;
+            const diskon = data.diskon ?? 0;
+            const total = data.total_bayar ?? 0;
+            const nota = data.no_nota || '-';
+            const tgl = data.tanggal_transaksi || '-';
+            const kasir = data.kasir_nama || '-';
+            const bayar = data.jumlah_bayar ?? total;
+            const kembalian = data.kembalian ?? 0;
+            const metode = data.metode_pembayaran || '-';
 
             // Struk Elements
             document.getElementById('receiptNoNota').textContent = nota;
@@ -1297,7 +1242,6 @@
             document.getElementById('receiptKasir').textContent = kasir;
             document.getElementById('receiptSubtotalLabel').textContent = `Subtotal (${totalQty} pasang)`;
             document.getElementById('receiptSubtotalVal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('receiptPajakVal').textContent = pajak > 0 ? ('Rp' + formatRupiah(pajak)) : 'Rp000.000.000';
             document.getElementById('receiptDiskonVal').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('receiptTotalBayarVal').textContent = 'Rp' + formatRupiah(total);
             document.getElementById('receiptMetodeVal').textContent = metode;
@@ -1308,17 +1252,15 @@
             const itemsCont = document.getElementById('receiptItemsContainer');
             if (itemsCont) {
                 let html = '';
-                cart.forEach(item => {
-                    const codeStr = item.code || `${item.name.toLowerCase()}-40`;
-                    const varStr = (item.variant || 'Ukuran 40 · Merah').replace(' · ', ' EUR · ') + ' · ' + codeStr;
-                    const lineTotal = item.price * item.qty;
+                (data.items || []).forEach(item => {
+                    const varStr = `Ukuran ${item.ukuran} EUR · ${item.warna} · ${item.sku}`;
                     html += `
                         <div>
-                            <div class="font-bold text-xs text-neutral-900">${item.name}</div>
+                            <div class="font-bold text-xs text-neutral-900">${item.nama}</div>
                             <div class="text-[11px] text-neutral-400 mt-0.5 leading-snug">${varStr}</div>
                             <div class="flex justify-between text-xs font-normal text-neutral-800 mt-1">
-                                <span>${item.qty} x Rp${formatRupiah(item.price)}</span>
-                                <span class="font-medium text-neutral-900">Rp${formatRupiah(lineTotal)}</span>
+                                <span>${item.jumlah} x Rp${formatRupiah(item.harga)}</span>
+                                <span class="font-medium text-neutral-900">Rp${formatRupiah(item.subtotal)}</span>
                             </div>
                         </div>
                     `;
@@ -1346,14 +1288,11 @@
 
         // Copy Text Receipt
         document.getElementById('btnCopyReceipt')?.addEventListener('click', () => {
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
-            const data = lastTransactionResult || {};
-            const nota = data.no_nota || 'TRX-20261120-003';
-            const tgl = data.tanggal_transaksi || '20 Nov 2026, 14:56';
-            const kasir = data.kasir_nama || 'Kasir 1';
-            const bayar = data.jumlah_bayar || total;
-            const kembalian = data.kembalian || (bayar - total);
-            const metode = data.metode_pembayaran || 'Tunai';
+            const data = lastTransactionResult;
+            if (!data) return;
+            const totalQty = data.total_item, subtotal = data.subtotal, diskon = data.diskon, total = data.total_bayar;
+            const nota = data.no_nota, tgl = data.tanggal_transaksi, kasir = data.kasir_nama;
+            const bayar = data.jumlah_bayar, kembalian = data.kembalian, metode = data.metode_pembayaran;
 
             let text = `=================================\n`;
             text += `             KasirAja\n`;
@@ -1363,15 +1302,13 @@
             text += `Tanggal  : ${tgl}\n`;
             text += `Kasir    : ${kasir}\n`;
             text += `---------------------------------\n`;
-            cart.forEach(item => {
-                const lineTotal = item.price * item.qty;
-                text += `${item.name}\n`;
-                text += `${item.variant || 'Ukuran 40'}\n`;
-                text += `${item.qty} x Rp${formatRupiah(item.price)} = Rp${formatRupiah(lineTotal)}\n\n`;
+            (data.items || []).forEach(item => {
+                text += `${item.nama}\n`;
+                text += `Ukuran ${item.ukuran} · ${item.warna}\n`;
+                text += `${item.jumlah} x Rp${formatRupiah(item.harga)} = Rp${formatRupiah(item.subtotal)}\n\n`;
             });
             text += `---------------------------------\n`;
             text += `Subtotal (${totalQty} pasang) : Rp${formatRupiah(subtotal)}\n`;
-            text += `Pajak 11%            : Rp${formatRupiah(pajak)}\n`;
             text += `Diskon               : Rp${formatRupiah(diskon)}\n`;
             text += `---------------------------------\n`;
             text += `Total bayar          : Rp${formatRupiah(total)}\n`;
@@ -1384,19 +1321,18 @@
             text += `=================================`;
 
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Teks Struk Disalin', 'Rincian struk pembelian berhasil disalin ke clipboard.');
+                showFlash('Teks Struk Disalin', 'Rincian struk pembelian berhasil disalin ke clipboard.');
             }).catch(() => {
-                showToast('Berhasil', 'Teks struk siap digunakan.');
+                showFlash('Berhasil', 'Teks struk siap digunakan.');
             });
         });
 
         // Transaksi Baru Button
         document.getElementById('btnNewTransaction')?.addEventListener('click', () => {
             cart = [];
-            sessionStorage.removeItem('kasir_cart');
-            renderCart();
-            showView('catalog');
-            showToast('Transaksi Baru', 'Keranjang kasir telah direset.');
+            sessionStorage.removeItem('kasir_cart_v3');
+            // Muat ulang supaya angka stok di kartu produk ikut ter-update
+            window.location.reload();
         });
 
         // Search & Filter in Catalog View
@@ -1409,7 +1345,7 @@
         const filterDropdown = document.getElementById('filterDropdown');
         const filterChevron = document.getElementById('filterChevron');
         const currentFilterLabel = document.getElementById('currentFilterLabel');
-        let selectedCategoryId = 'option2';
+        let selectedCategoryId = '';
 
         if (filterMenuBtn && filterDropdown) {
             filterMenuBtn.addEventListener('click', (e) => {
@@ -1452,9 +1388,7 @@
                 const matchName = !q || name.includes(q);
                 let matchCat = true;
 
-                if (selectedCategoryId === 'option2') {
-                    matchCat = true;
-                } else if (selectedCategoryId) {
+                if (selectedCategoryId) {
                     matchCat = (card.getAttribute('data-category-id') === selectedCategoryId);
                 }
 
@@ -1473,34 +1407,134 @@
             }
         }
 
-        // Add to Order buttons in catalog
+        // ===== Popup pilih ukuran =====
+        const sizeModal = document.getElementById('sizeModal');
+        let modalProduct = null;   // data produk yang sedang dipilih
+        let modalVariant = null;   // varian (ukuran) yang dipilih
+        let modalQty = 1;
+
+        function qtyInCart(variantId) {
+            const it = cart.find(c => c.variantId == variantId);
+            return it ? it.qty : 0;
+        }
+
+        function refreshModalButton() {
+            const addBtn = document.getElementById('sizeModalAdd');
+            document.getElementById('sizeQtyVal').textContent = modalQty;
+            if (modalVariant) {
+                addBtn.disabled = false;
+                addBtn.className = 'flex-1 py-2.5 rounded-lg text-xs font-semibold text-white bg-black hover:bg-neutral-800 cursor-pointer transition';
+                addBtn.textContent = `Tambah · Rp${formatRupiah(modalProduct.price * modalQty)}`;
+            } else {
+                addBtn.disabled = true;
+                addBtn.className = 'flex-1 py-2.5 rounded-lg text-xs font-semibold text-white bg-neutral-300 cursor-not-allowed transition';
+                addBtn.textContent = 'Pilih ukuran dulu';
+            }
+        }
+
+        function openSizeModal(btn) {
+            let variants = [];
+            try { variants = JSON.parse(btn.getAttribute('data-variants') || '[]'); } catch (e) {}
+            modalProduct = {
+                id: btn.getAttribute('data-product-id'),
+                name: btn.getAttribute('data-product-name'),
+                price: parseFloat(btn.getAttribute('data-product-price')),
+                image: btn.getAttribute('data-product-image'),
+                isBlack: btn.getAttribute('data-is-black') === '1',
+                variants
+            };
+            modalVariant = null;
+            modalQty = 1;
+
+            document.getElementById('sizeModalTitle').textContent = modalProduct.name;
+            document.getElementById('sizeModalPrice').textContent = 'Rp' + formatRupiah(modalProduct.price);
+            const img = document.getElementById('sizeModalImage');
+            img.src = modalProduct.image;
+            img.alt = modalProduct.name;
+
+            const wrap = document.getElementById('sizeModalOptions');
+            if (variants.length === 0) {
+                wrap.innerHTML = '<p class="col-span-3 text-xs text-neutral-500 py-4 text-center">Produk ini belum punya varian ukuran.</p>';
+            } else {
+                wrap.innerHTML = variants.map(v => {
+                    const sisa = v.stok - qtyInCart(v.id);
+                    const habis = sisa <= 0;
+                    return `<button type="button" class="size-opt border rounded-lg py-2 px-1 text-center transition ${habis ? 'border-neutral-200 bg-neutral-50 text-neutral-300 cursor-not-allowed' : 'border-neutral-300 hover:border-neutral-900 cursor-pointer'}"
+                                data-id="${v.id}" ${habis ? 'disabled' : ''}>
+                                <span class="block text-sm font-bold">${v.ukuran}</span>
+                                <span class="block text-[10px] ${habis ? '' : 'text-neutral-500'}">${v.warna}</span>
+                                <span class="block text-[10px] ${habis ? '' : 'text-neutral-500'}">${habis ? 'Habis' : 'Stok ' + sisa}</span>
+                            </button>`;
+                }).join('');
+                wrap.querySelectorAll('.size-opt:not([disabled])').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        wrap.querySelectorAll('.size-opt').forEach(o => o.classList.remove('border-2', 'border-neutral-900', 'bg-neutral-100'));
+                        opt.classList.add('border-2', 'border-neutral-900', 'bg-neutral-100');
+                        modalVariant = modalProduct.variants.find(v => v.id == opt.getAttribute('data-id'));
+                        modalQty = 1;
+                        refreshModalButton();
+                    });
+                });
+            }
+            refreshModalButton();
+            sizeModal.classList.remove('hidden');
+            sizeModal.classList.add('flex');
+        }
+
+        function closeSizeModal() {
+            sizeModal.classList.add('hidden');
+            sizeModal.classList.remove('flex');
+        }
+
+        document.getElementById('sizeModalClose')?.addEventListener('click', closeSizeModal);
+        sizeModal?.addEventListener('click', (e) => { if (e.target === sizeModal) closeSizeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sizeModal.classList.contains('hidden')) closeSizeModal(); });
+
+        document.getElementById('sizeQtyMinus')?.addEventListener('click', () => {
+            if (modalQty > 1) { modalQty--; refreshModalButton(); }
+        });
+        document.getElementById('sizeQtyPlus')?.addEventListener('click', () => {
+            if (!modalVariant) return;
+            const sisa = modalVariant.stok - qtyInCart(modalVariant.id);
+            if (modalQty >= sisa) {
+                showFlash('Stok Tidak Cukup', `Ukuran ${modalVariant.ukuran} hanya tersisa ${sisa} pasang.`, 'error');
+                return;
+            }
+            modalQty++;
+            refreshModalButton();
+        });
+
+        document.getElementById('sizeModalAdd')?.addEventListener('click', () => {
+            if (!modalVariant) return;
+            const v = modalVariant, p = modalProduct;
+            const existing = cart.find(c => c.variantId == v.id);
+            if (existing) {
+                existing.qty = Math.min(existing.qty + modalQty, v.stok);
+                existing.stock = v.stok;
+            } else {
+                cart.push({
+                    id: p.id,
+                    variantId: v.id,
+                    name: p.name,
+                    price: p.price,
+                    qty: Math.min(modalQty, v.stok),
+                    stock: v.stok,
+                    image: p.image,
+                    isBlack: p.isBlack,
+                    variant: `Ukuran ${v.ukuran} · ${v.warna}`,
+                    code: v.sku
+                });
+            }
+            saveCart();
+            closeSizeModal();
+            showFlash('Ditambahkan', `${p.name} ukuran ${v.ukuran} (${modalQty} pasang) masuk ke pesanan.`);
+        });
+
+        // Add to Order buttons in catalog -> buka popup ukuran
         document.querySelectorAll('.btn-add-to-order').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-product-id');
-                const name = btn.getAttribute('data-product-name');
-                const price = parseFloat(btn.getAttribute('data-product-price'));
-                const image = btn.getAttribute('data-product-image');
-                const isBlack = btn.getAttribute('data-is-black') === '1';
-                const variantId = btn.getAttribute('data-variant-id');
-
-                const existingIndex = cart.findIndex(item => item.id == id);
-                if (existingIndex > -1) {
-                    cart[existingIndex].qty += 1;
-                } else {
-                    cart.push({
-                        id: id,
-                        name: name,
-                        price: price,
-                        qty: 1,
-                        image: image,
-                        isBlack: isBlack,
-                        variantId: variantId,
-                        variant: 'Ukuran 40 · Merah',
-                        code: `kodeprdk0${id}-40-MRH`
-                    });
-                }
-                saveCart();
-                showToast('Ditambahkan', `${name} ditambahkan ke pesanan.`);
+                if (btn.disabled) return;
+                openSizeModal(btn);
             });
         });
 
@@ -1513,42 +1547,7 @@
             }
         });
 
-        // Floating Toast Notification
-        function showToast(title, message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex items-start gap-3 p-4 bg-white border ${type === 'success' ? 'border-emerald-200' : 'border-neutral-200'} rounded-2xl shadow-xl transition-all duration-300 transform translate-y-3 opacity-0`;
-
-            const iconSvg = type === 'success' 
-                ? `<div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                   </div>`
-                : `<div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                   </div>`;
-
-            toast.innerHTML = `
-                ${iconSvg}
-                <div class="flex-1">
-                    <div class="text-xs font-bold text-neutral-900">${title}</div>
-                    <div class="text-[11px] text-neutral-500 mt-0.5 leading-snug">${message}</div>
-                </div>
-            `;
-
-            container.appendChild(toast);
-
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-3', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
+        // Notifikasi memakai flash alert standar (layouts/flash-alert.blade.php)
 
         // Initialize on Load
         document.addEventListener('DOMContentLoaded', () => {

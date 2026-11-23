@@ -127,19 +127,55 @@ class User extends Authenticatable
 
     /**
      * Cek apakah user saat ini dapat mengedit target user.
+     *
+     * - Owner boleh mengedit siapa saja.
+     * - Admin/Manager boleh mengedit dirinya sendiri dan Kasir.
+     * - Admin/Manager tidak boleh mengedit Owner maupun Manager lain.
      */
     public function canEditUser(User $target): bool
     {
-        return true;
+        if ($this->isOwner()) {
+            return true;
+        }
+
+        if ((int) $this->id_pengguna === (int) $target->id_pengguna) {
+            return true;
+        }
+
+        return $this->getJabatanRank() > $target->getJabatanRank();
     }
 
     /**
      * Cek apakah user saat ini dapat menghapus target user.
+     *
+     * - Tidak ada yang boleh menghapus akunnya sendiri.
+     * - Owner boleh menghapus Manager & Kasir (dan Owner lain).
+     * - Admin/Manager hanya boleh menghapus Kasir.
      */
     public function canDeleteUser(User $target): bool
     {
-        // Hanya cegah menghapus akun sendiri agar tidak terkunci keluar
-        return $this->id_pengguna !== $target->id_pengguna;
+        if ((int) $this->id_pengguna === (int) $target->id_pengguna) {
+            return false;
+        }
+
+        if ($this->isOwner()) {
+            return true;
+        }
+
+        return $this->getJabatanRank() > $target->getJabatanRank();
+    }
+
+    /**
+     * Cek apakah user saat ini boleh memberikan jabatan tertentu
+     * (mencegah privilege escalation: hanya Owner yang boleh membuat/menjadikan Owner).
+     */
+    public function canAssignJabatan(string $jabatan): bool
+    {
+        if (strtolower($jabatan) === 'owner') {
+            return $this->isOwner();
+        }
+
+        return $this->isAdmin();
     }
 
     /**

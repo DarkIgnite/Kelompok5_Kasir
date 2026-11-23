@@ -30,7 +30,7 @@
                     <!-- Preview Box -->
                     <div id="fotoPreviewBox" class="w-44 h-28 rounded-xl bg-neutral-100/80 border border-neutral-200 flex flex-col items-center justify-center text-neutral-400 gap-1.5 overflow-hidden shrink-0 relative">
                         @php
-                            $hasGambar = $produk->gambar && file_exists(public_path($produk->gambar));
+                            $hasGambar = $produk->has_gambar;
                         @endphp
                         <div id="emptyFotoPlaceholder" class="flex flex-col items-center justify-center gap-1.5 {{ $hasGambar ? 'hidden' : '' }}">
                             <svg class="w-7 h-7 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -42,7 +42,7 @@
                         </div>
                         <img 
                             id="imgPreview" 
-                            src="{{ $hasGambar ? asset($produk->gambar) : '' }}" 
+                            src="{{ $hasGambar ? $produk->gambar_url : '' }}" 
                             alt="{{ $produk->nama_produk }}" 
                             class="{{ $hasGambar ? '' : 'hidden' }} w-full h-full object-contain p-2"
                         >
@@ -51,7 +51,7 @@
                     <!-- Upload Controls -->
                     <div class="space-y-2">
                         <div id="labelNamaFile" class="text-xs text-neutral-600 font-medium">
-                            {{ $hasGambar ? basename($produk->gambar) : 'Belum ada file dipilih' }}
+                            {{ $hasGambar ? ($produk->gambar_is_remote ? 'Foto dari internet (Unsplash)' : basename($produk->gambar)) : 'Belum ada file dipilih' }}
                         </div>
                         <div class="flex items-center gap-2">
                             <input type="file" name="foto" id="inputFoto" accept="image/png,image/jpeg,image/webp" class="hidden" onchange="handleFotoChange(this)">

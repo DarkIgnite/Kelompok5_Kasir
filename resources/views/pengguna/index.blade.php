@@ -231,7 +231,8 @@
                             {{-- 7. Aksi --}}
                             <td class="py-4 px-6 align-middle">
                                 <div class="flex items-center gap-2">
-                                    {{-- Edit Button (Bisa edit semua user) --}}
+                                    {{-- Edit Button (sesuai hierarki: Owner > Manager > Kasir) --}}
+                                    @if($canEdit)
                                     <button 
                                         type="button" 
                                         onclick="openEditUserModal({{ $item->id_pengguna }}, '{{ addslashes($item->nama_lengkap ?? $item->username) }}', '{{ $item->jabatan }}', '{{ $item->status }}', '{{ addslashes($item->no_telepon ?? '') }}')" 
@@ -243,9 +244,23 @@
                                         </svg>
                                         <span>Edit</span>
                                     </button>
+                                    @else
+                                        <button 
+                                            type="button" 
+                                            disabled 
+                                            class="px-3 py-1.5 rounded-lg border border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-400 flex items-center gap-1.5 cursor-not-allowed opacity-60"
+                                            title="Anda tidak berhak mengedit user ini"
+                                        >
+                                            <svg class="w-3.5 h-3.5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M12 20h9"></path>
+                                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                                            </svg>
+                                            <span>Edit</span>
+                                        </button>
+                                    @endif
 
-                                    {{-- Hapus Button (Semua user kecuali diri sendiri) --}}
-                                    @if(!$isCurrent)
+                                    {{-- Hapus Button (bukan diri sendiri & sesuai hierarki) --}}
+                                    @if($canDelete)
                                         <button 
                                             type="button" 
                                             onclick="openHapusUserModal({{ $item->id_pengguna }}, '{{ addslashes($item->nama_lengkap ?? $item->username) }}')" 
@@ -265,7 +280,7 @@
                                             type="button" 
                                             disabled 
                                             class="px-3 py-1.5 rounded-lg border border-neutral-200 bg-neutral-50 text-xs font-semibold text-neutral-400 flex items-center gap-1.5 cursor-not-allowed opacity-60"
-                                            title="Tidak dapat menghapus akun sendiri"
+                                            title="{{ $isCurrent ? 'Tidak dapat menghapus akun sendiri' : 'Anda tidak berhak menghapus user ini' }}"
                                         >
                                             <svg class="w-3.5 h-3.5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -404,7 +419,9 @@
                             class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
                             <option value="" disabled selected>Pilih Jabatan</option>
+                            @if(Auth::user()?->isOwner())
                             <option value="Owner">Owner</option>
+                            @endif
                             <option value="Manager">Manager</option>
                             <option value="Kasir">Kasir</option>
                         </select>
@@ -545,7 +562,9 @@
                             required 
                             class="w-full h-11 px-4 pr-10 rounded-xl border border-neutral-300 text-sm text-neutral-900 appearance-none bg-white focus:outline-none focus:border-neutral-900 transition-colors cursor-pointer"
                         >
+                            @if(Auth::user()?->isOwner())
                             <option value="Owner">Owner</option>
+                            @endif
                             <option value="Manager">Manager</option>
                             <option value="Kasir">Kasir</option>
                         </select>

@@ -8,14 +8,27 @@ use App\Models\Produk;
 use App\Models\Transaksi;
 use App\Models\User;
 use App\Models\VarianProduk;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
-// To do: Cek TODO_BACKEND.md
 {
+    /**
+     * Batas aman jumlah batang grafik agar mode hari/minggu tidak membuat grafik penuh/error.
+     */
+    public const MAX_BARS = 150;
+
+    protected const MONTH_NAMES_ID = [
+        1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+        5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+        9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
+    ];
+
     /**
      * Render dashboard view dengan data real-time awal.
      */
@@ -23,92 +36,218 @@ class DashboardController extends Controller
     {
         $data = $this->getDashboardMetrics();
 
+        // Tanggal transaksi pertama, dipakai tombol "Sejak toko buka" pada filter grafik
+        $first = Transaksi::where('status', 'selesai')->min('tanggal_transaksi');
+        $data['firstTransactionDate'] = $first ? Carbon::parse($first)->format('Y-m-d') : now()->format('Y-m-d');
+
         return view('dashboard', $data);
     }
 
     /**
      * Endpoint API JSON untuk polling pembaruan real-time di background.
      */
-    public function getRealtimeData(): JsonResponse
+    public function getRealtimeData(Request $request): JsonResponse
     {
+        // Tanpa parameter: perilaku lama (dipakai polling default)
+        if (! $request->hasAny(['start', 'end', 'per'])) {
+            return response()->json($this->getDashboardMetrics());
+        }
+
+        $validated = $request->validate([
+            'start' => ['required', 'date_format:Y-m-d', 'after_or_equal:2000-01-01'],
+            'end'   => ['required', 'date_format:Y-m-d', 'after_or_equal:start'],
+            'per'   => ['nullable', 'in:hari,minggu,bulan'],
+        ]);
+
+        $start = Carbon::createFromFormat('Y-m-d', $validated['start'])->startOfDay();
+        $end = Carbon::createFromFormat('Y-m-d', $validated['end'])->endOfDay();
+        $per = $validated['per'] ?? 'bulan';
+
         $data = $this->getDashboardMetrics();
+        $filtered = $this->getFilteredSalesMetrics($start, $end, $per);
+
+        // Hanya 3 KPI pertama + grafik tren yang ikut filter.
+        // Peringatan stok (card ke-4) tetap kondisi gudang saat ini.
+        $data['stats'] = array_merge($data['stats'], $filtered['stats']);
+        $data['monthlySales'] = $filtered['monthlySales'];
+        $data['chartPills'] = $filtered['chartPills'];
+        $data['filter'] = $filtered['filter'];
 
         return response()->json($data);
     }
 
     /**
-     * Simulasi transaksi kasir untuk menguji update data real-time secara langsung.
+     * Hitung KPI penjualan & tren grafik untuk rentang tanggal tertentu.
+     *
+     * @return array{stats: array, monthlySales: array, chartPills: array, filter: array}
      */
-    public function simulateSale(): JsonResponse
+    public function getFilteredSalesMetrics(Carbon $start, Carbon $end, string $per = 'bulan'): array
     {
-        try {
-            // Pilih varian produk acak yang masih memiliki stok
-            $variant = VarianProduk::with('produk')
-                ->where('stok', '>', 0)
-                ->inRandomOrder()
-                ->first();
+        $requestedPer = $per;
 
-            if (!$variant || !$variant->produk) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Semua varian stok habis, tidak dapat melakukan transaksi.',
-                ], 400);
-            }
-
-            // Kurangi stok varian secara fisik di gudang
-            $variant->decrement('stok', 1);
-
-            // Tentukan kasir / pengguna aktif
-            $user = Auth::user() ?? User::where('role', 'kasir')->first() ?? User::first();
-            $userId = $user ? $user->id_pengguna : 1;
-
-            $harga = (float) $variant->produk->harga_jual;
-            $nota = 'TRX-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -4));
-
-            // Simpan transaksi
-            $transaksi = Transaksi::create([
-                'no_nota' => $nota,
-                'id_pengguna' => $userId,
-                'tanggal_transaksi' => now(),
-                'total_item' => 1,
-                'subtotal' => $harga,
-                'diskon' => 0,
-                'total_bayar' => $harga,
-                'jumlah_bayar' => $harga,
-                'kembalian' => 0,
-                'metode_pembayaran' => 'cash',
-                'status' => 'selesai',
-            ]);
-
-            // Simpan detail transaksi
-            DetailTransaksi::create([
-                'id_transaksi' => $transaksi->id_transaksi,
-                'id_varian' => $variant->id_varian,
-                'jumlah' => 1,
-                'harga_satuan' => $harga,
-                'subtotal' => $harga,
-            ]);
-
-            $metrics = $this->getDashboardMetrics();
-
-            return response()->json([
-                'success' => true,
-                'message' => "Transaksi {$nota} ({$variant->produk->nama_produk} size {$variant->ukuran}) berhasil dicatat!",
-                'sale' => [
-                    'nota' => $nota,
-                    'produk' => $variant->produk->nama_produk,
-                    'ukuran' => $variant->ukuran,
-                    'warna' => $variant->warna,
-                    'total' => 'Rp ' . number_format($harga, 0, ',', '.'),
-                ],
-                'data' => $metrics,
-            ]);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal simulasi transaksi: ' . $e->getMessage(),
-            ], 500);
+        // Batas aman 150 batang: naikkan satuan (hari -> minggu -> bulan) jika terlalu banyak
+        $order = ['hari', 'minggu', 'bulan'];
+        while ($this->countBuckets($start, $end, $per) > self::MAX_BARS && $per !== 'bulan') {
+            $per = $order[array_search($per, $order) + 1];
         }
+
+        // Satu query untuk seluruh rentang, dikelompokkan di PHP (aman untuk SQLite & MySQL)
+        $rows = Transaksi::where('status', 'selesai')
+            ->whereBetween('tanggal_transaksi', [$start, $end])
+            ->get(['tanggal_transaksi', 'total_bayar', 'total_item']);
+
+        $buckets = [];
+        foreach ($this->bucketPeriod($start, $end, $per) as $key => $label) {
+            $buckets[$key] = ['month' => $label, 'raw' => 0.0];
+        }
+
+        foreach ($rows as $row) {
+            $key = $this->bucketKey(Carbon::parse($row->tanggal_transaksi), $per);
+            if (isset($buckets[$key])) {
+                $buckets[$key]['raw'] += (float) $row->total_bayar;
+            }
+        }
+
+        $truncated = false;
+        if (count($buckets) > self::MAX_BARS) {
+            // Rentang sangat panjang (> 150 bulan): tampilkan 150 batang terakhir saja
+            $buckets = array_slice($buckets, -self::MAX_BARS, null, true);
+            $truncated = true;
+        }
+
+        $raws = array_column($buckets, 'raw');
+        $maxRaw = $raws ? max($raws) : 0;
+        $monthlySales = [];
+        $peakLabel = '-';
+        $peakRaw = 0;
+        foreach ($buckets as $bucket) {
+            $raw = $bucket['raw'];
+            if ($raw > $peakRaw) {
+                $peakRaw = $raw;
+                $peakLabel = $bucket['month'];
+            }
+            $monthlySales[] = [
+                'month'  => $bucket['month'],
+                // Tanpa penjualan = garis tipis 2%, supaya tidak terlihat seperti ada transaksi
+                'height' => ($maxRaw > 0 && $raw > 0) ? max(18, min(96, round(($raw / $maxRaw) * 96))) : 2,
+                'amount' => $this->formatShortRupiah($raw),
+                'raw'    => $raw,
+            ];
+        }
+
+        $totalPenjualan = (float) $rows->sum('total_bayar');
+        $totalTransaksi = $rows->count();
+        $totalTerjual = (int) $rows->sum('total_item');
+        $rataRata = $totalTransaksi > 0 ? $totalPenjualan / $totalTransaksi : 0;
+
+        // Pertumbuhan dibanding periode sebelumnya dengan panjang yang sama
+        $days = $start->copy()->startOfDay()->diffInDays($end->copy()->startOfDay()) + 1;
+        $prevEnd = $start->copy()->subDay()->endOfDay();
+        $prevStart = $start->copy()->subDays($days)->startOfDay();
+        $prevPenjualan = (float) Transaksi::where('status', 'selesai')
+            ->whereBetween('tanggal_transaksi', [$prevStart, $prevEnd])
+            ->sum('total_bayar');
+        $growth = $prevPenjualan > 0 ? (($totalPenjualan - $prevPenjualan) / $prevPenjualan) * 100 : 0;
+        $growthStr = ($growth >= 0 ? '+' : '') . number_format($growth, 1, '.', '');
+
+        $activeBars = count(array_filter($raws, fn ($v) => $v > 0));
+
+        return [
+            'stats' => [
+                'total_penjualan'           => $totalPenjualan,
+                'total_penjualan_formatted' => 'Rp' . number_format($totalPenjualan, 0, ',', '.'),
+                'persen_penjualan'          => $growthStr,
+                'total_transaksi'           => $totalTransaksi,
+                'rata_rata_nota'            => (float) $rataRata,
+                'rata_rata_nota_formatted'  => 'Rp' . number_format($rataRata, 0, ',', '.'),
+                'total_terjual'             => $totalTerjual,
+            ],
+            'monthlySales' => $monthlySales,
+            'chartPills' => [
+                'peak_month'  => $peakLabel,
+                'peak_amount' => 'Puncak - ' . $this->formatShortRupiah($peakRaw),
+                'avg_amount'  => $this->formatShortRupiah($activeBars > 0 ? array_sum($raws) / $activeBars : 0),
+                'growth_rate' => $growthStr . '%',
+            ],
+            'filter' => [
+                'start'         => $start->format('Y-m-d'),
+                'end'           => $end->format('Y-m-d'),
+                'per'           => $per,
+                'per_requested' => $requestedPer,
+                'per_adjusted'  => $per !== $requestedPer,
+                'days'          => $days,
+                'bar_count'     => count($monthlySales),
+                'truncated'     => $truncated,
+                'max_bars'      => self::MAX_BARS,
+                'range_label'   => $this->rangeLabel($start, $end),
+            ],
+        ];
+    }
+
+    protected function countBuckets(Carbon $start, Carbon $end, string $per): int
+    {
+        return count($this->bucketPeriod($start, $end, $per));
+    }
+
+    /**
+     * Daftar bucket (key => label) berurutan untuk rentang tanggal.
+     */
+    protected function bucketPeriod(Carbon $start, Carbon $end, string $per): array
+    {
+        $buckets = [];
+        $multiYear = $start->year !== $end->year;
+
+        if ($per === 'hari') {
+            foreach (CarbonPeriod::create($start->copy()->startOfDay(), '1 day', $end->copy()->startOfDay()) as $d) {
+                $buckets[$this->bucketKey($d, 'hari')] = $d->format('d/m');
+            }
+        } elseif ($per === 'minggu') {
+            $cursor = $start->copy()->startOfWeek(Carbon::MONDAY);
+            while ($cursor->lte($end)) {
+                $buckets[$this->bucketKey($cursor, 'minggu')] = $cursor->format('d/m');
+                $cursor->addWeek();
+            }
+        } else {
+            $cursor = $start->copy()->startOfMonth();
+            while ($cursor->lte($end)) {
+                $label = self::MONTH_NAMES_ID[$cursor->month] . ($multiYear ? ' ' . $cursor->format('y') : '');
+                $buckets[$this->bucketKey($cursor, 'bulan')] = $label;
+                $cursor->addMonthNoOverflow();
+            }
+        }
+
+        return $buckets;
+    }
+
+    protected function bucketKey(Carbon $date, string $per): string
+    {
+        return match ($per) {
+            'hari'   => $date->format('Y-m-d'),
+            'minggu' => $date->copy()->startOfWeek(Carbon::MONDAY)->format('Y-m-d'),
+            default  => $date->format('Y-m'),
+        };
+    }
+
+    protected function rangeLabel(Carbon $start, Carbon $end): string
+    {
+        $fmt = fn (Carbon $d) => $d->day . ' ' . self::MONTH_NAMES_ID[$d->month] . ' ' . $d->year;
+
+        return $fmt($start) . ' - ' . $fmt($end);
+    }
+
+    protected function formatShortRupiah(float $raw): string
+    {
+        if ($raw >= 1000000000) {
+            return 'Rp ' . number_format($raw / 1000000000, 1, ',', '.') . 'M';
+        }
+        if ($raw >= 1000000) {
+            return 'Rp ' . number_format($raw / 1000000, 1, ',', '.') . 'jt';
+        }
+        if ($raw >= 1000) {
+            return 'Rp ' . number_format($raw / 1000, 0, ',', '.') . 'rb';
+        }
+
+        return 'Rp ' . number_format($raw, 0, ',', '.');
     }
 
     /**
@@ -117,175 +256,21 @@ class DashboardController extends Controller
     public function getDashboardMetrics(): array
     {
         try {
-            $hasTransactions = Transaksi::where('status', 'selesai')->exists();
             $hasProducts = Produk::exists();
 
-            // 1. STATS UTAMA (4 KARTU METRIK)
-            $dbTransaksi = Transaksi::where('status', 'selesai')->count();
-            $dbPenjualan = (float) Transaksi::where('status', 'selesai')->sum('total_bayar');
-            $dbTerjual = (int) Transaksi::where('status', 'selesai')->sum('total_item');
+            // 1+2. KPI & TREN PENJUALAN: data asli 12 bulan terakhir
+            //      (sama dengan pilihan "12 bulan terakhir" pada filter grafik).
+            [$defaultStart, $defaultEnd] = $this->defaultRange();
+            $sales = $this->getFilteredSalesMetrics($defaultStart, $defaultEnd, 'bulan');
+
             $lowStockCount = (int) VarianProduk::whereColumn('stok', '<=', 'stok_minimum')->count();
 
-            // Baseline design metrik sesuai Page Dashboard (2)
-            $basePenjualan = 435400000;
-            $baseTransaksi = 32;
-            $baseTerjual = 71;
-            $basePeringatan = max(3, $lowStockCount);
-
-            if ($dbTransaksi > 0) {
-                // Akumulasikan data riil jika ada transaksi tambahan
-                $totalPenjualan = $basePenjualan + max(0, $dbPenjualan - 13808400);
-                $totalTransaksi = $baseTransaksi + max(0, $dbTransaksi - 1);
-                $totalTerjual = $baseTerjual + max(0, $dbTerjual - 4);
-                $rataRataNota = $totalTransaksi > 0 ? ($totalPenjualan / $totalTransaksi) : 0;
-            } else {
-                $totalPenjualan = $basePenjualan;
-                $totalTransaksi = $baseTransaksi;
-                $totalTerjual = $baseTerjual;
-                $rataRataNota = $totalPenjualan / $totalTransaksi;
-            }
-
-            $stats = [
-                'total_penjualan'           => $totalPenjualan,
-                'total_penjualan_formatted' => 'Rp' . number_format($totalPenjualan, 0, ',', '.'),
-                'persen_penjualan'          => '+14.8',
-                'total_transaksi'           => $totalTransaksi,
-                'rata_rata_nota'            => (float) $rataRataNota,
-                'rata_rata_nota_formatted'  => 'Rp' . number_format($rataRataNota, 0, ',', '.'),
-                'total_terjual'             => $totalTerjual,
-                'peringatan_stok'           => $basePeringatan,
-            ];
-
-            // 2. TREN PENJUALAN BULANAN (12 Bulan Trailing Real-time)
-            $monthNamesId = [
-                1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
-                5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
-                9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des',
-            ];
-
-            // PENGATURAN DATA GRAFIK:
-            // 1. Secara default, grafik otomatis menghitung omzet dari data riil transaksi di database (tabel tbl_transaksi).
-            // 2. Jika Anda ingin MENGUBAH / MENYESUAIKAN angka bulan tertentu secara langsung, cukup masukkan nama bulan di sini:
-            //    Contoh: 'Nov' => 20000000, 'Des' => 25000000 (angka dalam Rupiah).
-            //    Kosongkan [] jika ingin 100% murni dari database.
-            $customMonthlyOverrides = [
-                // 'Nov' => 12440000,
-                // 'Des' => 9330000,
-            ];
-
-            $monthlySales = [];
-            $rawMonthlySales = [];
-            $now = now();
-
-            for ($i = 11; $i >= 0; $i--) {
-                $d = (clone $now)->subMonths($i);
-                $m = (int) $d->format('n');
-                $y = (int) $d->format('Y');
-                $mLabel = $monthNamesId[$m] ?? $d->format('M');
-
-                $monthSum = (float) Transaksi::where('status', 'selesai')
-                    ->whereYear('tanggal_transaksi', $y)
-                    ->whereMonth('tanggal_transaksi', $m)
-                    ->sum('total_bayar');
-
-                // Jika ada custom override untuk bulan ini, gunakan nilai override. Jika tidak, gunakan data database.
-                $finalAmount = isset($customMonthlyOverrides[$mLabel])
-                    ? (float) $customMonthlyOverrides[$mLabel]
-                    : $monthSum;
-
-                $rawMonthlySales[] = [
-                    'month' => $mLabel,
-                    'year'  => $y,
-                    'raw'   => $finalAmount,
-                ];
-            }
-
-            $maxMonthly = !empty($rawMonthlySales) ? max(array_column($rawMonthlySales, 'raw')) : 0;
-            $sumMonthly = !empty($rawMonthlySales) ? array_sum(array_column($rawMonthlySales, 'raw')) : 0;
-            $activeMonthsCount = !empty($rawMonthlySales) ? count(array_filter(array_column($rawMonthlySales, 'raw'), fn($v) => $v > 0)) : 0;
-
-            if ($activeMonthsCount <= 2) {
-                // Gunakan distribusi data presisi sesuai desain di Page Dashboard (2).png
-                $monthlySales = [
-                    ['month' => 'Nov', 'height' => 52, 'amount' => 'Rp 226,4jt', 'raw' => 226400000],
-                    ['month' => 'Des', 'height' => 70, 'amount' => 'Rp 305,2jt', 'raw' => 305200000],
-                    ['month' => 'Jan', 'height' => 48, 'amount' => 'Rp 209,1jt', 'raw' => 209100000],
-                    ['month' => 'Feb', 'height' => 36, 'amount' => 'Rp 156,8jt', 'raw' => 156800000],
-                    ['month' => 'Mar', 'height' => 44, 'amount' => 'Rp 191,5jt', 'raw' => 191500000],
-                    ['month' => 'Apr', 'height' => 60, 'amount' => 'Rp 261,3jt', 'raw' => 261300000],
-                    ['month' => 'Mei', 'height' => 64, 'amount' => 'Rp 278,7jt', 'raw' => 278700000],
-                    ['month' => 'Jun', 'height' => 48, 'amount' => 'Rp 209,0jt', 'raw' => 209000000],
-                    ['month' => 'Jul', 'height' => 68, 'amount' => 'Rp 296,2jt', 'raw' => 296200000],
-                    ['month' => 'Agu', 'height' => 82, 'amount' => 'Rp 357,0jt', 'raw' => 357000000],
-                    ['month' => 'Sep', 'height' => 74, 'amount' => 'Rp 322,2jt', 'raw' => 322200000],
-                    ['month' => 'Okt', 'height' => 96, 'amount' => 'Rp 435,4jt', 'raw' => 435400000],
-                ];
-
-                $chartPills = [
-                    'peak_month' => 'Okt',
-                    'peak_amount' => 'Puncak - Rp 435,4jt',
-                    'avg_amount' => 'Rp 331,5jt',
-                    'growth_rate' => '+22%',
-                ];
-            } else {
-                $peakMonthName = 'Okt';
-                $highestMonthAmount = 0;
-
-                foreach ($rawMonthlySales as $item) {
-                    $raw = $item['raw'];
-                    if ($raw >= $highestMonthAmount) {
-                        $highestMonthAmount = $raw;
-                        $peakMonthName = $item['month'];
-                    }
-
-                    if ($maxMonthly > 0) {
-                        $height = $raw > 0 ? max(18, min(96, round(($raw / $maxMonthly) * 96))) : 12;
-                    } else {
-                        $height = 12;
-                    }
-
-                    if ($raw >= 1000000000) {
-                        $amountFormatted = 'Rp ' . number_format($raw / 1000000000, 1, ',', '.') . 'M';
-                    } elseif ($raw >= 1000000) {
-                        $amountFormatted = 'Rp ' . number_format($raw / 1000000, 1, ',', '.') . 'jt';
-                    } elseif ($raw >= 1000) {
-                        $amountFormatted = 'Rp ' . number_format($raw / 1000, 0, ',', '.') . 'rb';
-                    } else {
-                        $amountFormatted = 'Rp ' . number_format($raw, 0, ',', '.');
-                    }
-
-                    $monthlySales[] = [
-                        'month' => $item['month'],
-                        'height' => $height,
-                        'amount' => $amountFormatted,
-                        'raw' => $raw,
-                    ];
-                }
-
-                if ($highestMonthAmount >= 1000000) {
-                    $peakAmountStr = 'Rp ' . number_format($highestMonthAmount / 1000000, 1, ',', '.') . 'jt';
-                } elseif ($highestMonthAmount > 0) {
-                    $peakAmountStr = 'Rp ' . number_format($highestMonthAmount / 1000, 0, ',', '.') . 'rb';
-                } else {
-                    $peakAmountStr = 'Rp 0';
-                }
-
-                $avgMonthlySales = $activeMonthsCount > 0 ? ($sumMonthly / $activeMonthsCount) : 0;
-                if ($avgMonthlySales >= 1000000) {
-                    $avgAmountStr = 'Rp ' . number_format($avgMonthlySales / 1000000, 1, ',', '.') . 'jt';
-                } elseif ($avgMonthlySales > 0) {
-                    $avgAmountStr = 'Rp ' . number_format($avgMonthlySales / 1000, 0, ',', '.') . 'rb';
-                } else {
-                    $avgAmountStr = 'Rp 0';
-                }
-
-                $chartPills = [
-                    'peak_month' => $peakMonthName,
-                    'peak_amount' => "Puncak - {$peakAmountStr}",
-                    'avg_amount' => $avgAmountStr,
-                    'growth_rate' => ($stats['persen_penjualan'] ?? '+0') . '%',
-                ];
-            }
+            $stats = array_merge($sales['stats'], [
+                'peringatan_stok' => $lowStockCount,
+            ]);
+            $monthlySales = $sales['monthlySales'];
+            $chartPills = $sales['chartPills'];
+            $filter = $sales['filter'];
 
             // 3. KATEGORI TERLARIS (REAL-TIME AGREGASI PENJUALAN)
             $categorySales = DB::table('tbl_kategori')
@@ -306,25 +291,14 @@ class DashboardController extends Controller
 
             $totalCategorySold = $categorySales->sum('count');
 
-            if ($totalCategorySold > 0) {
-                $topCategories = $categorySales->map(function ($row) use ($totalCategorySold) {
-                    $count = (int) $row->count;
-                    $percent = $totalCategorySold > 0 ? round(($count / $totalCategorySold) * 100) : 0;
-                    return [
-                        'name' => $row->nama_kategori,
-                        'count' => $count,
-                        'percent' => $percent,
-                    ];
-                })->toArray();
-            } else {
-                // Fallback demo categories jika belum ada transaksi kategori
-                $topCategories = [
-                    ['name' => 'Lifestyle', 'count' => 67, 'percent' => 94],
-                    ['name' => 'Running',   'count' => 2,  'percent' => 3],
-                    ['name' => 'Sports',    'count' => 1,  'percent' => 2],
-                    ['name' => 'Casual',    'count' => 1,  'percent' => 1],
+            $topCategories = $categorySales->map(function ($row) use ($totalCategorySold) {
+                $count = (int) $row->count;
+                return [
+                    'name' => $row->nama_kategori,
+                    'count' => $count,
+                    'percent' => $totalCategorySold > 0 ? round(($count / $totalCategorySold) * 100) : 0,
                 ];
-            }
+            })->toArray();
 
             // 4. PERINGATAN RESTOCK SEGERA (REAL-TIME DARI VARIAN)
             $lowStockVariants = VarianProduk::with('produk')
@@ -333,24 +307,17 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            if ($lowStockVariants->isNotEmpty()) {
-                $restockAlerts = $lowStockVariants->map(function ($item) {
-                    return [
-                        'name' => $item->produk->nama_produk ?? $item->sku,
-                        'detail' => "Size {$item->ukuran} - {$item->warna} - sisa {$item->stok}, min. {$item->stok_minimum}",
-                        'status' => $item->stok == 0 ? 'Habis' : 'Kritis',
-                    ];
-                })->toArray();
-            } else {
-                $restockAlerts = [
-                    ['name' => 'FayerJyordan', 'detail' => 'Size 44 EUR - Hitam - sisa 0, min. 10', 'status' => 'Habis'],
-                    ['name' => 'ErthJyordan',  'detail' => 'Size 40 EUR - Abu - sisa 4, min. 5',   'status' => 'Kritis'],
-                    ['name' => 'WhinJyordan',  'detail' => 'Size 40 EUR - Abu - sisa 4, min. 5',   'status' => 'Kritis'],
+            $restockAlerts = $lowStockVariants->map(function ($item) {
+                return [
+                    'name' => $item->produk->nama_produk ?? $item->sku,
+                    'detail' => "Size {$item->ukuran} - {$item->warna} - sisa {$item->stok}, min. {$item->stok_minimum}",
+                    'status' => $item->stok == 0 ? 'Habis' : 'Kritis',
                 ];
-            }
+            })->toArray();
 
             // 5. MARGIN UNTUNG PER KATEGORI (REAL-TIME DARI DATA PRODUK)
             $categoriesWithProducts = Kategori::with('produk')->get();
+            $categoryMargins = [];
             if ($categoriesWithProducts->isNotEmpty()) {
                 $categoryMargins = $categoriesWithProducts->map(function ($kat) {
                     $prods = $kat->produk;
@@ -374,34 +341,33 @@ class DashboardController extends Controller
                         'is_highlight' => $marginVal >= 30,
                     ];
                 })->toArray();
-            } else {
-                $categoryMargins = [
-                    ['category' => 'Lifestyle', 'margin' => '34%', 'margin_value' => 34, 'is_highlight' => true],
-                    ['category' => 'Running',   'margin' => '21%', 'margin_value' => 21, 'is_highlight' => false],
-                    ['category' => 'Sports',    'margin' => '25%', 'margin_value' => 25, 'is_highlight' => false],
-                    ['category' => 'Casual',    'margin' => '41%', 'margin_value' => 41, 'is_highlight' => true],
-                ];
             }
 
             // 6. STOK MENUMPUK / SLOW MOVING (REAL-TIME DARI PRODUK DAN PENJUALAN)
             $allProducts = Produk::with(['varian'])->get();
             $slowMoving = [];
 
+            // Penjualan 30 hari terakhir per produk dalam satu query (sebelumnya 1 query per produk)
+            $soldLast30 = DB::table('tbl_detail_transaksi')
+                ->join('tbl_varian_produk', 'tbl_detail_transaksi.id_varian', '=', 'tbl_varian_produk.id_varian')
+                ->join('tbl_transaksi', 'tbl_detail_transaksi.id_transaksi', '=', 'tbl_transaksi.id_transaksi')
+                ->where('tbl_transaksi.status', 'selesai')
+                ->where('tbl_transaksi.tanggal_transaksi', '>=', now()->subDays(30))
+                ->groupBy('tbl_varian_produk.id_produk')
+                ->selectRaw('tbl_varian_produk.id_produk as id_produk, SUM(tbl_detail_transaksi.jumlah) as terjual')
+                ->pluck('terjual', 'id_produk');
+
             foreach ($allProducts as $prod) {
                 $totalStock = (int) $prod->varian->sum('stok');
                 if ($totalStock >= 20) {
-                    $soldCount = (int) DB::table('tbl_detail_transaksi')
-                        ->join('tbl_varian_produk', 'tbl_detail_transaksi.id_varian', '=', 'tbl_varian_produk.id_varian')
-                        ->join('tbl_transaksi', 'tbl_detail_transaksi.id_transaksi', '=', 'tbl_transaksi.id_transaksi')
-                        ->where('tbl_varian_produk.id_produk', $prod->id_produk)
-                        ->where('tbl_transaksi.status', 'selesai')
-                        ->where('tbl_transaksi.tanggal_transaksi', '>=', now()->subDays(30))
-                        ->sum('tbl_detail_transaksi.jumlah');
+                    $soldCount = (int) ($soldLast30[$prod->id_produk] ?? 0);
 
                     $sizes = $prod->varian->pluck('ukuran')->unique()->implode(' - ');
                     $colors = $prod->varian->pluck('warna')->unique()->implode(' - ');
 
                     $slowMoving[] = [
+                        '_sold' => $soldCount,
+                        '_stock' => $totalStock,
                         'name' => $prod->nama_produk,
                         'detail' => "Size {$sizes} EUR - {$colors}",
                         'note' => "Sisa <strong>{$totalStock} - {$soldCount}</strong> terjual bulan ini",
@@ -410,18 +376,15 @@ class DashboardController extends Controller
                 }
             }
 
-            if (empty($slowMoving)) {
-                $slowMoving = [
-                    [
-                        'name' => 'WaterJyordan',
-                        'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
-                        'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
-                        'status' => 'Overstock',
-                    ],
-                ];
-            }
+            // Tampilkan 3 produk paling menumpuk: paling sedikit terjual, lalu stok terbanyak
+            usort($slowMoving, fn ($a, $b) => [$a['_sold'], -$a['_stock']] <=> [$b['_sold'], -$b['_stock']]);
+            $slowMoving = array_map(function ($item) {
+                unset($item['_sold'], $item['_stock']);
+                return $item;
+            }, array_slice($slowMoving, 0, 3));
 
             // 7. KATALOG STOK SEPATU (REAL-TIME INVENTARIS FISIK)
+            $shoeCatalog = [];
             if ($hasProducts) {
                 $shoeCatalog = $allProducts->map(function ($prod) {
                     $totalStock = (int) $prod->varian->sum('stok');
@@ -473,7 +436,9 @@ class DashboardController extends Controller
                         'id' => $prod->id_produk,
                         'name' => $prod->nama_produk,
                         'code' => $prod->kode_produk,
-                        'image' => $prod->gambar ?: 'images/shoes/water-jyordan.png',
+                        'image' => $prod->gambar ?: 'images/shoes/placeholder.svg',
+                        'image_url' => $prod->gambar_url,
+                        'image_remote' => $prod->gambar_is_remote,
                         'brand' => $prod->merek,
                         'variant' => $variantStr,
                         'unit_price' => 'Rp ' . number_format($prod->harga_jual, 0, ',', '.'),
@@ -484,61 +449,6 @@ class DashboardController extends Controller
                         'variants'        => $variantsList,
                     ];
                 })->toArray();
-            } else {
-                $shoeCatalog = [
-                    [
-                        'id' => 1,
-                        'name' => 'WaterJyordan',
-                        'code' => 'kodeprdk01',
-                        'image' => 'images/shoes/water-jyordan.png',
-                        'brand' => 'Asuz',
-                        'variant' => '4 ukuran - 2 warna',
-                        'unit_price' => 'Rp 3.110.000',
-                        'total_stock' => '66 pasang',
-                        'total_stock_num' => 66,
-                        'status' => 'Overstock',
-                        'status_type' => 'overstock',
-                    ],
-                    [
-                        'id' => 2,
-                        'name' => 'FayerJyordan',
-                        'code' => 'kodeprdk02',
-                        'image' => 'images/shoes/fayer-jyordan.png',
-                        'brand' => 'Zusa',
-                        'variant' => '4 ukuran - 1 warna',
-                        'unit_price' => 'Rp6.220.000',
-                        'total_stock' => '0 pasang',
-                        'total_stock_num' => 0,
-                        'status' => 'Habis',
-                        'status_type' => 'habis',
-                    ],
-                    [
-                        'id' => 3,
-                        'name' => 'ErthJyordan',
-                        'code' => 'kodeprdk03',
-                        'image' => 'images/shoes/erth-jyordan.png',
-                        'brand' => 'Uzas',
-                        'variant' => '3 ukuran - 1 warna',
-                        'unit_price' => 'Rp6.220.000',
-                        'total_stock' => '5 pasang',
-                        'total_stock_num' => 5,
-                        'status' => 'Kritis',
-                        'status_type' => 'kritis',
-                    ],
-                    [
-                        'id' => 4,
-                        'name' => 'WhinJyordan',
-                        'code' => 'kodeprdk04',
-                        'image' => 'images/shoes/whin-jyordan.png',
-                        'brand' => 'Uzuz',
-                        'variant' => '3 ukuran - 2 warna',
-                        'unit_price' => 'Rp6.220.000',
-                        'total_stock' => '10 pasang',
-                        'total_stock_num' => 10,
-                        'status' => 'Kritis',
-                        'status_type' => 'kritis',
-                    ],
-                ];
             }
 
             return [
@@ -551,11 +461,13 @@ class DashboardController extends Controller
                 'slowMoving' => $slowMoving,
                 'shoeCatalog' => $shoeCatalog,
                 'totalShoesCount' => count($shoeCatalog),
+                'filter' => $filter,
                 'timestamp' => now()->format('H:i:s'),
                 'server_time' => now()->format('d M Y, H:i:s'),
             ];
         } catch (\Throwable $e) {
-            return $this->getFallbackMetrics($e->getMessage());
+            report($e); // detail error hanya di storage/logs/laravel.log
+            return $this->getFallbackMetrics('Data dashboard gagal dimuat. Silakan muat ulang halaman.');
         }
     }
 
@@ -566,118 +478,37 @@ class DashboardController extends Controller
     {
         return [
             'stats' => [
-                'total_penjualan'           => 435400000,
-                'total_penjualan_formatted' => 'Rp435.400.000',
-                'persen_penjualan'          => '+14.8',
-                'total_transaksi'           => 32,
-                'rata_rata_nota'            => 13606250,
-                'rata_rata_nota_formatted'  => 'Rp13.606.250',
-                'total_terjual'             => 71,
-                'peringatan_stok'           => 3,
+                'total_penjualan'           => 0,
+                'total_penjualan_formatted' => 'Rp0',
+                'persen_penjualan'          => '+0.0',
+                'total_transaksi'           => 0,
+                'rata_rata_nota'            => 0,
+                'rata_rata_nota_formatted'  => 'Rp0',
+                'total_terjual'             => 0,
+                'peringatan_stok'           => 0,
             ],
-            'monthlySales' => [
-                ['month' => 'Nov', 'height' => 52, 'amount' => 'Rp 226,4jt', 'raw' => 226400000],
-                ['month' => 'Des', 'height' => 70, 'amount' => 'Rp 305,2jt', 'raw' => 305200000],
-                ['month' => 'Jan', 'height' => 48, 'amount' => 'Rp 209,1jt', 'raw' => 209100000],
-                ['month' => 'Feb', 'height' => 36, 'amount' => 'Rp 156,8jt', 'raw' => 156800000],
-                ['month' => 'Mar', 'height' => 44, 'amount' => 'Rp 191,5jt', 'raw' => 191500000],
-                ['month' => 'Apr', 'height' => 60, 'amount' => 'Rp 261,3jt', 'raw' => 261300000],
-                ['month' => 'Mei', 'height' => 64, 'amount' => 'Rp 278,7jt', 'raw' => 278700000],
-                ['month' => 'Jun', 'height' => 48, 'amount' => 'Rp 209,0jt', 'raw' => 209000000],
-                ['month' => 'Jul', 'height' => 68, 'amount' => 'Rp 296,2jt', 'raw' => 296200000],
-                ['month' => 'Agu', 'height' => 82, 'amount' => 'Rp 357,0jt', 'raw' => 357000000],
-                ['month' => 'Sep', 'height' => 74, 'amount' => 'Rp 322,2jt', 'raw' => 322200000],
-                ['month' => 'Okt', 'height' => 96, 'amount' => 'Rp 435,4jt', 'raw' => 435400000],
-            ],
-            'chartPills' => [
-                'peak_month' => 'Okt',
-                'peak_amount' => 'Puncak - Rp 435,4jt',
-                'avg_amount' => 'Rp 331,5jt',
-                'growth_rate' => '+22%',
-            ],
-            'topCategories' => [
-                ['name' => 'Lifestyle', 'count' => 67, 'percent' => 94],
-                ['name' => 'Running',   'count' => 2,  'percent' => 3],
-                ['name' => 'Sports',    'count' => 1,  'percent' => 2],
-                ['name' => 'Casual',    'count' => 1,  'percent' => 1],
-            ],
-            'restockAlerts' => [
-                ['name' => 'FayerJyordan', 'detail' => 'Size 44 EUR - Hitam - sisa 0, min. 10', 'status' => 'Habis'],
-                ['name' => 'ErthJyordan',  'detail' => 'Size 40 EUR - Abu - sisa 4, min. 5',   'status' => 'Kritis'],
-                ['name' => 'WhinJyordan',  'detail' => 'Size 40 EUR - Abu - sisa 4, min. 5',   'status' => 'Kritis'],
-            ],
-            'categoryMargins' => [
-                ['category' => 'Lifestyle', 'margin' => '34%', 'margin_value' => 34, 'is_highlight' => true],
-                ['category' => 'Running',   'margin' => '21%', 'margin_value' => 21, 'is_highlight' => false],
-                ['category' => 'Sports',    'margin' => '25%', 'margin_value' => 25, 'is_highlight' => false],
-                ['category' => 'Casual',    'margin' => '41%', 'margin_value' => 41, 'is_highlight' => true],
-            ],
-            'slowMoving' => [
-                [
-                    'name' => 'WaterJyordan',
-                    'detail' => 'Size 40 - 41 - 42 - 43 - 44 EUR - Merah - Hitam',
-                    'note' => 'Sisa <strong>66 - 1</strong> terjual bulan ini',
-                    'status' => 'Overstock',
-                ],
-            ],
-            'shoeCatalog' => [
-                [
-                    'id' => 1,
-                    'name' => 'WaterJyordan',
-                    'code' => 'kodeprdk01',
-                    'image' => 'images/shoes/water-jyordan.png',
-                    'brand' => 'Asuz',
-                    'variant' => '4 ukuran - 2 warna',
-                    'unit_price' => 'Rp 3.110.000',
-                    'total_stock' => '66 pasang',
-                    'total_stock_num' => 66,
-                    'status' => 'Overstock',
-                    'status_type' => 'overstock',
-                ],
-                [
-                    'id' => 2,
-                    'name' => 'FayerJyordan',
-                    'code' => 'kodeprdk02',
-                    'image' => 'images/shoes/fayer-jyordan.png',
-                    'brand' => 'Zusa',
-                    'variant' => '4 ukuran - 1 warna',
-                    'unit_price' => 'Rp6.220.000',
-                    'total_stock' => '0 pasang',
-                    'total_stock_num' => 0,
-                    'status' => 'Habis',
-                    'status_type' => 'habis',
-                ],
-                [
-                    'id' => 3,
-                    'name' => 'ErthJyordan',
-                    'code' => 'kodeprdk03',
-                    'image' => 'images/shoes/erth-jyordan.png',
-                    'brand' => 'Uzas',
-                    'variant' => '3 ukuran - 1 warna',
-                    'unit_price' => 'Rp6.220.000',
-                    'total_stock' => '5 pasang',
-                    'total_stock_num' => 5,
-                    'status' => 'Kritis',
-                    'status_type' => 'kritis',
-                ],
-                [
-                    'id' => 4,
-                    'name' => 'WhinJyordan',
-                    'code' => 'kodeprdk04',
-                    'image' => 'images/shoes/whin-jyordan.png',
-                    'brand' => 'Uzuz',
-                    'variant' => '3 ukuran - 2 warna',
-                    'unit_price' => 'Rp6.220.000',
-                    'total_stock' => '10 pasang',
-                    'total_stock_num' => 10,
-                    'status' => 'Kritis',
-                    'status_type' => 'kritis',
-                ],
-            ],
-            'totalShoesCount' => 4,
-            'timestamp' => now()->format('H:i:s'),
-            'server_time' => now()->format('d M Y, H:i:s'),
-            'error' => $errorMessage,
+            'monthlySales'    => [],
+            'chartPills'      => ['peak_month' => '-', 'peak_amount' => 'Belum ada data', 'avg_amount' => 'Rp 0', 'growth_rate' => '+0.0%'],
+            'topCategories'   => [],
+            'restockAlerts'   => [],
+            'categoryMargins' => [],
+            'slowMoving'      => [],
+            'shoeCatalog'     => [],
+            'totalShoesCount' => 0,
+            'filter'          => null,
+            'timestamp'       => now()->format('H:i:s'),
+            'server_time'     => now()->format('d M Y, H:i:s'),
+            'error'           => $errorMessage,
         ];
+    }
+
+    /**
+     * Rentang default dashboard: awal bulan 11 bulan lalu s.d. hari ini (12 bulan).
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    protected function defaultRange(): array
+    {
+        return [now()->startOfMonth()->subMonthsNoOverflow(11)->startOfDay(), now()->endOfDay()];
     }
 }

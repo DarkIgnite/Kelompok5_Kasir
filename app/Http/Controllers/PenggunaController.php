@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PenggunaController extends Controller
@@ -39,7 +38,7 @@ class PenggunaController extends Controller
             }
         }
 
-        $limit = $request->input('limit', 100);
+        $limit = min(max((int) $request->input('limit', 100), 10), 100); // dibatasi 10–100 baris per halaman
 
         // Syarat: User sekarang (current user) HARUS PALING ATAS di list
         $currentUserId = Auth::id() ?? 0;
@@ -71,6 +70,12 @@ class PenggunaController extends Controller
             'status.required' => 'Status wajib dipilih.',
         ]);
 
+        // Cegah privilege escalation: hanya Owner yang boleh membuat akun Owner
+        if (! $currentUser->canAssignJabatan($validated['jabatan'])) {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'Anda tidak berhak membuat user dengan jabatan ' . $validated['jabatan'] . '.');
+        }
+
         // Map jabatan to role auth
         $role = strtolower($validated['jabatan']) === 'kasir' ? 'kasir' : 'admin';
 
@@ -89,7 +94,9 @@ class PenggunaController extends Controller
         User::create([
             'nama_lengkap' => $validated['nama_user'],
             'username' => $username,
-            'password' => Hash::make($validated['password']),
+            // Model User memakai cast 'password' => 'hashed', jadi kirim plain text
+            // (Hash::make di sini membuat kode bergantung pada pengecekan anti double-hash).
+            'password' => $validated['password'],
             'role' => $role,
             'jabatan' => $validated['jabatan'],
             'status' => $validated['status'],
@@ -104,6 +111,14 @@ class PenggunaController extends Controller
      */
     public function update(Request $request, User $pengguna)
     {
+        /** @var User $currentUser */
+        $currentUser = Auth::user();
+
+        // Hierarki role: Admin/Manager tidak boleh mengedit Owner atau Manager lain
+        if (! $currentUser->canEditUser($pengguna)) {
+            abort(403, 'Anda tidak berhak mengedit user ini.');
+        }
+
         $validated = $request->validate([
             'nama_user' => ['required', 'string', 'max:100'],
             'password' => ['nullable', 'string', 'min:4'],
@@ -117,6 +132,22 @@ class PenggunaController extends Controller
         ]);
 
         $newJabatan = $validated['jabatan'];
+
+        // Cegah privilege escalation (mis. Manager menjadikan dirinya / orang lain Owner).
+        // Jabatan yang tidak berubah tetap boleh disimpan apa adanya.
+        $jabatanBerubah = strtolower($newJabatan) !== strtolower($pengguna->jabatan);
+        if ($jabatanBerubah && ! $currentUser->canAssignJabatan($newJabatan)) {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'Anda tidak berhak mengubah jabatan menjadi ' . $newJabatan . '.');
+        }
+
+        // Owner tidak boleh menurunkan jabatannya sendiri jika ia Owner terakhir
+        if ($jabatanBerubah && (int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna
+            && $currentUser->isOwner() && strtolower($newJabatan) !== 'owner') {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'Owner tidak dapat menurunkan jabatannya sendiri.');
+        }
+
         $role = strtolower($newJabatan) === 'kasir' ? 'kasir' : 'admin';
 
         $updateData = [
@@ -127,8 +158,10 @@ class PenggunaController extends Controller
             'no_telepon' => $validated['no_telepon'] ?? null,
         ];
 
-        if (!empty($validated['password'])) {
-            $updateData['password'] = Hash::make($validated['password']);
+        // Password hanya diganti jika diisi. Tidak di-Hash::make manual karena
+        // model sudah memakai cast 'hashed' (menghindari double-hash).
+        if ($request->filled('password')) {
+            $updateData['password'] = $validated['password'];
         }
 
         $pengguna->update($updateData);
@@ -145,8 +178,20 @@ class PenggunaController extends Controller
         $currentUser = Auth::user();
 
         // Syarat: Tidak bisa hapus diri sendiri
-        if ($pengguna->id_pengguna === $currentUser->id_pengguna) {
+        if ((int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna) {
             return redirect()->route('pengguna.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        // Hierarki role: Admin/Manager tidak boleh menghapus Owner atau Manager lain
+        if (! $currentUser->canDeleteUser($pengguna)) {
+            abort(403, 'Anda tidak berhak menghapus user ini.');
+        }
+
+        // tbl_transaksi.id_pengguna memakai cascadeOnDelete: menghapus user yang sudah
+        // pernah bertransaksi akan ikut MENGHAPUS riwayat penjualannya.
+        if ($pengguna->transaksi()->exists()) {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'User ini sudah memiliki riwayat transaksi. Ubah statusnya menjadi Nonaktif agar riwayat penjualan tidak ikut terhapus.');
         }
 
         $pengguna->delete();

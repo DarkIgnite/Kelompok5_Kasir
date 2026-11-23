@@ -19,6 +19,18 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div id="toast-error" class="flex items-center justify-between p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="document.getElementById('toast-error').remove()" class="text-red-600 hover:text-red-900 font-bold ml-4">&times;</button>
+        </div>
+    @endif
+
     @if(isset($errors) && $errors->any())
         <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm">
             <ul class="list-disc list-inside space-y-1">
@@ -28,6 +40,7 @@
             </ul>
         </div>
     @endif
+
 
     {{-- TOOLBAR / FILTER & ACTION ROW --}}
     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
@@ -177,8 +190,8 @@
                             <td class="py-4 pl-2 pr-6 align-middle">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 rounded-lg bg-neutral-100/90 border border-neutral-200/80 p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                                        @if($item->gambar && file_exists(public_path($item->gambar)))
-                                            <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama_produk }}" class="w-full h-full object-contain">
+                                        @if($item->has_gambar)
+                                            <img src="{{ $item->gambar_url }}" alt="{{ $item->nama_produk }}" class="w-full h-full {{ $item->gambar_is_remote ? 'object-cover rounded' : 'object-contain' }}">
                                         @else
                                             <svg class="w-5 h-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                                 <rect x="3" y="3" width="18" height="18" rx="2"></rect>

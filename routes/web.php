@@ -20,7 +20,6 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data', [DashboardController::class, 'getRealtimeData'])->name('dashboard.data');
-    Route::post('/dashboard/simulate-sale', [DashboardController::class, 'simulateSale'])->name('dashboard.simulate');
 
     // Sidebar Page Routes (Bisa diakses oleh Kasir & Admin)
     Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
