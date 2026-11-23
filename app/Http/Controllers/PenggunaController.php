@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class PenggunaController extends Controller
@@ -30,16 +29,11 @@ class PenggunaController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        if ($request->filled('role')) {
-            $roleFilter = $request->input('role');
-            if (in_array(strtolower($roleFilter), ['owner', 'manager', 'kasir'])) {
-                $query->where('jabatan', ucfirst($roleFilter));
-            } else {
-                $query->where('role', $roleFilter);
-            }
+        if (in_array($request->input('role'), ['admin', 'kasir'], true)) {
+            $query->where('role', $request->input('role'));
         }
 
-        $limit = $request->input('limit', 100);
+        $limit = min(max((int) $request->input('limit', 100), 10), 100); // dibatasi 10–100 baris per halaman
 
         // Syarat: User sekarang (current user) HARUS PALING ATAS di list
         $currentUserId = Auth::id() ?? 0;
@@ -51,84 +45,86 @@ class PenggunaController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Tambah akun pengguna (DFD 4.4). Role mengikuti tbl_pengguna: admin / kasir.
      */
     public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nama_lengkap' => ['required', 'string', 'max:100'],
+            'password'     => ['required', 'string', 'min:4'],
+            'role'         => ['required', 'in:admin,kasir'],
+            'status'       => ['required', 'in:aktif,nonaktif'],
+            'no_telepon'   => ['nullable', 'string', 'max:20'],
+        ], [
+            'nama_lengkap.required' => 'Nama user wajib diisi.',
+            'password.required'     => 'Password wajib diisi.',
+            'role.required'         => 'Jabatan wajib dipilih.',
+            'role.in'               => 'Jabatan harus Admin atau Kasir.',
+            'status.required'       => 'Status wajib dipilih.',
+        ]);
+
+        // Username dibuat otomatis dari nama, dijamin unik
+        $baseUsername = Str::slug($validated['nama_lengkap'], '') ?: 'user';
+        $username = $baseUsername;
+        $counter = 1;
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter++;
+        }
+
+        User::create([
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'username'     => $username,
+            'password'     => $validated['password'], // di-hash otomatis oleh cast 'hashed' di model
+            'role'         => $validated['role'],
+            'status'       => $validated['status'],
+            'no_telepon'   => $validated['no_telepon'] ?? null,
+        ]);
+
+        return redirect()->route('pengguna.index')->with('success', "User berhasil ditambahkan dengan username: {$username}");
+    }
+
+    /**
+     * Edit data pengguna (DFD 4.5).
+     */
+    public function update(Request $request, User $pengguna)
     {
         /** @var User $currentUser */
         $currentUser = Auth::user();
 
-        $validated = $request->validate([
-            'nama_user' => ['required', 'string', 'max:100'],
-            'password' => ['required', 'string', 'min:4'],
-            'jabatan' => ['required', 'string', 'in:Owner,Manager,Kasir'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
-        ], [
-            'nama_user.required' => 'Nama user wajib diisi.',
-            'password.required' => 'Password wajib diisi.',
-            'jabatan.required' => 'Jabatan wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
-        ]);
-
-        // Map jabatan to role auth
-        $role = strtolower($validated['jabatan']) === 'kasir' ? 'kasir' : 'admin';
-
-        // Generate username unik dari nama_user
-        $baseUsername = Str::slug($validated['nama_user'], '');
-        if (empty($baseUsername)) {
-            $baseUsername = 'user';
-        }
-        $username = $baseUsername;
-        $counter = 1;
-        while (User::where('username', $username)->exists()) {
-            $username = $baseUsername . $counter;
-            $counter++;
+        if (! $currentUser->canEditUser($pengguna)) {
+            abort(403, 'Admin tidak dapat mengedit akun admin lain.');
         }
 
-        User::create([
-            'nama_lengkap' => $validated['nama_user'],
-            'username' => $username,
-            'password' => Hash::make($validated['password']),
-            'role' => $role,
-            'jabatan' => $validated['jabatan'],
-            'status' => $validated['status'],
-            'no_telepon' => $validated['no_telepon'] ?? null,
-        ]);
-
-        return redirect()->route('pengguna.index')->with('success', 'User berhasil ditambahkan.');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, User $pengguna)
-    {
         $validated = $request->validate([
-            'nama_user' => ['required', 'string', 'max:100'],
-            'password' => ['nullable', 'string', 'min:4'],
-            'jabatan' => ['required', 'string', 'in:Owner,Manager,Kasir'],
-            'status' => ['required', 'in:aktif,nonaktif'],
-            'no_telepon' => ['nullable', 'string', 'max:20'],
+            'nama_lengkap' => ['required', 'string', 'max:100'],
+            'password'     => ['nullable', 'string', 'min:4'],
+            'role'         => ['required', 'in:admin,kasir'],
+            'status'       => ['required', 'in:aktif,nonaktif'],
+            'no_telepon'   => ['nullable', 'string', 'max:20'],
         ], [
-            'nama_user.required' => 'Nama user wajib diisi.',
-            'jabatan.required' => 'Jabatan wajib dipilih.',
-            'status.required' => 'Status wajib dipilih.',
+            'nama_lengkap.required' => 'Nama user wajib diisi.',
+            'role.required'         => 'Jabatan wajib dipilih.',
+            'role.in'               => 'Jabatan harus Admin atau Kasir.',
+            'status.required'       => 'Status wajib dipilih.',
         ]);
 
-        $newJabatan = $validated['jabatan'];
-        $role = strtolower($newJabatan) === 'kasir' ? 'kasir' : 'admin';
+        // Admin tidak boleh menurunkan / menonaktifkan akunnya sendiri (bisa terkunci keluar)
+        $isSelf = (int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna;
+        if ($isSelf && ($validated['role'] !== 'admin' || $validated['status'] !== 'aktif')) {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'Anda tidak dapat mengubah jabatan atau menonaktifkan akun Anda sendiri.');
+        }
 
         $updateData = [
-            'nama_lengkap' => $validated['nama_user'],
-            'role' => $role,
-            'jabatan' => $newJabatan,
-            'status' => $validated['status'],
-            'no_telepon' => $validated['no_telepon'] ?? null,
+            'nama_lengkap' => $validated['nama_lengkap'],
+            'role'         => $validated['role'],
+            'status'       => $validated['status'],
+            'no_telepon'   => $validated['no_telepon'] ?? null,
         ];
 
-        if (!empty($validated['password'])) {
-            $updateData['password'] = Hash::make($validated['password']);
+        // Password hanya diganti jika diisi (di-hash otomatis oleh cast model)
+        if ($request->filled('password')) {
+            $updateData['password'] = $validated['password'];
         }
 
         $pengguna->update($updateData);
@@ -145,8 +141,18 @@ class PenggunaController extends Controller
         $currentUser = Auth::user();
 
         // Syarat: Tidak bisa hapus diri sendiri
-        if ($pengguna->id_pengguna === $currentUser->id_pengguna) {
+        if ((int) $pengguna->id_pengguna === (int) $currentUser->id_pengguna) {
             return redirect()->route('pengguna.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        if (! $currentUser->canDeleteUser($pengguna)) {
+            abort(403, 'Admin tidak dapat menghapus akun admin lain.');
+        }
+
+        // Kasir yang sudah pernah bertransaksi tidak dihapus agar riwayat nota tetap utuh (DFD 4.6: nonaktifkan)
+        if ($pengguna->transaksi()->exists()) {
+            return redirect()->route('pengguna.index')
+                ->with('error', 'User ini sudah memiliki riwayat transaksi. Ubah statusnya menjadi Nonaktif agar riwayat penjualan tidak ikut terhapus.');
         }
 
         $pengguna->delete();

@@ -19,6 +19,18 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div id="toast-error" class="flex items-center justify-between p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="document.getElementById('toast-error').remove()" class="text-red-600 hover:text-red-900 font-bold ml-4">&times;</button>
+        </div>
+    @endif
+
     @if(isset($errors) && $errors->any())
         <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm">
             <ul class="list-disc list-inside space-y-1">
@@ -28,6 +40,7 @@
             </ul>
         </div>
     @endif
+
 
     {{-- TOOLBAR / FILTER & ACTION ROW --}}
     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
@@ -44,7 +57,7 @@
                 id="searchKategori" 
                 placeholder="Cari Nama Kategori" 
                 value="{{ request('search') }}"
-                class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-neutral-300 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
+                class="w-full h-[46px] pl-10 pr-4 rounded-[13px] bg-white border border-black/30 text-[15px] text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
             >
         </div>
 
@@ -55,7 +68,7 @@
                 <button 
                     type="button" 
                     id="btnDropdownShow" 
-                    class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm text-neutral-700 hover:bg-neutral-50 transition shadow-2xs"
+                    class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] text-black hover:bg-neutral-50 transition shadow-2xs"
                 >
                     <span>Show <span class="underline decoration-neutral-400 underline-offset-2">{{ request('limit', 100) }}</span></span>
                     <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -75,7 +88,7 @@
             <button 
                 type="button" 
                 onclick="exportKategoriCSV()" 
-                class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
             >
                 <!-- Export Box Icon -->
                 <svg class="w-4 h-4 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -91,7 +104,7 @@
             <button 
                 type="button" 
                 onclick="openTambahModal()" 
-                class="h-11 px-5 bg-black text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
+                class="h-[46px] px-[10px] bg-black text-white border border-black/30 rounded-[10px] flex items-center gap-[6px] text-[15px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
             >
                 <span class="text-base font-bold leading-none">+</span>
                 <span>Tambah Data</span>
@@ -101,23 +114,23 @@
 
     {{-- TABLE CARD --}}
     <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-2xs overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto px-5">
             <table class="w-full text-left border-collapse" id="kategoriTable">
                 <thead>
-                    <tr class="border-b border-neutral-100">
-                        <th class="py-4 pl-6 pr-2 text-xs font-bold text-neutral-800 w-16 text-center">No.</th>
-                        <th class="py-4 pl-2 pr-6 text-xs font-bold text-neutral-800">Nama Kategori</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Total Produk</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-48 text-center">Aksi</th>
+                    <tr class="border-b border-black/10">
+                        <th class="h-[46px] py-0 w-[60px] px-0 text-[12px] font-semibold text-black text-center">No.</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Nama Kategori</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Total Produk</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black w-48 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-neutral-100" id="kategoriTbody">
+                <tbody class="divide-y divide-black/10" id="kategoriTbody">
                     @forelse($kategori as $item)
                         <tr class="hover:bg-neutral-50/60 transition-colors row-kategori" data-nama="{{ strtolower($item->nama_kategori) }}" data-id="{{ $item->id_kategori }}">
-                            <td class="py-4 pl-6 pr-2 text-sm font-medium text-neutral-800 align-middle text-center">
+                            <td class="h-[59px] py-0 w-[60px] px-0 text-[12px] font-medium text-neutral-800 align-middle text-center">
                                 {{ $loop->iteration }}
                             </td>
-                            <td class="py-4 pl-2 pr-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="text-sm font-semibold text-neutral-900 leading-tight">
                                     {{ $item->nama_kategori }}
                                 </div>
@@ -125,10 +138,10 @@
                                     ID : {{ $item->id_kategori }}
                                 </div>
                             </td>
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->produk_count ?? $item->produk->count() }}
                             </td>
-                            <td class="py-4 px-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="flex items-center gap-2">
                                     <!-- Edit Button -->
                                     <button 
@@ -174,7 +187,7 @@
         </div>
 
         {{-- TABLE FOOTER / PAGINATION --}}
-        <div class="px-6 py-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="px-5 min-h-[56px] py-3 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-xs font-medium text-neutral-600">
                 Menampilkan <span id="labelShowing">1–{{ $kategori->count() }}</span> dari <span id="labelTotal">{{ method_exists($kategori, 'total') ? $kategori->total() : $kategori->count() }}</span> kategori
             </div>
@@ -217,13 +230,13 @@
 </div>
 
 {{-- MODAL : TAMBAH KATEGORI --}}
-<div id="modalTambah" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-150">
+<div id="modalTambah" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-[#E7E7E7]/90 w-full max-w-[462px] p-5 relative animate-in fade-in zoom-in-95 duration-150">
         <!-- Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <h3 class="text-base font-bold text-neutral-900 tracking-tight">Tambah Kategori</h3>
-            <button type="button" onclick="closeTambahModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <div class="flex items-center justify-between pb-[18px] border-b border-black/10">
+            <h3 class="text-base font-semibold text-black">Tambah Kategori</h3>
+            <button type="button" onclick="closeTambahModal()" class="w-[22px] h-[22px] rounded-[3px] border border-black/25 flex items-center justify-center text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -231,10 +244,10 @@
         </div>
 
         <!-- Form -->
-        <form action="{{ route('kategori.store') }}" method="POST" id="formTambahKategori" class="mt-5 space-y-4">
+        <form action="{{ route('kategori.store') }}" method="POST" id="formTambahKategori" class="pt-5 space-y-4">
             @csrf
             <div>
-                <label for="inputNamaKategoriTambah" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="inputNamaKategoriTambah" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Nama Kategori <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -245,7 +258,7 @@
                     placeholder="Masukkan nama kategori" 
                     required
                     autocomplete="off"
-                    class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                    class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                     oninput="document.getElementById('countTambah').textContent = this.value.length"
                 >
                 <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -254,17 +267,17 @@
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-2.5 pt-3">
+            <div class="flex items-center justify-end gap-[10px] pt-5 mt-5 border-t border-black/15">
                 <button 
                     type="button" 
                     onclick="closeTambahModal()" 
-                    class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                 >
                     Batal
                 </button>
                 <button 
                     type="submit" 
-                    class="px-5 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                     Tambah Data
                 </button>
@@ -274,13 +287,13 @@
 </div>
 
 {{-- MODAL : EDIT KATEGORI  --}}
-<div id="modalEdit" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 relative animate-in fade-in zoom-in-95 duration-150">
+<div id="modalEdit" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl border border-[#E7E7E7]/90 w-full max-w-[462px] p-5 relative animate-in fade-in zoom-in-95 duration-150">
         <!-- Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-neutral-100">
-            <h3 class="text-base font-bold text-neutral-900 tracking-tight">Edit Kategori</h3>
-            <button type="button" onclick="closeEditModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <div class="flex items-center justify-between pb-[18px] border-b border-black/10">
+            <h3 class="text-base font-semibold text-black">Edit Kategori</h3>
+            <button type="button" onclick="closeEditModal()" class="w-[22px] h-[22px] rounded-[3px] border border-black/25 flex items-center justify-center text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100 transition cursor-pointer">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -288,11 +301,11 @@
         </div>
 
         <!-- Form -->
-        <form action="" method="POST" id="formEditKategori" class="mt-5 space-y-4">
+        <form action="" method="POST" id="formEditKategori" class="pt-5 space-y-4">
             @csrf
             @method('PUT')
             <div>
-                <label for="inputNamaKategoriEdit" class="block text-xs font-semibold text-neutral-800 mb-1.5">
+                <label for="inputNamaKategoriEdit" class="block text-[14px] font-semibold text-black mb-[5px]">
                     Nama Kategori <span class="text-red-500">*</span>
                 </label>
                 <input 
@@ -302,7 +315,7 @@
                     maxlength="50" 
                     required
                     autocomplete="off"
-                    class="w-full h-11 px-4 rounded-xl border border-neutral-300 text-sm text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
+                    class="w-full h-[46px] px-[15px] rounded-[13px] border border-black/30 text-[15px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors"
                     oninput="document.getElementById('countEdit').textContent = this.value.length"
                 >
                 <div class="text-right text-[11px] text-neutral-400 mt-1">
@@ -311,17 +324,17 @@
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex items-center justify-end gap-2.5 pt-3">
+            <div class="flex items-center justify-end gap-[10px] pt-5 mt-5 border-t border-black/15">
                 <button 
                     type="button" 
                     onclick="closeEditModal()" 
-                    class="px-5 py-2.5 rounded-xl border border-neutral-300 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-white text-[12px] font-semibold text-black hover:bg-neutral-50 transition cursor-pointer"
                 >
                     Batal
                 </button>
                 <button 
                     type="submit" 
-                    class="px-5 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
+                    class="h-[30px] px-3 py-0 rounded-[5px] border border-black/30 bg-black text-white text-[12px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer"
                 >
                     Simpan Perubahan
                 </button>
@@ -331,7 +344,7 @@
 </div>
 
 {{-- MODAL : KONFIRMASI HAPUS --}}
-<div id="modalHapus" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
+<div id="modalHapus" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative animate-in fade-in zoom-in-95 duration-150 text-center">
         <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

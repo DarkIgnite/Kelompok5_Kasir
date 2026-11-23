@@ -1,16 +1,20 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-[#FBFBFB]">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-white">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>Dashboard Penjualan & Inventaris - KasirAja</title>
+    <!-- Logo KasirAja di tab browser -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <!-- Google Fonts: Inter (sama dengan desain Figma) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CDN Fallback & Vite -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -22,7 +26,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                            sans: ['Inter', 'sans-serif'],
                         }
                     }
                 }
@@ -37,8 +41,8 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #FBFBFB;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #FFFFFF;
         }
 
         /* Custom Scrollbar */
@@ -76,16 +80,16 @@
 </head>
 <body class="min-h-screen text-neutral-900 antialiased selection:bg-neutral-900 selection:text-white">
 
-<!-- To do: Cek TODO_BACKEND.md -->
 
     <div class="relative w-full min-h-screen flex">
         
         <!-- SIDEBAR -->
         @include('layouts.sidebar')
+        @include('layouts.flash-alert')
 
         <!-- MAIN CONTENT AREA -->
         <main 
-            class="min-h-screen flex-1 bg-[#FBFBFB] transition-all"
+            class="min-h-screen flex-1 bg-white transition-all"
             style="margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width));"
         >
             <div class="w-full max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-10 py-6 sm:py-8 space-y-6">
@@ -124,81 +128,88 @@
                 <!--ROW OF 4 SUMMARY METRIC CARDS-->
                 <section class="space-y-2">
                     <div id="kpi-periode-label" class="text-xs text-neutral-500 font-normal">
-                        Periode: Nov 2025 – Okt 2026
+                        Periode: {{ $filter['range_label'] ?? '12 bulan terakhir' }}
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                     
                     <!-- Card : TOTAL PENJUALAN -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div class="flex items-center justify-center gap-1">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
+                        <div>
+                            <div class="min-w-0 @container">
+                                <div class="flex items-start justify-between gap-3">
                                     <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
                                         TOTAL PENJUALAN
                                     </span>
-                                </div>
-                                <div id="stat-total-penjualan" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                    {{ $stats['total_penjualan_formatted'] ?? 'Rp435.400.000' }}
-                                </div>
-                            </div>
-                            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0051D5] flex items-center justify-center shrink-0">
+                                    <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#0051D5] flex items-center justify-center shrink-0">
                             <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M13 9C12.1667 9 11.4583 8.70833 10.875 8.125C10.2917 7.54167 10 6.83333 10 6C10 5.16667 10.2917 4.45833 10.875 3.875C11.4583 3.29167 12.1667 3 13 3C13.8333 3 14.5417 3.29167 15.125 3.875C15.7083 4.45833 16 5.16667 16 6C16 6.83333 15.7083 7.54167 15.125 8.125C14.5417 8.70833 13.8333 9 13 9V9M6 12C5.45 12 4.97917 11.8042 4.5875 11.4125C4.19583 11.0208 4 10.55 4 10V2C4 1.45 4.19583 0.979167 4.5875 0.5875C4.97917 0.195833 5.45 0 6 0H20C20.55 0 21.0208 0.195833 21.4125 0.5875C21.8042 0.979167 22 1.45 22 2V10C22 10.55 21.8042 11.0208 21.4125 11.4125C21.0208 11.8042 20.55 12 20 12H6V12M8 10H18C18 9.45 18.1958 8.97917 18.5875 8.5875C18.9792 8.19583 19.45 8 20 8V4C19.45 4 18.9792 3.80417 18.5875 3.4125C18.1958 3.02083 18 2.55 18 2H8C8 2.55 7.80417 3.02083 7.4125 3.4125C7.02083 3.80417 6.55 4 6 4V8C6.55 8 7.02083 8.19583 7.4125 8.5875C7.80417 8.97917 8 9.45 8 10V10M19 16H2C1.45 16 0.979167 15.8042 0.5875 15.4125C0.195833 15.0208 0 14.55 0 14V3H2V14V14V14H19V16V16M6 10V10V10V10V2V2V2V2V2V2V10V10V10V10" fill="#0051D5"/>
                             </svg>
                             </div>
+                                </div>
+                                <div id="stat-total-penjualan" class="mt-2 text-[clamp(1.1rem,10cqw,1.875rem)] leading-tight whitespace-nowrap font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_penjualan_formatted'] ?? 'Rp0' }}
+                                </div>
+                            </div>
+
                         </div>
                         <div class="mt-5 flex items-center">
-                            <span id="stat-persen-penjualan" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
-                                Naik - 14.8%
+                            @php
+                                $persen = (string) ($stats['persen_penjualan'] ?? '+0.0');
+                                $turun = str_starts_with($persen, '-');
+                            @endphp
+                            <span id="stat-persen-penjualan" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold {{ $turun ? 'bg-red-50 text-red-600' : 'bg-[#E6F9F0] text-[#00A854]' }}">
+                                {{ $turun ? 'Turun' : 'Naik' }} {{ ltrim($persen, '+-') }}% vs periode lalu
                             </span>
                         </div>
                     </div>
 
                     <!-- Card : TOTAL ITEM TERJUAL -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div class="flex items-center justify-center gap-1">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
+                        <div>
+                            <div class="min-w-0 @container">
+                                <div class="flex items-start justify-between gap-3">
                                     <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
                                         TOTAL ITEM TERJUAL
                                     </span>
-                                </div>
-                                <div id="stat-total-terjual" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                    {{ $stats['total_terjual'] ?? 71 }} Pasang
-                                </div>
-                            </div>
-                            <div class="w-10 h-10 rounded-lg bg-[#E6F9F0] text-[#00A854] flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-lg bg-[#E6F9F0] text-[#00A854] flex items-center justify-center">
                                 <svg class="w-5 h-5 text-[#00A854]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                                 </svg>
                             </div>
+                                </div>
+                                <div id="stat-total-terjual" class="mt-2 text-[clamp(1.1rem,10cqw,1.875rem)] leading-tight whitespace-nowrap font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_terjual'] ?? 0 }} Pasang
+                                </div>
+                            </div>
+
                         </div>
                         <div class="mt-5 flex items-center">
-                            <span id="stat-persen-terjual" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#E6F9F0] text-[#00A854]">
-                                Target bulanan tercapai - ↗14.8%
+                            <span id="stat-persen-terjual" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-neutral-100 text-neutral-600">
+                                Rata-rata {{ $stats['rata_rata_nota_formatted'] ?? 'Rp0' }}/nota
                             </span>
                         </div>
                     </div>
 
                     <!-- Card : TOTAL TRANSAKSI -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div class="flex items-center justify-center gap-1">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
+                        <div>
+                            <div class="min-w-0 @container">
+                                <div class="flex items-start justify-between gap-3">
                                     <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
                                         TOTAL TRANSAKSI
                                     </span>
-                                </div>
-                                <div id="stat-total-transaksi" class="mt-2 text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight transition-all duration-300">
-                                    {{ $stats['total_transaksi'] ?? 32 }} Struk
-                                </div>
-                            </div>
-                            <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
                                 <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
                                 </svg>
                             </div>
+                                </div>
+                                <div id="stat-total-transaksi" class="mt-2 text-[clamp(1.1rem,10cqw,1.875rem)] leading-tight whitespace-nowrap font-black text-neutral-900 tracking-tight transition-all duration-300">
+                                    {{ $stats['total_transaksi'] ?? 0 }} Struk
+                                </div>
+                            </div>
+
                         </div>
                         <div class="mt-5 flex items-center justify-end">
                             {{-- Bersih sesuai visual Page Dashboard (2).png --}}
@@ -207,22 +218,23 @@
 
                     <!-- Card : PERINGATAN STOK -->
                     <div class="bg-white rounded-2xl border border-neutral-200/80 p-5 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col justify-between">
-                        <div class="flex items-center justify-center gap-1">
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
+                        <div>
+                            <div class="min-w-0 @container">
+                                <div class="flex items-start justify-between gap-3">
                                     <span class="text-[11px] font-bold tracking-wider text-neutral-800 uppercase">
                                         PERINGATAN STOK
                                     </span>
-                                </div>
-                                <div id="stat-peringatan-stok" class="mt-2 text-2xl sm:text-3xl font-black text-[#DC2626] tracking-tight transition-all duration-300">
-                                    {{ $stats['peringatan_stok'] ?? 3 }} Varian
-                                </div>
-                            </div>
-                            <div class="w-10 h-10 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-lg bg-[#FEF2F2] text-[#DC2626] flex items-center justify-center">
                                 <svg class="w-5 h-5 text-[#DC2626]" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                                 </svg>
                             </div>
+                                </div>
+                                <div id="stat-peringatan-stok" class="mt-2 text-[clamp(1.1rem,10cqw,1.875rem)] leading-tight whitespace-nowrap font-black text-[#DC2626] tracking-tight transition-all duration-300">
+                                    {{ $stats['peringatan_stok'] ?? 0 }} Varian
+                                </div>
+                            </div>
+
                         </div>
                         <div class="mt-5 flex items-center justify-end">
                             <a href="#katalog-stok" class="text-xs font-semibold text-[#2563EB] hover:underline flex items-center gap-1">
@@ -258,7 +270,7 @@
                                         <line x1="8" y1="2" x2="8" y2="6"/>
                                         <line x1="3" y1="10" x2="21" y2="10"/>
                                     </svg>
-                                    <span id="chart-date-filter-label">Nov 2025 - Okt 2026</span>
+                                    <span id="chart-date-filter-label">{{ $filter['range_label'] ?? '12 bulan terakhir' }}</span>
                                     <svg id="chart-date-chevron" class="w-4 h-4 text-neutral-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
                                     </svg>
@@ -393,10 +405,10 @@
                         <!-- Single Full-Width Box below chart (Sesuai Page Dashboard (2).png) -->
                         <div class="border border-neutral-300 rounded-2xl p-4 text-center mt-6">
                             <div id="chart-peak-month" class="text-base font-extrabold text-neutral-900">
-                                {{ $chartPills['peak_month'] ?? 'Okt' }}
+                                {{ $chartPills['peak_month'] ?? '-' }}
                             </div>
                             <div id="chart-peak-amount" class="text-xs text-neutral-500 mt-0.5">
-                                {{ $chartPills['peak_amount'] ?? 'Puncak - Rp 435,4jt' }}
+                                {{ $chartPills['peak_amount'] ?? 'Belum ada data' }}
                             </div>
                         </div>
 
@@ -573,7 +585,7 @@
                                     $shoes = $shoeCatalog ?? [];
                                 @endphp
 
-                                @foreach ($shoes as $index => $item)
+                                @forelse ($shoes as $index => $item)
                                     @php
                                         $rowId = $item['id'] ?? $index;
                                         $variants = $item['variants'] ?? [];
@@ -598,9 +610,9 @@
                                             <div class="flex items-center gap-3">
                                                 <div class="w-11 h-11 rounded-xl bg-neutral-50 border border-neutral-100 flex items-center justify-center p-1 flex-shrink-0 overflow-hidden shadow-xs">
                                                     <img 
-                                                        src="{{ asset($item['image']) }}" 
+                                                        src="{{ $item['image_url'] ?? asset($item['image']) }}" 
                                                         alt="{{ $item['name'] }}" 
-                                                        class="w-full h-full object-contain"
+                                                        class="w-full h-full {{ !empty($item['image_remote']) ? 'object-cover rounded-lg' : 'object-contain' }}"
                                                         loading="lazy"
                                                     />
                                                 </div>
@@ -711,7 +723,11 @@
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="py-12 text-center text-sm text-neutral-400">Belum ada produk. Tambahkan produk di menu Produk.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -755,6 +771,74 @@
 
             let currentRange = '12m';
             let currentSegment = 'bulan';
+            // Filter aktif (dipakai juga oleh polling agar tampilan tidak kembali ke default)
+            let activeFilter = null;
+            const firstTransactionDate = @json($firstTransactionDate ?? now()->format('Y-m-d'));
+            const MAX_BARS = 150;
+
+            const pad = (n) => String(n).padStart(2, '0');
+            const toInput = (d) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+            const toIso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+            function parseInput(value) {
+                const m = String(value).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+                if (!m) return null;
+                const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+                return (d.getDate() === Number(m[1]) && d.getMonth() === Number(m[2]) - 1) ? d : null;
+            }
+
+            function rangeFor(key) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                switch (key) {
+                    case '30d': { const s = new Date(today); s.setDate(s.getDate() - 29); return [s, today, 'hari']; }
+                    case '3m': return [new Date(today.getFullYear(), today.getMonth() - 2, 1), today, 'minggu'];
+                    case 'this_year': return [new Date(today.getFullYear(), 0, 1), today, 'bulan'];
+                    case 'all': { const f = new Date(firstTransactionDate + 'T00:00:00'); return [isNaN(f) ? today : f, today, 'bulan']; }
+                    case '12m':
+                    default: return [new Date(today.getFullYear(), today.getMonth() - 11, 1), today, 'bulan'];
+                }
+            }
+
+            function countBars(start, end, per) {
+                const days = Math.round((end - start) / 86400000) + 1;
+                if (per === 'hari') return days;
+                if (per === 'minggu') {
+                    const s = new Date(start); s.setDate(s.getDate() - ((s.getDay() + 6) % 7));
+                    return Math.floor((end - s) / (7 * 86400000)) + 1;
+                }
+                return (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth() + 1;
+            }
+
+            function updateSummary() {
+                const start = parseInput(dateInputStart.value);
+                const end = parseInput(dateInputEnd.value);
+                if (!start || !end || end < start) {
+                    dateSummaryText.textContent = 'Format tanggal: dd/mm/yyyy';
+                    return;
+                }
+                const days = Math.round((end - start) / 86400000) + 1;
+                const bars = countBars(start, end, currentSegment);
+                dateSummaryText.textContent = bars > MAX_BARS
+                    ? `${days} hari - maks. ${MAX_BARS} batang (otomatis diperbesar)`
+                    : `${days} hari - ${bars} batang per ${currentSegment}`;
+            }
+
+            function setSegment(type) {
+                currentSegment = type;
+                segmentedBtns.forEach(b => {
+                    b.className = b.getAttribute('data-type') === type
+                        ? 'flex-1 py-1.5 text-center text-neutral-900 font-bold bg-white rounded-lg shadow-xs transition segmented-btn active-segment'
+                        : 'flex-1 py-1.5 text-center text-neutral-600 rounded-lg hover:text-neutral-900 transition segmented-btn';
+                });
+            }
+
+            function setChip(key) {
+                quickChips.forEach(c => {
+                    c.className = c.getAttribute('data-range') === key
+                        ? 'quick-chip px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white border border-neutral-900 shadow-xs cursor-pointer active-chip'
+                        : 'quick-chip px-3 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 transition cursor-pointer';
+                });
+            }
 
             function toggleDatePopover() {
                 const isHidden = datePopover.classList.contains('hidden');
@@ -774,74 +858,101 @@
                 });
             }
 
-            // Quick Range Chips Click
+            // Rentang cepat: tanggal dihitung dari hari ini (bukan tanggal tetap)
             quickChips.forEach(chip => {
                 chip.addEventListener('click', () => {
-                    quickChips.forEach(c => {
-                        c.className = 'quick-chip px-3 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 transition cursor-pointer';
-                    });
-                    chip.className = 'quick-chip px-3.5 py-1.5 rounded-full text-xs font-semibold bg-neutral-900 text-white border border-neutral-900 shadow-xs cursor-pointer active-chip';
                     currentRange = chip.getAttribute('data-range');
-
-                    const text = chip.textContent.trim();
-                    if (currentRange === '30d') {
-                        dateInputStart.value = '21/10/2026';
-                        dateInputEnd.value = '20/11/2026';
-                        dateSummaryText.textContent = '30 hari - 30 batang per hari';
-                    } else if (currentRange === '3m') {
-                        dateInputStart.value = '01/08/2026';
-                        dateInputEnd.value = '31/10/2026';
-                        dateSummaryText.textContent = '92 hari - 3 batang per bulan';
-                    } else if (currentRange === 'this_year') {
-                        dateInputStart.value = '01/01/2026';
-                        dateInputEnd.value = '31/10/2026';
-                        dateSummaryText.textContent = '304 hari - 10 batang per bulan';
-                    } else if (currentRange === '12m') {
-                        dateInputStart.value = '01/11/2025';
-                        dateInputEnd.value = '31/10/2026';
-                        dateSummaryText.textContent = '304 hari - 10 batang per bulan';
-                    } else if (currentRange === 'all') {
-                        dateInputStart.value = '01/01/2024';
-                        dateInputEnd.value = '31/10/2026';
-                        dateSummaryText.textContent = '1034 hari - 34 batang';
-                    }
+                    setChip(currentRange);
+                    const [start, end, per] = rangeFor(currentRange);
+                    dateInputStart.value = toInput(start);
+                    dateInputEnd.value = toInput(end);
+                    setSegment(per);
+                    updateSummary();
                 });
             });
 
-            // Segmented Button Click (Hari / Minggu / Bulan)
+            // Tampilkan per Hari / Minggu / Bulan
             segmentedBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    segmentedBtns.forEach(b => {
-                        b.className = 'flex-1 py-1.5 text-center text-neutral-600 rounded-lg hover:text-neutral-900 transition segmented-btn';
-                    });
-                    btn.className = 'flex-1 py-1.5 text-center text-neutral-900 font-bold bg-white rounded-lg shadow-xs transition segmented-btn active-segment';
-                    currentSegment = btn.getAttribute('data-type');
+                    setSegment(btn.getAttribute('data-type'));
+                    updateSummary();
                 });
             });
 
-            // Apply Button Click
+            [dateInputStart, dateInputEnd].forEach(input => {
+                input.setAttribute('placeholder', 'dd/mm/yyyy');
+                input.addEventListener('input', () => {
+                    currentRange = 'custom';
+                    setChip(null);
+                    updateSummary();
+                });
+            });
+
+            // Nilai awal popover = 12 bulan terakhir
+            (() => {
+                const [start, end] = rangeFor('12m');
+                dateInputStart.value = toInput(start);
+                dateInputEnd.value = toInput(end);
+                updateSummary();
+            })();
+
+            function buildDataUrl(filter) {
+                const url = new URL("{{ route('dashboard.data') }}", window.location.origin);
+                if (filter) {
+                    url.searchParams.set('start', filter.start);
+                    url.searchParams.set('end', filter.end);
+                    url.searchParams.set('per', filter.per);
+                }
+                return url.toString();
+            }
+
+            // Terapkan filter: ambil data dari server sesuai rentang & satuan
             if (applyDateBtn) {
-                applyDateBtn.addEventListener('click', () => {
-                    if (currentRange === '30d') {
-                        dateFilterLabel.textContent = '30 Hari Terakhir';
-                    } else if (currentRange === '3m') {
-                        dateFilterLabel.textContent = 'Agu 2026 - Okt 2026';
-                    } else if (currentRange === 'this_year') {
-                        dateFilterLabel.textContent = 'Jan 2026 - Okt 2026';
-                    } else if (currentRange === '12m') {
-                        dateFilterLabel.textContent = 'Nov 2025 - Okt 2026';
-                    } else {
-                        dateFilterLabel.textContent = `${dateInputStart.value} - ${dateInputEnd.value}`;
+                applyDateBtn.addEventListener('click', async () => {
+                    const start = parseInput(dateInputStart.value);
+                    const end = parseInput(dateInputEnd.value);
+                    if (!start || !end) {
+                        showFlash('Tanggal Tidak Valid', 'Gunakan format dd/mm/yyyy, contoh 01/11/2025.', 'error');
+                        return;
+                    }
+                    if (end < start) {
+                        showFlash('Tanggal Tidak Valid', 'Tanggal akhir tidak boleh sebelum tanggal awal.', 'error');
+                        return;
                     }
 
-                    // <-- TAMBAH 4 BARIS INI
-                    const kpiPeriode = document.getElementById('kpi-periode-label');
-                    if (kpiPeriode) {
-                        kpiPeriode.textContent = `Periode: ${dateFilterLabel.textContent}`;
+                    const filter = { start: toIso(start), end: toIso(end), per: currentSegment };
+                    applyDateBtn.disabled = true;
+                    applyDateBtn.textContent = 'Memuat...';
+
+                    try {
+                        const response = await fetch(buildDataUrl(filter), {
+                            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                        });
+                        const data = await response.json();
+                        if (!response.ok) {
+                            const firstError = data.errors ? Object.values(data.errors)[0][0] : (data.message || 'Gagal memuat data.');
+                            throw new Error(firstError);
+                        }
+
+                        activeFilter = filter;
+                        renderDashboard(data);
+
+                        const label = data.filter?.range_label || `${dateInputStart.value} - ${dateInputEnd.value}`;
+                        dateFilterLabel.textContent = label;
+                        const kpiPeriode = document.getElementById('kpi-periode-label');
+                        if (kpiPeriode) kpiPeriode.textContent = `Periode: ${label}`;
+
+                        toggleDatePopover();
+                        let note = `Grafik per ${data.filter?.per ?? currentSegment}, ${data.filter?.bar_count ?? 0} batang.`;
+                        if (data.filter?.per_adjusted) note += ` Satuan diubah otomatis karena melebihi ${MAX_BARS} batang.`;
+                        if (data.filter?.truncated) note += ` Hanya ${MAX_BARS} batang terakhir yang ditampilkan.`;
+                        showFlash('Rentang Tanggal Diterapkan', note);
+                    } catch (err) {
+                        showFlash('Gagal Menerapkan Filter', err.message || 'Terjadi kesalahan.', 'error');
+                    } finally {
+                        applyDateBtn.disabled = false;
+                        applyDateBtn.textContent = 'Terapkan';
                     }
-                    
-                    toggleDatePopover();
-                    showToast('Rentang Tanggal Diterapkan', `Filter grafik disetel ke ${dateFilterLabel.textContent} (${currentSegment.toUpperCase()}).`);
                 });
             }
 
@@ -981,42 +1092,7 @@
                             });
                         });
 
-            // Floating Toast Notification
-            function showToast(title, message, type = 'success') {
-                const container = document.getElementById('toast-container');
-                if (!container) return;
-
-                const toast = document.createElement('div');
-                toast.className = `pointer-events-auto flex items-start gap-3 p-4 bg-white border ${type === 'success' ? 'border-emerald-200' : 'border-neutral-200'} rounded-2xl shadow-xl transition-all duration-300 transform translate-y-3 opacity-0`;
-                
-                const iconSvg = type === 'success' 
-                    ? `<div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                       </div>`
-                    : `<div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                       </div>`;
-
-                toast.innerHTML = `
-                    ${iconSvg}
-                    <div class="flex-1">
-                        <div class="text-xs font-bold text-neutral-900">${title}</div>
-                        <div class="text-[11px] text-neutral-500 mt-0.5 leading-snug">${message}</div>
-                    </div>
-                `;
-
-                container.appendChild(toast);
-
-                requestAnimationFrame(() => {
-                    toast.classList.remove('translate-y-3', 'opacity-0');
-                    toast.classList.add('translate-y-0', 'opacity-100');
-                });
-
-                setTimeout(() => {
-                    toast.classList.add('opacity-0', 'translate-y-2');
-                    setTimeout(() => toast.remove(), 300);
-                }, 4000);
-            }
+            // Notifikasi memakai flash alert standar (layouts/flash-alert.blade.php)
 
             // Subtle Value Highlight Effect on Change
             function updateTextWithHighlight(el, newText) {
@@ -1044,10 +1120,18 @@
                     const statStok = document.getElementById('stat-peringatan-stok');
 
                     if (statPenjualan) updateTextWithHighlight(statPenjualan, data.stats.total_penjualan_formatted || ('Rp' + Number(data.stats.total_penjualan).toLocaleString('id-ID')));
-                    if (statPersen) statPersen.innerHTML = `Naik - ${data.stats.persen_penjualan.replace('+', '')}%`;
+                    const persen = String(data.stats.persen_penjualan ?? '0');
+                    const turun = persen.startsWith('-');
+                    if (statPersen) {
+                        statPersen.textContent = `${turun ? 'Turun' : 'Naik'} ${persen.replace(/^[+-]/, '')}% vs periode lalu`;
+                        statPersen.classList.toggle('bg-red-50', turun);
+                        statPersen.classList.toggle('text-red-600', turun);
+                        statPersen.classList.toggle('bg-[#E6F9F0]', !turun);
+                        statPersen.classList.toggle('text-[#00A854]', !turun);
+                    }
                     if (statTransaksi) updateTextWithHighlight(statTransaksi, `${data.stats.total_transaksi} Struk`);
                     if (statTerjual) updateTextWithHighlight(statTerjual, `${data.stats.total_terjual} Pasang`);
-                    if (statPersenTerjual) statPersenTerjual.innerHTML = `Target bulanan tercapai - ↗${data.stats.persen_penjualan.replace('+', '')}%`;
+                    if (statPersenTerjual) statPersenTerjual.textContent = `Rata-rata ${data.stats.rata_rata_nota_formatted || 'Rp0'}/nota`;
                     if (statStok) updateTextWithHighlight(statStok, `${data.stats.peringatan_stok} Varian`);
                 }
 
@@ -1055,8 +1139,12 @@
                 if (Array.isArray(data.monthlySales)) {
                     const chartContainer = document.getElementById('monthly-sales-container');
                     if (chartContainer) {
-                        chartContainer.innerHTML = data.monthlySales.map(bar => `
-                            <div class="flex-1 flex flex-col items-center h-full justify-end group relative cursor-pointer">
+                        const total = data.monthlySales.length;
+                        // Banyak batang (mode hari/minggu): rapatkan jarak & tampilkan sebagian label saja
+                        const labelStep = Math.max(1, Math.ceil(total / 12));
+                        chartContainer.style.gap = total > 24 ? '2px' : '';
+                        chartContainer.innerHTML = data.monthlySales.map((bar, idx) => `
+                            <div class="flex-1 min-w-0 flex flex-col items-center h-full justify-end group relative cursor-pointer">
                                 <div class="absolute -top-8 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none bg-neutral-900 text-white text-[10px] font-semibold px-2 py-1 rounded shadow whitespace-nowrap z-10 chart-tooltip">
                                     ${bar.month}: ${bar.amount}
                                 </div>
@@ -1064,7 +1152,7 @@
                                     class="w-full max-w-[28px] sm:max-w-[34px] bg-[#0052FF] group-hover:bg-[#003ecb] rounded-t-md transition-all duration-500 chart-bar"
                                     style="height: ${bar.height}%;"
                                 ></div>
-                                <span class="text-[11px] sm:text-xs font-semibold text-neutral-800 text-center mt-3 select-none chart-month">
+                                <span class="text-[11px] sm:text-xs font-semibold text-neutral-800 text-center mt-3 select-none chart-month whitespace-nowrap ${idx % labelStep === 0 ? '' : 'invisible'}">
                                     ${bar.month}
                                 </span>
                             </div>
@@ -1074,8 +1162,8 @@
                     if (data.chartPills) {
                         const peakMonth = document.getElementById('chart-peak-month');
                         const peakAmount = document.getElementById('chart-peak-amount');
-                        if (peakMonth) peakMonth.textContent = data.chartPills.peak_month || 'Okt';
-                        if (peakAmount) peakAmount.textContent = data.chartPills.peak_amount || 'Puncak - Rp 435,4jt';
+                        if (peakMonth) peakMonth.textContent = data.chartPills.peak_month || '-';
+                        if (peakAmount) peakAmount.textContent = data.chartPills.peak_amount || 'Belum ada data';
                     }
                 }
             }
@@ -1087,7 +1175,7 @@
                 isPolling = true;
 
                 try {
-                    const response = await fetch("{{ route('dashboard.data') }}", {
+                    const response = await fetch(buildDataUrl(activeFilter), {
                         headers: {
                             'Accept': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',

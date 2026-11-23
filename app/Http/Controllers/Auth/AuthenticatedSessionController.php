@@ -21,7 +21,8 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Admin -> dashboard, kasir -> halaman kasir (sesuai DFD)
+        return redirect()->intended(route($request->user()->homeRoute(), absolute: false));
     }
 
     public function destroy(Request $request): RedirectResponse

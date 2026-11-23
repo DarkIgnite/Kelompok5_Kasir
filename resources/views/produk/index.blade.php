@@ -19,6 +19,18 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div id="toast-error" class="flex items-center justify-between p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm transition-all duration-300">
+            <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                </svg>
+                <span>{{ session('error') }}</span>
+            </div>
+            <button type="button" onclick="document.getElementById('toast-error').remove()" class="text-red-600 hover:text-red-900 font-bold ml-4">&times;</button>
+        </div>
+    @endif
+
     @if(isset($errors) && $errors->any())
         <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-xl text-sm">
             <ul class="list-disc list-inside space-y-1">
@@ -28,6 +40,7 @@
             </ul>
         </div>
     @endif
+
 
     {{-- TOOLBAR / FILTER & ACTION ROW --}}
     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
@@ -44,7 +57,7 @@
                 id="searchProduk" 
                 placeholder="Cari Nama Produk, Kode Produk" 
                 value="{{ request('search') }}"
-                class="w-full h-11 pl-10 pr-4 rounded-xl bg-white border border-neutral-300 text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
+                class="w-full h-[46px] pl-10 pr-4 rounded-[13px] bg-white border border-black/30 text-[15px] text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-900 transition-colors shadow-2xs"
             >
         </div>
 
@@ -55,7 +68,7 @@
                 <button 
                     type="button" 
                     id="btnDropdownFilter" 
-                    class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm text-neutral-700 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                    class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] text-black hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
                 >
                     <!-- Funnel / Filter Icon -->
                     <svg class="w-4 h-4 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -96,7 +109,7 @@
                 <button 
                     type="button" 
                     id="btnDropdownShow" 
-                    class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm text-neutral-700 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                    class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] text-black hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
                 >
                     <span>Show <span class="underline decoration-neutral-400 underline-offset-2">{{ request('limit', 100) }}</span></span>
                     <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -116,7 +129,7 @@
             <button 
                 type="button" 
                 onclick="exportProdukCSV()" 
-                class="h-11 px-4 bg-white border border-neutral-300 rounded-xl flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
+                class="h-[46px] px-4 bg-white border border-black/30 rounded-[10px] flex items-center gap-2 text-sm font-semibold text-neutral-800 hover:bg-neutral-50 transition shadow-2xs cursor-pointer"
             >
                 <svg class="w-4 h-4 text-neutral-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -130,7 +143,7 @@
             <!-- + Tambah Data -->
             <a 
                 href="{{ route('produk.create') }}" 
-                class="h-11 px-5 bg-black text-white rounded-xl flex items-center gap-2 text-sm font-bold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
+                class="h-[46px] px-[10px] bg-black text-white border border-black/30 rounded-[10px] flex items-center gap-[6px] text-[15px] font-semibold hover:bg-neutral-800 transition shadow-sm cursor-pointer whitespace-nowrap"
             >
                 <span class="text-base font-bold leading-none">+</span>
                 <span>Tambah Data</span>
@@ -140,22 +153,22 @@
 
     {{-- TABLE CARD --}}
     <div class="bg-white rounded-2xl border border-neutral-200/90 shadow-2xs overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto px-5">
             <table class="w-full text-left border-collapse" id="produkTable">
                 <thead>
-                    <tr class="border-b border-neutral-100">
-                        <th class="py-4 pl-6 pr-2 text-xs font-bold text-neutral-800 w-16 text-center">No.</th>
-                        <th class="py-4 pl-2 pr-6 text-xs font-bold text-neutral-800">Nama Produk</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Merek</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Kategori</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Harga Jual</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Status</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Akumulasi Stok</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800">Created at</th>
-                        <th class="py-4 px-6 text-xs font-bold text-neutral-800 w-48 text-center">Aksi</th>
+                    <tr class="border-b border-black/10">
+                        <th class="h-[46px] py-0 w-[60px] px-0 text-[12px] font-semibold text-black text-center">No.</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Nama Produk</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Merek</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Kategori</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Harga Jual</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Status</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Akumulasi Stok</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black">Created at</th>
+                        <th class="h-[46px] py-0 pl-0 pr-5 text-[12px] font-semibold text-black w-48 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-neutral-100" id="produkTbody">
+                <tbody class="divide-y divide-black/10" id="produkTbody">
                     @forelse($produk as $item)
                         @php
                             $totalStok = $item->varian->sum('stok');
@@ -169,16 +182,16 @@
                             data-id="{{ $item->id_produk }}"
                         >
                             {{-- 1. No. --}}
-                            <td class="py-4 pl-6 pr-2 text-sm font-medium text-neutral-800 align-middle text-center">
+                            <td class="h-[59px] py-0 w-[60px] px-0 text-[12px] font-medium text-neutral-800 align-middle text-center">
                                 {{ $loop->iteration }}
                             </td>
 
                             {{-- 2. Nama Produk (with thumbnail) --}}
-                            <td class="py-4 pl-2 pr-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="flex items-center gap-3">
                                     <div class="w-11 h-11 rounded-lg bg-neutral-100/90 border border-neutral-200/80 p-1 flex items-center justify-center shrink-0 overflow-hidden">
-                                        @if($item->gambar && file_exists(public_path($item->gambar)))
-                                            <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama_produk }}" class="w-full h-full object-contain">
+                                        @if($item->has_gambar)
+                                            <img src="{{ $item->gambar_url }}" alt="{{ $item->nama_produk }}" class="w-full h-full {{ $item->gambar_is_remote ? 'object-cover rounded' : 'object-contain' }}">
                                         @else
                                             <svg class="w-5 h-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                                                 <rect x="3" y="3" width="18" height="18" rx="2"></rect>
@@ -202,22 +215,22 @@
                             </td>
 
                             {{-- 3. Merek --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->merek }}
                             </td>
 
                             {{-- 4. Kategori --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-700 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-700 align-middle">
                                 {{ $item->kategori->nama_kategori ?? '-' }}
                             </td>
 
                             {{-- 5. Harga Jual --}}
-                            <td class="py-4 px-6 text-sm font-semibold text-neutral-900 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-semibold text-neutral-900 align-middle">
                                 {{ number_format($item->harga_jual, 0, ',', '.') }}
                             </td>
 
                             {{-- 6. Status --}}
-                            <td class="py-4 px-6 text-xs font-semibold align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-xs font-semibold align-middle">
                                 @if(strtolower($item->status) === 'aktif')
                                     <span class="text-emerald-500">Aktif</span>
                                 @else
@@ -226,17 +239,17 @@
                             </td>
 
                             {{-- 7. Akumulasi Stok --}}
-                            <td class="py-4 px-6 text-sm font-medium text-neutral-800 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-medium text-neutral-800 align-middle">
                                 {{ number_format($totalStok, 0, ',', '.') }}
                             </td>
 
                             {{-- 8. Created at --}}
-                            <td class="py-4 px-6 text-sm font-normal text-neutral-700 align-middle whitespace-nowrap">
+                            <td class="h-[59px] py-0 pl-0 pr-5 text-[12px] font-normal text-neutral-700 align-middle whitespace-nowrap">
                                 {{ \Carbon\Carbon::parse($item->created_at)->locale('id')->isoFormat('D MMMM Y') }}
                             </td>
 
                             {{-- 9. Aksi --}}
-                            <td class="py-4 px-6 align-middle">
+                            <td class="h-[59px] py-0 pl-0 pr-5 align-middle">
                                 <div class="flex items-center gap-2">
                                     <!-- Edit Button -->
                                     <a 
@@ -279,7 +292,7 @@
         </div>
 
         {{-- TABLE FOOTER / PAGINATION --}}
-        <div class="px-6 py-4 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="px-5 min-h-[56px] py-3 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="text-xs font-medium text-neutral-600">
                 Menampilkan <span id="labelShowingProduk">1–{{ $produk->count() }}</span> dari <span id="labelTotalProduk">{{ method_exists($produk, 'total') ? $produk->total() : $produk->count() }}</span> produk
             </div>
@@ -319,7 +332,7 @@
 </div>
 
 {{-- MODAL KONFIRMASI HAPUS PRODUK --}}
-<div id="modalHapusProduk" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs hidden items-center justify-center p-4">
+<div id="modalHapusProduk" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 bg-black/45 hidden items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative animate-in fade-in zoom-in-95 duration-150 text-center">
         <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

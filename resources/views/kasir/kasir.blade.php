@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Kasir POS - {{ config('app.name', 'KasirAja') }}</title>
+    <title>Kasir POS - KasirAja</title>
+    <!-- Logo KasirAja di tab browser -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
-    <!-- Google Fonts: Plus Jakarta Sans -->
+    <!-- Google Fonts: Inter (sama dengan desain Figma) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -22,7 +26,7 @@
                 theme: {
                     extend: {
                         fontFamily: {
-                            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                            sans: ['Inter', 'sans-serif'],
                         }
                     }
                 }
@@ -36,7 +40,7 @@
         }
 
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #FFFFFF;
         }
 
@@ -84,6 +88,7 @@
         
         <!-- SIDEBAR -->
         @include('layouts.sidebar')
+        @include('layouts.flash-alert')
 
         <!-- MAIN LAYOUT WRAPPER -->
         <div 
@@ -95,14 +100,14 @@
             <div id="viewCatalog" class="flex-1 flex flex-col lg:flex-row bg-white transition-all">
                 
                 <!-- LEFT/CENTER AREA: PRODUCT CATALOG -->
-                <section class="flex-1 min-w-0 p-5 sm:p-7 lg:p-8 overflow-y-auto max-h-screen bg-white">
+                <section class="flex-1 min-w-0 px-[30px] pb-[30px] overflow-y-auto max-h-screen bg-white">
                     
                     <!-- TOP BAR: SEARCH & FILTER -->
-                    <div class="flex items-center gap-3 sm:gap-4 mb-7">
+                    <div class="sticky top-0 z-10 bg-white -mx-[30px] px-[30px] h-[100px] flex items-center gap-[15px] mb-[35px] shadow-[0_1px_0_rgba(0,0,0,0.1)]">
                         <!-- Search Input -->
                         <div class="relative flex-1">
-                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-neutral-400">
-                                <svg class="w-4 h-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#A7A7A7]">
+                                <svg class="w-6 h-6 text-[#A7A7A7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
@@ -111,7 +116,7 @@
                                 type="text" 
                                 id="productSearchInput" 
                                 placeholder="Search" 
-                                class="w-full pl-10 pr-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm text-neutral-800 placeholder-neutral-400 focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 transition"
+                                class="w-full h-[46px] pl-[55px] pr-4 bg-white border border-black/30 rounded-[13px] text-[15px] text-neutral-800 placeholder-[#A7A7A7] focus:outline-none focus:border-neutral-400 focus:ring-1 focus:ring-neutral-400 transition"
                             >
                         </div>
 
@@ -120,10 +125,10 @@
                             <button 
                                 type="button" 
                                 id="filterMenuBtn" 
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-neutral-200 rounded-lg text-sm font-normal text-neutral-700 hover:bg-neutral-50 transition cursor-pointer whitespace-nowrap"
+                                class="inline-flex items-center gap-[10px] h-[46px] px-[11px] bg-white border border-black/30 rounded-[10px] text-[15px] font-normal text-black hover:bg-neutral-50 transition cursor-pointer whitespace-nowrap"
                             >
-                                <span id="currentFilterLabel">Filter to "Option 2"</span>
-                                <svg class="w-4 h-4 text-neutral-500 transition-transform duration-200" id="filterChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <span id="currentFilterLabel">Filter to "Semua Kategori"</span>
+                                <svg class="w-6 h-6 text-black transition-transform duration-200" id="filterChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline points="6 9 12 15 18 9"></polyline>
                                 </svg>
                             </button>
@@ -141,14 +146,6 @@
                                         data-category-name="Semua Kategori"
                                     >
                                         <span>Semua Kategori</span>
-                                    </button>
-                                    <button 
-                                        type="button" 
-                                        class="category-filter-item w-full text-left px-3.5 py-2 text-xs font-medium text-neutral-800 hover:bg-neutral-50 flex items-center justify-between"
-                                        data-category-id="option2"
-                                        data-category-name='Option 2'
-                                    >
-                                        <span>Option 2 (Lifestyle)</span>
                                     </button>
                                 </div>
                                 <div class="py-1">
@@ -168,76 +165,77 @@
                     </div>
 
                     <!-- PRODUCT CARDS GRID (3 Columns) -->
-                    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                    <div id="productGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-[34px]">
                         @forelse ($displayProduks as $p)
                             @php
                                 $isFayer = str_contains(strtolower($p->nama_produk), 'fayer');
                             @endphp
                             <div 
-                                class="product-card bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:shadow-md transition-shadow duration-200 flex flex-col justify-between"
+                                class="product-card bg-white rounded-2xl border border-black/30 p-[25px] hover:shadow-md transition-shadow duration-200 flex flex-col justify-between"
                                 data-product-id="{{ $p->id_produk }}"
                                 data-product-name="{{ $p->nama_produk }}"
                                 data-category-id="{{ $p->id_kategori }}"
                             >
                                 <div>
                                     <!-- Thumbnail image -->
-                                    <div class="w-full h-44 rounded-xl flex items-center justify-center p-3 relative overflow-hidden {{ $isFayer ? 'bg-black' : 'bg-neutral-100' }}">
+                                    <div class="w-full h-[124px] rounded-[5px] border border-black/20 flex items-center justify-center {{ $p->gambar_is_remote ? '' : 'p-3' }} relative overflow-hidden {{ $isFayer ? 'bg-black' : 'bg-neutral-100' }}">
                                         <img 
-                                            src="{{ asset($p->gambar) }}" 
+                                            src="{{ $p->gambar_url }}" 
                                             alt="{{ $p->nama_produk }}" 
-                                            class="max-h-full max-w-full object-contain pointer-events-none drop-shadow-sm"
+                                            class="{{ $p->gambar_is_remote ? 'w-full h-full object-cover' : 'max-h-full max-w-full object-contain drop-shadow-sm' }} pointer-events-none"
                                             loading="lazy"
                                         >
                                     </div>
 
                                     <!-- Product Info -->
-                                    <div class="mt-4">
-                                        <h3 class="text-sm font-bold text-neutral-900 tracking-tight leading-snug">
+                                    <div class="mt-[10px] px-[2px]">
+                                        <h3 class="text-base font-bold text-black leading-5">
                                             {{ $p->nama_produk }}
                                         </h3>
-                                        <p class="text-xs font-semibold text-neutral-900 mt-1">
+                                        <p class="text-sm font-semibold text-black mt-[2px] leading-5">
                                             Rp{{ number_format($p->harga_jual, 0, ',', '.') }}
                                         </p>
                                     </div>
 
                                     <!-- Product Meta: Warna, Ukuran, Stok -->
-                                    <div class="mt-3 text-[11px] text-neutral-500">
+                                    <div class="mt-[10px] px-[2px] text-[12px] leading-[15px] text-black">
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Merek</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal truncate">{{ $p->merek ?? '-' }}</span>
+                                            <span class="text-black font-normal truncate">{{ $p->merek ?? '-' }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Warna</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal truncate">{{ $p->warna_text ?? '-' }}</span>
+                                            <span class="text-black font-normal truncate">{{ $p->warna_text ?? '-' }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Ukuran</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal truncate">{{ $p->ukuran_text ?? '-' }}</span>
+                                            <span class="text-black font-normal truncate">{{ $p->ukuran_text ?? '-' }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <span class="w-14 font-normal">Stok</span>
                                             <span class="mr-1.5">:</span>
-                                            <span class="text-neutral-700 font-normal">{{ $p->total_stok ?? 67 }}</span>
+                                            <span class="text-black font-normal">{{ $p->total_stok ?? 0 }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Add to Order Button -->
-                                <div class="mt-4 pt-1">
+                                <div class="mt-5">
                                     <button 
                                         type="button" 
-                                        class="btn-add-to-order w-full py-2.5 bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-xs font-semibold rounded-lg transition duration-150 shadow-xs flex items-center justify-center cursor-pointer"
+                                        class="btn-add-to-order w-full h-[39px] {{ $p->total_stok > 0 ? 'bg-black hover:bg-neutral-800 active:scale-[0.98] cursor-pointer' : 'bg-neutral-300 cursor-not-allowed' }} text-white text-base font-medium rounded-[10px] border border-black/20 transition duration-150 flex items-center justify-center"
                                         data-product-id="{{ $p->id_produk }}"
                                         data-product-name="{{ $p->nama_produk }}"
                                         data-product-price="{{ $p->harga_jual }}"
-                                        data-product-image="{{ asset($p->gambar) }}"
+                                        data-product-image="{{ $p->gambar_url }}"
                                         data-is-black="{{ $isFayer ? '1' : '0' }}"
-                                        data-variant-id="{{ $p->first_variant_id ?? '' }}"
+                                        data-variants='@json($p->varian_json)'
+                                        {{ $p->total_stok > 0 ? '' : 'disabled' }}
                                     >
-                                        Add to order
+                                        {{ $p->total_stok > 0 ? 'Add to Order' : 'Stok habis' }}
                                     </button>
                                 </div>
                             </div>
@@ -257,12 +255,12 @@
                 <!-- RIGHT AREA: ORDER DETAILS PANEL -->
                 <aside 
                     id="orderDetailsSidebar"
-                    class="w-full lg:w-[390px] xl:w-[410px] shrink-0 bg-white border-t lg:border-t-0 lg:border-l border-neutral-200/90 flex flex-col justify-between h-auto lg:h-screen lg:sticky lg:top-0 z-20"
+                    class="w-full lg:w-[383px] shrink-0 bg-white border-t lg:border-t-0 lg:border-l border-black/10 flex flex-col justify-between h-auto lg:h-screen lg:sticky lg:top-0 z-20 px-[25px] py-[35px]"
                     aria-label="Order details"
                 >
                     <!-- Header -->
-                    <div class="flex items-center justify-between px-6 py-5 border-b border-neutral-100/90">
-                        <h2 class="text-base font-bold text-neutral-900 tracking-tight">Order details</h2>
+                    <div class="flex items-center justify-between pb-[36px] border-b border-black/30">
+                        <h2 class="text-[18px] leading-7 font-bold text-black">Order Details</h2>
                         <button 
                             type="button" 
                             id="btnCloseOrder" 
@@ -276,53 +274,39 @@
                     <!-- Order Items List -->
                     <div 
                         id="cartList" 
-                        class="flex-1 overflow-y-auto px-6 py-4 space-y-4 max-h-[50vh] lg:max-h-none"
+                        class="flex-1 overflow-y-auto py-[10px] space-y-[10px] max-h-[50vh] lg:max-h-none"
                     >
                         <!-- Items rendered via JavaScript -->
                     </div>
 
                     <!-- Summary & Checkout Section -->
-                    <div class="p-6 border-t border-neutral-100 bg-white space-y-2.5">
-                        <!-- Summary & Checkout Section -->
-                        <div class="p-6 border-t border-neutral-100 bg-white space-y-2.5">
-                        <!-- Total Item -->
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Total Item</span>
-                            <span id="cartTotalItem" class="font-normal text-neutral-900">0 pcs</span>
+                    <div class="border-t border-black/30 bg-white pt-5 space-y-[15px]">
+                        <div class="space-y-[5px] text-base">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Total Item</span>
+                                <span id="cartTotalItem" class="font-normal text-black">0 pcs</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Subtotal</span>
+                                <span id="cartSubtotal" class="font-normal text-black">Rp0</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Diskon</span>
+                                <span id="cartDiskon" class="font-normal text-black">Rp0</span>
+                            </div>
                         </div>
-
-
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Subtotal</span>
-                            <span id="cartSubtotal" class="font-normal text-neutral-900">Rp0</span>
-                        </div>
-
-                        <!-- Pajak -->
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Pajak</span>
-                            <span id="cartPajak" class="font-normal text-neutral-900">Rp0</span>
-                        </div>
-
-                        <!-- Diskon -->
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Diskon</span>
-                            <span id="cartDiskon" class="font-normal text-neutral-900">Rp0</span>
-                        </div>
-
-                        <!-- Dashed divider line -->
-                        <div class="border-b border-dashed border-neutral-200 my-2"></div>
 
                         <!-- Total -->
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-base font-bold text-neutral-900 tracking-tight">Total</span>
-                            <span id="cartTotal" class="text-lg font-bold text-neutral-900 tracking-tight">Rp0</span>
+                        <div class="flex items-center justify-between py-[15px] border-t border-black/30">
+                            <span class="text-[18px] font-bold text-[#0F172A]">Total</span>
+                            <span id="cartTotal" class="text-[20px] font-bold text-[#0F172A]">Rp0</span>
                         </div>
 
                         <!--Continue Button-->
                         <button 
                             type="button" 
                             id="btnContinueOrder" 
-                            class="w-full mt-3 py-3.5 bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-sm font-semibold rounded-xl transition duration-150 shadow-sm flex items-center justify-center cursor-pointer"
+                            class="w-full h-[59px] bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-2xl font-medium rounded-[10px] transition duration-150 flex items-center justify-center cursor-pointer"
                         >
                             Continue
                         </button>
@@ -335,25 +319,25 @@
             <div id="viewPayment" class="hidden flex-1 flex flex-col lg:flex-row bg-white transition-all">
                 
                 <!-- LEFT/CENTER AREA: METODE PEMBAYARAN -->
-                <section class="flex-1 min-w-0 p-5 sm:p-7 lg:p-8 overflow-y-auto max-h-screen bg-white">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight leading-none mb-7">
+                <section class="flex-1 min-w-0 p-[30px] overflow-y-auto max-h-screen bg-white">
+                    <h1 class="text-[32px] font-bold text-black leading-[39px] mb-[30px]">
                         Layar Pembayaran
                     </h1>
 
                     <!-- Payment Card Container -->
-                    <div class="bg-white rounded-2xl border border-neutral-200/90 p-6 sm:p-8 shadow-xs">
+                    <div class="bg-white rounded-2xl border border-black/25 p-[25px]">
                         
                         <!-- Header Section -->
-                        <h2 class="text-sm sm:text-base font-bold text-neutral-900 mb-4 tracking-tight">
+                        <h2 class="text-[20px] leading-7 font-bold text-black mb-[10px]">
                             Pilih Metode Pembayaran
                         </h2>
 
                         <!--Payment Method Buttons tunai, debit, qris-->
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-[10px]">
                             <!--Tunai-->
                             <button 
                                 type="button" 
-                                class="payment-method-btn border-2 border-neutral-900 bg-white rounded-xl p-4 flex items-center gap-3 transition cursor-pointer text-left active-method"
+                                class="payment-method-btn border-2 border-black bg-white rounded-2xl h-[72px] p-[15px] flex items-center gap-[15px] transition cursor-pointer text-left active-method"
                                 data-method="Tunai"
                             >
                                 <div class="w-6 h-6 flex items-center justify-center text-neutral-900">
@@ -363,13 +347,13 @@
                                         <path d="M6 12h.01M18 12h.01"/>
                                     </svg>
                                 </div>
-                                <span class="font-bold text-sm text-neutral-900">Tunai</span>
+                                <span class="font-semibold text-base text-black">Tunai</span>
                             </button>
 
                             <!--Debit-->
                             <button 
                                 type="button" 
-                                class="payment-method-btn border border-neutral-200 bg-white rounded-xl p-4 flex items-center gap-3 transition cursor-pointer text-left hover:border-neutral-400"
+                                class="payment-method-btn border border-black/25 bg-white rounded-2xl h-[72px] p-[15px] flex items-center gap-[15px] transition cursor-pointer text-left hover:border-neutral-400"
                                 data-method="Debit"
                             >
                                 <div class="w-6 h-6 flex items-center justify-center text-neutral-700">
@@ -378,13 +362,13 @@
                                         <line x1="2" y1="10" x2="22" y2="10"/>
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm text-neutral-800">Debit</span>
+                                <span class="font-semibold text-base text-black">Debit</span>
                             </button>
 
                             <!--qris-->
                             <button 
                                 type="button" 
-                                class="payment-method-btn border border-neutral-200 bg-white rounded-xl p-4 flex items-center gap-3 transition cursor-pointer text-left hover:border-neutral-400"
+                                class="payment-method-btn border border-black/25 bg-white rounded-2xl h-[72px] p-[15px] flex items-center gap-[15px] transition cursor-pointer text-left hover:border-neutral-400"
                                 data-method="QRIS"
                             >
                                 <div class="w-6 h-6 flex items-center justify-center text-neutral-700">
@@ -395,59 +379,59 @@
                                         <rect x="14" y="14" width="7" height="7"/>
                                     </svg>
                                 </div>
-                                <span class="font-semibold text-sm text-neutral-800">QRIS</span>
+                                <span class="font-semibold text-base text-black">QRIS</span>
                             </button>
                         </div>
 
                         <!-- Divider line -->
-                        <div class="border-b border-neutral-100 my-6"></div>
+                        <div class="border-b border-black/15 mt-[15px] mb-[10px]"></div>
 
                         <!-- Method : Tunai Section -->
-                        <div id="methodTunaiContent" class="space-y-4">
-                            <h3 class="text-sm sm:text-base font-bold text-neutral-900 tracking-tight">
+                        <div id="methodTunaiContent" class="space-y-[10px]">
+                            <h3 class="text-[20px] leading-7 font-bold text-black">
                                 Pembayaran Tunai
                             </h3>
 
                             <div>
-                                <label class="block text-xs text-neutral-500 font-normal mb-1.5">
+                                <label class="block text-[12px] text-black/60 font-normal mb-[10px]">
                                     Uang diterima
                                 </label>
                                 <input 
                                     type="text" 
                                     id="inputPaymentReceived" 
                                     placeholder="Rp 0" 
-                                    class="w-full px-4 py-3 bg-white border border-neutral-200 rounded-xl text-sm sm:text-base font-bold text-neutral-900 focus:outline-none focus:border-neutral-900 transition"
+                                    class="w-full h-[46px] px-[15px] bg-white border border-black/25 rounded-[8px] text-[15px] font-semibold text-black focus:outline-none focus:border-neutral-900 transition"
                                 >
                             </div>
 
                             <!-- Quick Amount Suggestions Pills-->
-                            <div class="flex flex-wrap items-center gap-2.5 pt-1" id="quickAmountWrapper">
-                                <button type="button" id="btnUangPasQuick" class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer">
+                            <div class="flex flex-wrap items-center gap-[10px]" id="quickAmountWrapper">
+                                <button type="button" id="btnUangPasQuick" class="h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer">
                                     Uang pas
                                 </button>
-                                <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="466050000">
+                                <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="466050000">
                                     Rp466.050.000
                                 </button>
-                                <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="466100000">
+                                <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="466100000">
                                     Rp466.100.000
                                 </button>
-                                <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="500000000">
+                                <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="500000000">
                                     Rp500.000.000
                                 </button>
                             </div>
 
                             <!-- Kembalian Box -->
-                            <div class="bg-neutral-100/90 rounded-xl px-4 py-3.5 flex items-center justify-between mt-4">
-                                <span class="text-xs sm:text-sm font-semibold text-neutral-800">Kembalian</span>
-                                <span id="paymentKembalianText" class="text-xs sm:text-sm font-bold text-[#00A854]">Rp0</span>
+                            <div class="bg-black/5 rounded-[8px] h-[35px] px-[10px] flex items-center justify-between">
+                                <span class="text-[12px] font-normal text-black">Kembalian</span>
+                                <span id="paymentKembalianText" class="text-[12px] font-semibold text-[#00A854]">Rp0</span>
                             </div>
 
                             <!-- Validasi Pembayaran Button -->
-                            <div class="pt-4">
+                            <div>
                                 <button 
                                     type="button" 
                                     id="btnValidatePayment" 
-                                    class="px-6 py-3 rounded-xl text-xs sm:text-sm font-bold transition duration-150 shadow-xs bg-neutral-300 text-white cursor-not-allowed"
+                                    class="h-[35px] px-5 rounded-[10px] text-[12px] font-medium transition duration-150 bg-neutral-300 text-white cursor-not-allowed"
                                 >
                                     Validasi Pembayaran
                                 </button>
@@ -456,12 +440,12 @@
 
                         <!-- Method : Debit -->
                         <div id="methodDebitContent" class="hidden space-y-3">
-                            <h3 class="text-sm sm:text-base font-bold text-neutral-900 tracking-tight">
+                            <h3 class="text-[20px] leading-7 font-bold text-black">
                                 Pembayaran Debit
                             </h3>
                             <p class="border border-amber-300 bg-amber-50 rounded-md px-2 py-2 text-xs text-neutral-800">Lanjutkan pembayaran di mesin EDC.</p>
                             <div class="pt-1">
-                                <button type="button" id="btnValidateDebit" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition cursor-pointer">
+                                <button type="button" id="btnValidateDebit" class="h-[35px] px-5 rounded-[10px] text-[12px] font-medium bg-black text-white hover:bg-neutral-800 transition cursor-pointer">
                                     Pembayaran Berhasil
                                 </button>
                             </div>
@@ -469,12 +453,12 @@
 
                         <!-- Method : qris-->
                         <div id="methodQRISContent" class="hidden space-y-3">
-                            <h3 class="text-sm sm:text-base font-bold text-neutral-900 tracking-tight">
+                            <h3 class="text-[20px] leading-7 font-bold text-black">
                                 Pembayaran QRIS
                             </h3>
                             <p class="border border-amber-300 bg-amber-50 rounded-md px-2 py-2 text-xs text-neutral-800">Lanjutkan pembayaran di mesin QRIS.</p>
                             <div class="pt-1">
-                                <button type="button" id="btnValidateQRIS" class="px-4 py-1.5 rounded-lg text-xs font-medium bg-neutral-900 text-white hover:bg-neutral-800 transition cursor-pointer">
+                                <button type="button" id="btnValidateQRIS" class="h-[35px] px-5 rounded-[10px] text-[12px] font-medium bg-black text-white hover:bg-neutral-800 transition cursor-pointer">
                                     Pembayaran Berhasil
                                 </button>
                             </div>
@@ -486,11 +470,11 @@
                 <!--RIGHT AREA: DETAIL ORDER-->
                 <aside 
                     id="paymentOrderDetailsSidebar"
-                    class="w-full lg:w-[410px] xl:w-[430px] shrink-0 bg-white border-t lg:border-t-0 lg:border-l border-neutral-200/90 flex flex-col justify-between h-auto lg:h-screen lg:sticky lg:top-0 z-20"
+                    class="w-full lg:w-[383px] shrink-0 bg-white border-t lg:border-t-0 lg:border-l border-black/10 flex flex-col justify-between h-auto lg:h-screen lg:sticky lg:top-0 z-20 px-[25px] py-[35px]"
                 >
                     <!-- Header with ✕ close button -->
-                    <div class="flex items-center justify-between px-6 py-5 border-b border-neutral-100/90">
-                        <h2 class="text-base font-bold text-neutral-900 tracking-tight">Detail Order</h2>
+                    <div class="flex items-center justify-between pb-[36px] border-b border-black/30">
+                        <h2 class="text-[18px] leading-7 font-bold text-black">Order Details</h2>
                         <button 
                             type="button" 
                             id="btnClosePaymentDetail" 
@@ -504,44 +488,38 @@
                     <!-- Items list in Payment View -->
                     <div 
                         id="paymentCartList" 
-                        class="flex-1 overflow-y-auto px-6 py-4 space-y-4 max-h-[50vh] lg:max-h-none"
+                        class="flex-1 overflow-y-auto py-[10px] space-y-[10px] max-h-[50vh] lg:max-h-none"
                     >
                         <!-- Rendered via JavaScript -->
                     </div>
 
                     <!-- Summary & Ubah Order Button -->
-                    <div class="p-6 border-t border-neutral-100 bg-white space-y-2.5">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Total Item</span>
-                            <span id="paymentTotalItem" class="font-normal text-neutral-900">70 pcs</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Subtotal</span>
-                            <span id="paymentSubtotal" class="font-normal text-neutral-900">Rp419.850.000</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Pajak</span>
-                            <span id="paymentPajak" class="font-normal text-neutral-900">Rp46.183.500</span>
-                        </div>
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-neutral-500 font-normal">Diskon</span>
-                            <span id="paymentDiskon" class="font-normal text-neutral-900">Rp0</span>
+                    <div class="border-t border-black/30 bg-white pt-5 space-y-[15px]">
+                        <div class="space-y-[5px] text-base">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Total Item</span>
+                                <span id="paymentTotalItem" class="font-normal text-black">0 pcs</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Subtotal</span>
+                                <span id="paymentSubtotal" class="font-normal text-black">Rp0</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[#0F172A] font-normal">Diskon</span>
+                                <span id="paymentDiskon" class="font-normal text-black">Rp0</span>
+                            </div>
                         </div>
 
-                        <!-- Dashed line -->
-                        <div class="border-b border-dashed border-neutral-200 my-2"></div>
-
-                        <!-- Total -->
-                        <div class="flex items-center justify-between pt-0.5">
-                            <span class="text-base font-bold text-neutral-900 tracking-tight">Total</span>
-                            <span id="paymentTotal" class="text-lg font-bold text-neutral-900 tracking-tight">Rp466.033.500</span>
+                        <div class="flex items-center justify-between py-[15px] border-t border-black/30">
+                            <span class="text-[18px] font-bold text-[#0F172A]">Total</span>
+                            <span id="paymentTotal" class="text-[20px] font-bold text-[#0F172A]">Rp0</span>
                         </div>
 
                         <!-- Ubah Order Button (Kembali ke Katalog) -->
                         <button 
                             type="button" 
                             id="btnBackToOrder" 
-                            class="w-full mt-3 py-3 border border-neutral-300 hover:bg-neutral-50 active:scale-[0.98] text-neutral-900 text-sm font-semibold rounded-xl transition duration-150 shadow-xs flex items-center justify-center cursor-pointer"
+                            class="w-full h-[59px] border border-black/30 hover:bg-neutral-50 active:scale-[0.98] text-black text-2xl font-medium rounded-[10px] transition duration-150 flex items-center justify-center cursor-pointer"
                         >
                             Ubah Order
                         </button>
@@ -554,84 +532,80 @@
             <div id="viewReceipt" class="hidden flex-1 flex flex-col lg:flex-row bg-white transition-all">
                 
                 <!-- LEFT/CENTER AREA: THERMAL RECEIPT & ACTION BUTTONS -->
-                <section class="flex-1 min-w-0 p-5 sm:p-7 lg:p-8 overflow-y-auto max-h-screen bg-white">
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight leading-none mb-7">
+                <section class="flex-1 min-w-0 p-[30px] overflow-y-auto max-h-screen bg-white">
+                    <h1 class="text-[32px] font-bold text-black leading-[39px] mb-[30px]">
                         Detail Pesanan
                     </h1>
 
                     <!--Paper Thermal Struk Card-->
                     <div 
                         id="printableReceipt" 
-                        class="bg-white rounded-2xl border border-neutral-200 shadow-sm p-6 sm:p-8 max-w-md w-full text-xs font-normal text-neutral-800"
+                        class="bg-white rounded-2xl border border-black/15 p-[25px] w-[392px] max-w-full text-xs font-normal text-black"
                     >
                         <!-- Receipt Top Brand -->
                         <div class="text-center">
-                            <div class="text-base font-bold text-neutral-900 tracking-tight">KasirAja</div>
-                            <div class="text-[11px] text-neutral-500 mt-0.5">Toko Sepatu · Struk Pembelian</div>
+                            <div class="text-base font-bold text-black tracking-tight">KasirAja</div>
+                            <div class="text-[10px] text-black/60 mt-0.5">Toko Sepatu · Struk Pembelian</div>
                         </div>
 
-                        <div class="border-b border-dashed border-neutral-200 my-4"></div>
+                        <div class="border-b border-dashed border-black/25 my-[15px]"></div>
 
                         <!-- Meta Info: No Nota, Tanggal, Kasir -->
                         <div class="space-y-1 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">No. nota</span>
-                                <span id="receiptNoNota" class="font-bold text-neutral-900">TRX-20261120-003</span>
+                                <span class="text-black/60">No. nota</span>
+                                <span id="receiptNoNota" class="font-bold text-black">TRX-20261120-003</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">Tanggal</span>
-                                <span id="receiptTanggal" class="font-normal text-neutral-800">20 Nov 2026, 14:56</span>
+                                <span class="text-black/60">Tanggal</span>
+                                <span id="receiptTanggal" class="font-normal text-black">20 Nov 2026, 14:56</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">Kasir</span>
-                                <span id="receiptKasir" class="font-normal text-neutral-800">Kasir 1</span>
+                                <span class="text-black/60">Kasir</span>
+                                <span id="receiptKasir" class="font-normal text-black">Kasir 1</span>
                             </div>
                         </div>
 
-                        <div class="border-b border-dashed border-neutral-200 my-4"></div>
+                        <div class="border-b border-dashed border-black/25 my-[15px]"></div>
 
                         <!-- Purchased Items List -->
                         <div id="receiptItemsContainer" class="space-y-3.5">
                             <!-- Items injected dynamically via JS -->
                         </div>
 
-                        <div class="border-b border-dashed border-neutral-200 my-4"></div>
+                        <div class="border-b border-dashed border-black/25 my-[15px]"></div>
 
                         <!-- Subtotal, Pajak, Diskon -->
                         <div class="space-y-1.5 text-xs">
                             <div class="flex justify-between">
-                                <span class="text-neutral-500" id="receiptSubtotalLabel">Subtotal (70 pasang)</span>
-                                <span id="receiptSubtotalVal" class="font-medium text-neutral-900">Rp466.033.500</span>
+                                <span class="text-black/60" id="receiptSubtotalLabel">Subtotal (70 pasang)</span>
+                                <span id="receiptSubtotalVal" class="font-medium text-black">Rp466.033.500</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">Pajak 11%</span>
-                                <span id="receiptPajakVal" class="font-medium text-neutral-900">Rp000.000.000</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-neutral-500">Diskon</span>
-                                <span id="receiptDiskonVal" class="font-medium text-neutral-900">Rp0</span>
+                                <span class="text-black/60">Diskon</span>
+                                <span id="receiptDiskonVal" class="font-medium text-black">Rp0</span>
                             </div>
                         </div>
 
-                        <div class="border-b border-dashed border-neutral-200 my-4"></div>
+                        <div class="border-b border-dashed border-black/25 my-[15px]"></div>
 
                         <!-- Total Bayar, Metode, Jumlah Bayar, Kembalian -->
                         <div class="space-y-1.5 text-xs">
-                            <div class="flex justify-between text-sm font-bold text-neutral-900">
+                            <div class="flex justify-between text-sm font-semibold text-black">
                                 <span>Total bayar</span>
                                 <span id="receiptTotalBayarVal">Rp466.033.500</span>
                             </div>
                             <div class="flex justify-between pt-1">
-                                <span class="text-neutral-500">Metode</span>
-                                <span id="receiptMetodeVal" class="font-medium text-neutral-800">Tunai</span>
+                                <span class="text-black/60">Metode</span>
+                                <span id="receiptMetodeVal" class="font-medium text-black">Tunai</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">Jumlah Bayar</span>
-                                <span id="receiptJumlahBayarVal" class="font-medium text-neutral-800">Rp466.100.000</span>
+                                <span class="text-black/60">Jumlah Bayar</span>
+                                <span id="receiptJumlahBayarVal" class="font-medium text-black">Rp466.100.000</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-neutral-500">Kembalian</span>
-                                <span id="receiptKembalianVal" class="font-medium text-neutral-800">Rp66.500</span>
+                                <span class="text-black/60">Kembalian</span>
+                                <span id="receiptKembalianVal" class="font-medium text-black">Rp66.500</span>
                             </div>
                         </div>
 
@@ -653,14 +627,14 @@
                         <button 
                             type="button" 
                             id="btnPrintPdf" 
-                            class="flex-1 py-3 px-4 bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl transition duration-150 shadow-sm flex items-center justify-center cursor-pointer"
+                            class="h-[54px] px-[25px] bg-black hover:bg-neutral-800 active:scale-[0.98] text-white text-[20px] font-medium rounded-[10px] transition duration-150 flex items-center justify-center cursor-pointer"
                         >
                             Unduh Struk (PDF)
                         </button>
                         <button 
                             type="button" 
                             id="btnCopyReceipt" 
-                            class="flex-1 py-3 px-4 border border-neutral-300 hover:bg-neutral-50 active:scale-[0.98] text-neutral-900 text-xs sm:text-sm font-semibold rounded-xl transition duration-150 shadow-xs flex items-center justify-center cursor-pointer"
+                            class="h-[54px] px-[25px] border border-black/20 hover:bg-neutral-50 active:scale-[0.98] text-black text-[20px] font-medium rounded-[10px] transition duration-150 flex items-center justify-center cursor-pointer"
                         >
                             Salin Teks Struk
                         </button>
@@ -743,7 +717,7 @@
                         <button 
                             type="button" 
                             id="btnNewTransaction" 
-                            class="w-full py-3.5 border border-neutral-300 hover:bg-neutral-50 active:scale-[0.98] text-neutral-900 text-sm font-semibold rounded-xl transition duration-150 shadow-xs flex items-center justify-center cursor-pointer"
+                            class="w-full h-[59px] border border-black/30 hover:bg-neutral-50 active:scale-[0.98] text-black text-2xl font-medium rounded-[10px] transition duration-150 flex items-center justify-center cursor-pointer"
                         >
                             Transaksi Baru
                         </button>
@@ -755,6 +729,40 @@
         </div>
     </div>
 
+    <!-- POPUP PILIH UKURAN (gaya modal sama dengan modal CRUD di Figma) -->
+    <div id="sizeModal" class="fixed inset-y-0 right-0 left-[var(--sidebar-width)] z-50 hidden items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="sizeModalTitle">
+        <div class="w-full max-w-[462px] bg-white rounded-2xl border border-[#E7E7E7]/90 p-5">
+            <div class="flex items-center justify-between pb-[18px] border-b border-black/10">
+                <h3 class="text-base font-semibold text-black">Pilih Ukuran</h3>
+                <button type="button" id="sizeModalClose" class="w-[22px] h-[22px] rounded-[3px] border border-black/25 flex items-center justify-center text-neutral-500 hover:text-black cursor-pointer" aria-label="Tutup">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="flex items-center gap-[15px] pt-5">
+                <div class="w-20 h-20 rounded-[10px] border border-black/20 bg-neutral-100 overflow-hidden shrink-0">
+                    <img id="sizeModalImage" src="" alt="" class="w-full h-full object-cover">
+                </div>
+                <div class="min-w-0">
+                    <p id="sizeModalTitle" class="text-base font-bold text-black leading-5">Nama Produk</p>
+                    <p id="sizeModalPrice" class="text-sm font-semibold text-black mt-[2px] leading-5"></p>
+                    <p class="text-[12px] text-black/60 mt-[2px]">Pilih ukuran yang dibeli pelanggan</p>
+                </div>
+            </div>
+            <p class="text-[14px] font-semibold text-black mt-5 mb-[5px]">Ukuran <span class="text-red-500">*</span></p>
+            <div id="sizeModalOptions" class="grid grid-cols-3 gap-[10px]"></div>
+            <div class="flex items-center justify-between gap-[10px] pt-5 mt-5 border-t border-black/15">
+                <div class="flex items-center h-[30px] border border-black/40 rounded-[7px] px-[5px] text-sm font-semibold text-black gap-[10px]">
+                    <button type="button" id="sizeQtyMinus" class="px-1 cursor-pointer select-none">-</button>
+                    <span id="sizeQtyVal" class="min-w-5 text-center select-none font-bold">1</span>
+                    <button type="button" id="sizeQtyPlus" class="px-1 cursor-pointer select-none">+</button>
+                </div>
+                <button type="button" id="sizeModalAdd" disabled class="h-[30px] px-3 rounded-[5px] border border-black/30 text-[12px] font-semibold text-white bg-neutral-300 cursor-not-allowed transition">
+                    Pilih ukuran dulu
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!--JAVASCRIPT: POS CART, PAYMENT & RECEIPT CONTROLLER-->
     <script>
         // Currency formatter
@@ -762,57 +770,12 @@
             return new Intl.NumberFormat('id-ID').format(Math.round(number));
         }
 
-        // Demo Initial Cart Items matching Page Payment.png
-        const DEFAULT_CART_ITEMS = [
-            {
-                id: '1',
-                name: 'WaterJyordan',
-                variant: 'Ukuran 40 · Merah',
-                code: 'kodeprdk01-40-MRH',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/water-jyordan.png") }}',
-                isBlack: false,
-                variantId: '1'
-            },
-            {
-                id: '2',
-                name: 'FayerJyordan',
-                variant: 'Ukuran 40 · Biru',
-                code: 'kodeprdk02-40-BRU',
-                price: 6220000,
-                qty: 67,
-                image: '{{ asset("images/shoes/fayer-jyordan.png") }}',
-                isBlack: true,
-                variantId: '5'
-            },
-            {
-                id: '3',
-                name: 'ErthJyordan',
-                variant: 'Ukuran 41 · Abu',
-                code: 'kodeprdk03-41-ABU',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/erth-jyordan.png") }}',
-                isBlack: false,
-                variantId: '6'
-            },
-            {
-                id: '4',
-                name: 'WhinJyordan',
-                variant: 'Ukuran 42 · Coklat',
-                code: 'kodeprdk04-42-CKL',
-                price: 3110000,
-                qty: 1,
-                image: '{{ asset("images/shoes/whin-jyordan.png") }}',
-                isBlack: false,
-                variantId: '7'
-            }
-        ];
+        // Keranjang dimulai kosong (dulu berisi 4 item demo produk lama yang sudah dihapus)
+        const DEFAULT_CART_ITEMS = [];
 
         let cart = [];
         try {
-            const saved = sessionStorage.getItem('kasir_cart');
+            const saved = sessionStorage.getItem('kasir_cart_v3');
             if (saved) {
                 cart = JSON.parse(saved);
             } else {
@@ -847,11 +810,23 @@
         }
 
         function saveCart() {
-            sessionStorage.setItem('kasir_cart', JSON.stringify(cart));
+            sessionStorage.setItem('kasir_cart_v3', JSON.stringify(cart));
             renderCart();
             if (!document.getElementById('viewPayment').classList.contains('hidden')) {
                 setupPaymentView();
             }
+        }
+
+        // Tambah 1 pasang, tidak boleh melebihi stok varian
+        function increaseQty(idx) {
+            const item = cart[idx];
+            if (!item) return;
+            if (item.stock !== undefined && item.qty >= item.stock) {
+                showFlash('Stok Tidak Cukup', `${item.name} ${item.variant} hanya tersisa ${item.stock} pasang.`, 'error');
+                return;
+            }
+            item.qty += 1;
+            saveCart();
         }
 
         function calculateCart() {
@@ -863,12 +838,11 @@
                 subtotal += (item.price * item.qty);
             });
 
-            // Sesuai rumus transaksi resmi POS (11% PPN)
-            let pajak = Math.round(subtotal * 0.11);
-            let diskon = 0;
-            let total = subtotal + pajak - diskon;
+            // Tanpa PPN. Total akhir tetap dihitung ulang oleh server dari harga di database.
+            const diskon = 0;
+            const total = subtotal - diskon;
 
-            return { totalQty, subtotal, pajak, diskon, total };
+            return { totalQty, subtotal, diskon, total };
         }
 
 // Render Cart items in Catalog Sidebar
@@ -890,27 +864,27 @@
                 let html = '';
                 cart.forEach((item, index) => {
                     const bgBox = item.isBlack ? 'bg-black' : 'bg-neutral-100';
-                    const varText = item.variant || 'Ukuran 40 · Merah';
+                    const varText = item.variant || '-';
                     html += `
-                        <div class="flex items-center justify-between gap-3 group">
-                            <div class="w-14 h-12 rounded-lg ${bgBox} border border-neutral-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/water-jyordan.png") }}'">
+                        <div class="flex items-center gap-[10px] py-[5px] group">
+                            <div class="w-20 h-20 rounded-[10px] ${bgBox} flex items-center justify-center shrink-0 overflow-hidden">
+                                <img src="${item.image}" alt="${item.name}" class="h-full w-full object-cover pointer-events-none" onerror="this.src='{{ asset("images/shoes/placeholder.svg") }}'">
                             </div>
 
-                            <div class="flex-1 min-w-0 pr-1">
-                                <h4 class="text-xs font-bold text-neutral-900 truncate leading-snug">${item.name}</h4>
-                                <p class="text-[11px] text-neutral-500 font-normal mt-0.5">${varText}</p>
-                                <p class="text-[11px] font-semibold text-neutral-900 mt-0.5">Rp${formatRupiah(item.price)}</p>
+                            <div class="flex-1 min-w-0">
+                                <h4 class="text-base font-bold text-black truncate leading-5">${item.name}</h4>
+                                <p class="text-sm text-black font-normal leading-[17px]">${varText}</p>
+                                <p class="text-sm font-semibold text-black mt-[10px] leading-[17px]">Rp${formatRupiah(item.price)}</p>
                             </div>
 
-                            <div class="flex items-center gap-2 shrink-0">
-                                <div class="flex items-center border border-neutral-300 rounded-md px-2 py-0.5 text-xs font-semibold text-neutral-800 gap-2.5">
+                            <div class="flex items-center gap-[10px] shrink-0">
+                                <div class="flex items-center h-[27px] border border-black/40 rounded-[7px] px-[5px] text-sm font-semibold text-black gap-[10px]">
                                     <button type="button" class="btn-step-minus hover:text-neutral-600 select-none cursor-pointer" data-index="${index}">-</button>
-                                    <span class="w-5 text-center select-none text-[11px]">${item.qty}</span>
+                                    <span class="min-w-5 text-center select-none text-sm font-bold">${item.qty}</span>
                                     <button type="button" class="btn-step-plus hover:text-neutral-600 select-none cursor-pointer" data-index="${index}">+</button>
                                 </div>
                                 <button type="button" class="btn-remove-item text-neutral-400 hover:text-red-500 transition cursor-pointer p-0.5" data-index="${index}" title="Hapus">
-                                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                     </svg>
@@ -922,10 +896,9 @@
                 container.innerHTML = html;
             }
 
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
+            const { totalQty, subtotal, diskon, total } = calculateCart();
             document.getElementById('cartTotalItem').textContent = `${totalQty} pcs`;
             document.getElementById('cartSubtotal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('cartPajak').textContent = 'Rp' + formatRupiah(pajak);
             document.getElementById('cartDiskon').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('cartTotal').textContent = 'Rp' + formatRupiah(total);
 
@@ -944,9 +917,7 @@
 
             container.querySelectorAll('.btn-step-plus').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                    cart[idx].qty += 1;
-                    saveCart();
+                    increaseQty(parseInt(e.currentTarget.getAttribute('data-index')));
                 });
             });
 
@@ -962,7 +933,7 @@
         // Setup Layar Pembayaran (Page Payment.png)
         function setupPaymentView() {
             const paymentCartList = document.getElementById('paymentCartList');
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
+            const { totalQty, subtotal, diskon, total } = calculateCart();
 
             // 1. Render items list in right sidebar
             if (paymentCartList) {
@@ -972,23 +943,23 @@
                     let html = '';
                     cart.forEach((item, index) => {
                         const bgBox = item.isBlack ? 'bg-black' : 'bg-neutral-100';
-                        const varText = item.variant || 'Ukuran 40 · Merah';
+                        const varText = item.variant || '-';
                         html += `
-                            <div class="flex items-center justify-between gap-3 group">
-                                <div class="w-14 h-12 rounded-lg ${bgBox} border border-neutral-100 flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                                    <img src="${item.image}" alt="${item.name}" class="h-full w-full object-contain pointer-events-none" onerror="this.src='{{ asset("images/shoes/water-jyordan.png") }}'">
+                            <div class="flex items-center gap-[10px] py-[5px] group">
+                                <div class="w-20 h-20 rounded-[10px] ${bgBox} flex items-center justify-center shrink-0 overflow-hidden">
+                                    <img src="${item.image}" alt="${item.name}" class="h-full w-full object-cover pointer-events-none" onerror="this.src='{{ asset("images/shoes/placeholder.svg") }}'">
                                 </div>
 
-                                <div class="flex-1 min-w-0 pr-1">
-                                    <h4 class="text-xs font-bold text-neutral-900 truncate leading-snug">${item.name}</h4>
-                                    <p class="text-[11px] text-neutral-500 font-normal mt-0.5">${varText}</p>
-                                    <p class="text-[11px] font-semibold text-neutral-900 mt-0.5">Rp${formatRupiah(item.price)}</p>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-base font-bold text-black truncate leading-5">${item.name}</h4>
+                                    <p class="text-sm text-black font-normal leading-[17px]">${varText}</p>
+                                    <p class="text-sm font-semibold text-black mt-[10px] leading-[17px]">Rp${formatRupiah(item.price)}</p>
                                 </div>
 
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <div class="flex items-center border border-neutral-300 rounded-md px-2 py-0.5 text-xs font-semibold text-neutral-800 gap-2.5">
+                                <div class="flex items-center gap-[10px] shrink-0">
+                                    <div class="flex items-center h-[27px] border border-black/40 rounded-[7px] px-[5px] text-sm font-semibold text-black gap-[10px]">
                                         <button type="button" class="btn-step-minus-pay hover:text-neutral-600 select-none cursor-pointer" data-index="${index}">-</button>
-                                        <span class="w-5 text-center select-none text-[11px]">${item.qty}</span>
+                                        <span class="min-w-5 text-center select-none text-sm font-bold">${item.qty}</span>
                                         <button type="button" class="btn-step-plus-pay hover:text-neutral-600 select-none cursor-pointer" data-index="${index}">+</button>
                                     </div>
                                     <button type="button" class="btn-remove-item-pay text-neutral-400 hover:text-red-500 transition cursor-pointer p-0.5" data-index="${index}" title="Hapus">
@@ -1017,9 +988,7 @@
 
                     paymentCartList.querySelectorAll('.btn-step-plus-pay').forEach(btn => {
                         btn.addEventListener('click', (e) => {
-                            const idx = parseInt(e.currentTarget.getAttribute('data-index'));
-                            cart[idx].qty += 1;
-                            saveCart();
+                            increaseQty(parseInt(e.currentTarget.getAttribute('data-index')));
                         });
                     });
 
@@ -1036,7 +1005,6 @@
             // Update totals in right sidebar
             document.getElementById('paymentTotalItem').textContent = `${totalQty} pcs`;
             document.getElementById('paymentSubtotal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('paymentPajak').textContent = 'Rp' + formatRupiah(pajak);
             document.getElementById('paymentDiskon').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('paymentTotal').textContent = 'Rp' + formatRupiah(total);
 
@@ -1050,16 +1018,16 @@
                 const opt3 = Math.ceil(total / 50000000) * 50000000 || 500000000;
 
                 quickWrapper.innerHTML = `
-                    <button type="button" id="btnUangPasQuick" class="px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer">
+                    <button type="button" id="btnUangPasQuick" class="h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer">
                         Uang pas
                     </button>
-                    <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="${opt1}">
+                    <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="${opt1}">
                         Rp${formatRupiah(opt1)}
                     </button>
-                    <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="${opt2}">
+                    <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="${opt2}">
                         Rp${formatRupiah(opt2)}
                     </button>
-                    <button type="button" class="btn-quick-pill px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 bg-white hover:bg-neutral-100 text-neutral-800 transition cursor-pointer" data-val="${opt3}">
+                    <button type="button" class="btn-quick-pill h-[25px] px-[10px] rounded-2xl text-[12px] font-normal border border-[#E0E0E0] bg-white hover:bg-neutral-100 text-black transition cursor-pointer" data-val="${opt3}">
                         Rp${formatRupiah(opt3)}
                     </button>
                 `;
@@ -1103,9 +1071,9 @@
             const btnValidate = document.getElementById('btnValidatePayment');
             if (btnValidate) {
                 if (bayar >= total && total > 0) {
-                    btnValidate.className = 'px-6 py-3 rounded-xl text-xs sm:text-sm font-bold transition duration-150 shadow-xs bg-neutral-900 text-white hover:bg-neutral-800 active:scale-[0.98] cursor-pointer';
+                    btnValidate.className = 'h-[35px] px-5 rounded-[10px] text-[12px] font-medium transition duration-150 bg-black text-white hover:bg-neutral-800 active:scale-[0.98] cursor-pointer';
                 } else {
-                    btnValidate.className = 'px-6 py-3 rounded-xl text-xs sm:text-sm font-bold transition duration-150 shadow-xs bg-neutral-300 text-white cursor-not-allowed';
+                    btnValidate.className = 'h-[35px] px-5 rounded-[10px] text-[12px] font-medium transition duration-150 bg-neutral-300 text-white cursor-not-allowed';
                 }
             }
         }
@@ -1154,7 +1122,7 @@
         if (btnContinueOrder) {
             btnContinueOrder.addEventListener('click', () => {
                 if (cart.length === 0) {
-                    showToast('Pesanan Kosong', 'Silakan pilih produk terlebih dahulu sebelum melanjutkan.', 'error');
+                    showFlash('Pesanan Kosong', 'Silakan pilih produk terlebih dahulu sebelum melanjutkan.', 'error');
                     return;
                 }
                 showView('payment');
@@ -1166,34 +1134,30 @@
         document.getElementById('btnClosePaymentDetail')?.addEventListener('click', () => showView('catalog'));
 
         // Process Transaction Function
+        // Server menghitung ulang harga, cek stok, dan menolak jika ada masalah (HTTP 422).
+        // Struk hanya ditampilkan kalau server benar-benar menyimpan transaksi.
+        let checkoutInFlight = false;
         async function processCheckout() {
-            const { total, subtotal, pajak, diskon, totalQty } = calculateCart();
+            if (checkoutInFlight) return;
+            const { total, diskon } = calculateCart();
             const inputVal = document.getElementById('inputPaymentReceived')?.value || '';
             const rawNumbers = inputVal.replace(/[^0-9]/g, '');
             let bayar = parseFloat(rawNumbers);
 
-            if (selectedPaymentMethod !== 'Tunai' || isNaN(bayar) || bayar < total) {
+            if (selectedPaymentMethod !== 'Tunai' || isNaN(bayar)) {
                 bayar = total;
             }
 
-            const kembalian = Math.max(0, bayar - total);
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-            // Loading state
-            const btnValidate = document.getElementById('btnValidatePayment');
-            if (btnValidate) {
-                btnValidate.disabled = true;
-                btnValidate.textContent = 'Memproses...';
-            }
+            const buttons = ['btnValidatePayment', 'btnValidateDebit', 'btnValidateQRIS']
+                .map(id => document.getElementById(id)).filter(Boolean);
+            const oldLabels = buttons.map(b => b.textContent);
+            checkoutInFlight = true;
+            buttons.forEach(b => { b.disabled = true; b.textContent = 'Memproses...'; });
 
             try {
                 const payload = {
-                    items: cart.map(item => ({
-                        id_produk: item.id,
-                        id_varian: item.variantId || null,
-                        jumlah: item.qty,
-                        harga: item.price
-                    })),
+                    items: cart.map(item => ({ id_varian: item.variantId, jumlah: item.qty })),
                     metode_pembayaran: selectedPaymentMethod,
                     jumlah_bayar: bayar,
                     diskon: diskon
@@ -1210,57 +1174,30 @@
                     body: JSON.stringify(payload)
                 });
 
-                let result;
-                if (response.ok) {
-                    result = await response.json();
-                } else {
-                    // Fallback simulated success
-                    result = {
-                        success: true,
-                        no_nota: 'TRX-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.floor(100 + Math.random() * 900),
-                        tanggal_transaksi: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
-                        kasir_nama: '{{ Auth::user()->nama_lengkap ?? Auth::user()->username ?? "Kasir 1" }}',
-                        total_item: totalQty,
-                        subtotal: subtotal,
-                        pajak: pajak,
-                        diskon: diskon,
-                        total_bayar: total,
-                        jumlah_bayar: bayar,
-                        kembalian: kembalian,
-                        metode_pembayaran: selectedPaymentMethod
-                    };
+                let result = {};
+                try { result = await response.json(); } catch (e) { /* bukan JSON */ }
+
+                if (!response.ok || !result.success) {
+                    let msg = result.message || 'Transaksi gagal diproses. Silakan coba lagi.';
+                    if (result.errors) {
+                        const first = Object.values(result.errors)[0];
+                        if (first && first[0]) msg = first[0];
+                    }
+                    if (response.status === 419) msg = 'Sesi login habis. Muat ulang halaman lalu coba lagi.';
+                    showFlash('Transaksi Gagal', msg, 'error');
+                    return;
                 }
 
                 lastTransactionResult = result;
                 renderReceipt(result);
                 showView('receipt');
-                showToast('Transaksi Berhasil!', `No. Nota: ${result.no_nota}. Pembayaran telah tervalidasi.`);
+                showFlash('Transaksi Berhasil!', `No. Nota: ${result.no_nota}. Pembayaran telah tervalidasi.`);
             } catch (err) {
-                console.warn('Network issue, using client verification:', err);
-                // Client fallback
-                const fallbackResult = {
-                    success: true,
-                    no_nota: 'TRX-20261120-003',
-                    tanggal_transaksi: '20 Nov 2026, 14:56',
-                    kasir_nama: 'Kasir 1',
-                    total_item: totalQty,
-                    subtotal: subtotal,
-                    pajak: pajak,
-                    diskon: diskon,
-                    total_bayar: total,
-                    jumlah_bayar: bayar,
-                    kembalian: kembalian,
-                    metode_pembayaran: selectedPaymentMethod
-                };
-                lastTransactionResult = fallbackResult;
-                renderReceipt(fallbackResult);
-                showView('receipt');
-                showToast('Transaksi Berhasil!', `No. Nota: ${fallbackResult.no_nota}`);
+                console.warn('Checkout gagal:', err);
+                showFlash('Koneksi Gagal', 'Tidak dapat terhubung ke server. Transaksi BELUM tersimpan, silakan coba lagi.', 'error');
             } finally {
-                if (btnValidate) {
-                    btnValidate.disabled = false;
-                    btnValidate.textContent = 'Validasi Pembayaran';
-                }
+                checkoutInFlight = false;
+                buttons.forEach((b, k) => { b.disabled = false; b.textContent = oldLabels[k]; });
             }
         }
 
@@ -1272,7 +1209,7 @@
             const bayar = parseFloat(rawNumbers) || 0;
 
             if (bayar < total) {
-                showToast('Nominal Kurang', 'Jumlah uang diterima belum mencukupi total tagihan.', 'error');
+                showFlash('Nominal Kurang', 'Jumlah uang diterima belum mencukupi total tagihan.', 'error');
                 return;
             }
             processCheckout();
@@ -1283,13 +1220,16 @@
 
         // Render Struk & Rinkasan Transaksi (Page Payment-1.png)
         function renderReceipt(data) {
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
-            const nota = data.no_nota || 'TRX-20261120-003';
-            const tgl = data.tanggal_transaksi || '20 Nov 2026, 14:56';
-            const kasir = data.kasir_nama || 'Kasir 1';
-            const bayar = data.jumlah_bayar || total;
-            const kembalian = data.kembalian || (bayar - total);
-            const metode = data.metode_pembayaran || 'Tunai';
+            const totalQty = data.total_item ?? 0;
+            const subtotal = data.subtotal ?? 0;
+            const diskon = data.diskon ?? 0;
+            const total = data.total_bayar ?? 0;
+            const nota = data.no_nota || '-';
+            const tgl = data.tanggal_transaksi || '-';
+            const kasir = data.kasir_nama || '-';
+            const bayar = data.jumlah_bayar ?? total;
+            const kembalian = data.kembalian ?? 0;
+            const metode = data.metode_pembayaran || '-';
 
             // Struk Elements
             document.getElementById('receiptNoNota').textContent = nota;
@@ -1297,7 +1237,6 @@
             document.getElementById('receiptKasir').textContent = kasir;
             document.getElementById('receiptSubtotalLabel').textContent = `Subtotal (${totalQty} pasang)`;
             document.getElementById('receiptSubtotalVal').textContent = 'Rp' + formatRupiah(subtotal);
-            document.getElementById('receiptPajakVal').textContent = pajak > 0 ? ('Rp' + formatRupiah(pajak)) : 'Rp000.000.000';
             document.getElementById('receiptDiskonVal').textContent = 'Rp' + formatRupiah(diskon);
             document.getElementById('receiptTotalBayarVal').textContent = 'Rp' + formatRupiah(total);
             document.getElementById('receiptMetodeVal').textContent = metode;
@@ -1308,17 +1247,15 @@
             const itemsCont = document.getElementById('receiptItemsContainer');
             if (itemsCont) {
                 let html = '';
-                cart.forEach(item => {
-                    const codeStr = item.code || `${item.name.toLowerCase()}-40`;
-                    const varStr = (item.variant || 'Ukuran 40 · Merah').replace(' · ', ' EUR · ') + ' · ' + codeStr;
-                    const lineTotal = item.price * item.qty;
+                (data.items || []).forEach(item => {
+                    const varStr = `Ukuran ${item.ukuran} EUR · ${item.warna} · ${item.sku}`;
                     html += `
                         <div>
-                            <div class="font-bold text-xs text-neutral-900">${item.name}</div>
+                            <div class="font-bold text-xs text-neutral-900">${item.nama}</div>
                             <div class="text-[11px] text-neutral-400 mt-0.5 leading-snug">${varStr}</div>
                             <div class="flex justify-between text-xs font-normal text-neutral-800 mt-1">
-                                <span>${item.qty} x Rp${formatRupiah(item.price)}</span>
-                                <span class="font-medium text-neutral-900">Rp${formatRupiah(lineTotal)}</span>
+                                <span>${item.jumlah} x Rp${formatRupiah(item.harga)}</span>
+                                <span class="font-medium text-neutral-900">Rp${formatRupiah(item.subtotal)}</span>
                             </div>
                         </div>
                     `;
@@ -1346,14 +1283,11 @@
 
         // Copy Text Receipt
         document.getElementById('btnCopyReceipt')?.addEventListener('click', () => {
-            const { totalQty, subtotal, pajak, diskon, total } = calculateCart();
-            const data = lastTransactionResult || {};
-            const nota = data.no_nota || 'TRX-20261120-003';
-            const tgl = data.tanggal_transaksi || '20 Nov 2026, 14:56';
-            const kasir = data.kasir_nama || 'Kasir 1';
-            const bayar = data.jumlah_bayar || total;
-            const kembalian = data.kembalian || (bayar - total);
-            const metode = data.metode_pembayaran || 'Tunai';
+            const data = lastTransactionResult;
+            if (!data) return;
+            const totalQty = data.total_item, subtotal = data.subtotal, diskon = data.diskon, total = data.total_bayar;
+            const nota = data.no_nota, tgl = data.tanggal_transaksi, kasir = data.kasir_nama;
+            const bayar = data.jumlah_bayar, kembalian = data.kembalian, metode = data.metode_pembayaran;
 
             let text = `=================================\n`;
             text += `             KasirAja\n`;
@@ -1363,15 +1297,13 @@
             text += `Tanggal  : ${tgl}\n`;
             text += `Kasir    : ${kasir}\n`;
             text += `---------------------------------\n`;
-            cart.forEach(item => {
-                const lineTotal = item.price * item.qty;
-                text += `${item.name}\n`;
-                text += `${item.variant || 'Ukuran 40'}\n`;
-                text += `${item.qty} x Rp${formatRupiah(item.price)} = Rp${formatRupiah(lineTotal)}\n\n`;
+            (data.items || []).forEach(item => {
+                text += `${item.nama}\n`;
+                text += `Ukuran ${item.ukuran} · ${item.warna}\n`;
+                text += `${item.jumlah} x Rp${formatRupiah(item.harga)} = Rp${formatRupiah(item.subtotal)}\n\n`;
             });
             text += `---------------------------------\n`;
             text += `Subtotal (${totalQty} pasang) : Rp${formatRupiah(subtotal)}\n`;
-            text += `Pajak 11%            : Rp${formatRupiah(pajak)}\n`;
             text += `Diskon               : Rp${formatRupiah(diskon)}\n`;
             text += `---------------------------------\n`;
             text += `Total bayar          : Rp${formatRupiah(total)}\n`;
@@ -1384,19 +1316,18 @@
             text += `=================================`;
 
             navigator.clipboard.writeText(text).then(() => {
-                showToast('Teks Struk Disalin', 'Rincian struk pembelian berhasil disalin ke clipboard.');
+                showFlash('Teks Struk Disalin', 'Rincian struk pembelian berhasil disalin ke clipboard.');
             }).catch(() => {
-                showToast('Berhasil', 'Teks struk siap digunakan.');
+                showFlash('Berhasil', 'Teks struk siap digunakan.');
             });
         });
 
         // Transaksi Baru Button
         document.getElementById('btnNewTransaction')?.addEventListener('click', () => {
             cart = [];
-            sessionStorage.removeItem('kasir_cart');
-            renderCart();
-            showView('catalog');
-            showToast('Transaksi Baru', 'Keranjang kasir telah direset.');
+            sessionStorage.removeItem('kasir_cart_v3');
+            // Muat ulang supaya angka stok di kartu produk ikut ter-update
+            window.location.reload();
         });
 
         // Search & Filter in Catalog View
@@ -1409,7 +1340,7 @@
         const filterDropdown = document.getElementById('filterDropdown');
         const filterChevron = document.getElementById('filterChevron');
         const currentFilterLabel = document.getElementById('currentFilterLabel');
-        let selectedCategoryId = 'option2';
+        let selectedCategoryId = '';
 
         if (filterMenuBtn && filterDropdown) {
             filterMenuBtn.addEventListener('click', (e) => {
@@ -1452,9 +1383,7 @@
                 const matchName = !q || name.includes(q);
                 let matchCat = true;
 
-                if (selectedCategoryId === 'option2') {
-                    matchCat = true;
-                } else if (selectedCategoryId) {
+                if (selectedCategoryId) {
                     matchCat = (card.getAttribute('data-category-id') === selectedCategoryId);
                 }
 
@@ -1473,34 +1402,134 @@
             }
         }
 
-        // Add to Order buttons in catalog
+        // ===== Popup pilih ukuran =====
+        const sizeModal = document.getElementById('sizeModal');
+        let modalProduct = null;   // data produk yang sedang dipilih
+        let modalVariant = null;   // varian (ukuran) yang dipilih
+        let modalQty = 1;
+
+        function qtyInCart(variantId) {
+            const it = cart.find(c => c.variantId == variantId);
+            return it ? it.qty : 0;
+        }
+
+        function refreshModalButton() {
+            const addBtn = document.getElementById('sizeModalAdd');
+            document.getElementById('sizeQtyVal').textContent = modalQty;
+            if (modalVariant) {
+                addBtn.disabled = false;
+                addBtn.className = 'h-[30px] px-3 rounded-[5px] border border-black/30 text-[12px] font-semibold text-white bg-black hover:bg-neutral-800 cursor-pointer transition';
+                addBtn.textContent = `Tambah · Rp${formatRupiah(modalProduct.price * modalQty)}`;
+            } else {
+                addBtn.disabled = true;
+                addBtn.className = 'h-[30px] px-3 rounded-[5px] border border-black/30 text-[12px] font-semibold text-white bg-neutral-300 cursor-not-allowed transition';
+                addBtn.textContent = 'Pilih ukuran dulu';
+            }
+        }
+
+        function openSizeModal(btn) {
+            let variants = [];
+            try { variants = JSON.parse(btn.getAttribute('data-variants') || '[]'); } catch (e) {}
+            modalProduct = {
+                id: btn.getAttribute('data-product-id'),
+                name: btn.getAttribute('data-product-name'),
+                price: parseFloat(btn.getAttribute('data-product-price')),
+                image: btn.getAttribute('data-product-image'),
+                isBlack: btn.getAttribute('data-is-black') === '1',
+                variants
+            };
+            modalVariant = null;
+            modalQty = 1;
+
+            document.getElementById('sizeModalTitle').textContent = modalProduct.name;
+            document.getElementById('sizeModalPrice').textContent = 'Rp' + formatRupiah(modalProduct.price);
+            const img = document.getElementById('sizeModalImage');
+            img.src = modalProduct.image;
+            img.alt = modalProduct.name;
+
+            const wrap = document.getElementById('sizeModalOptions');
+            if (variants.length === 0) {
+                wrap.innerHTML = '<p class="col-span-3 text-xs text-neutral-500 py-4 text-center">Produk ini belum punya varian ukuran.</p>';
+            } else {
+                wrap.innerHTML = variants.map(v => {
+                    const sisa = v.stok - qtyInCart(v.id);
+                    const habis = sisa <= 0;
+                    return `<button type="button" class="size-opt h-[58px] rounded-[10px] border text-center transition ${habis ? 'border-black/10 bg-neutral-50 text-black/25 cursor-not-allowed' : 'border-black/30 hover:border-black cursor-pointer'}"
+                                data-id="${v.id}" ${habis ? 'disabled' : ''}>
+                                <span class="block text-[15px] font-bold leading-[18px]">${v.ukuran}</span>
+                                <span class="block text-[11px] leading-[14px]">${v.warna}</span>
+                                <span class="block text-[11px] leading-[14px] ${habis ? '' : 'text-black/60'}">${habis ? 'Habis' : 'Stok ' + sisa}</span>
+                            </button>`;
+                }).join('');
+                wrap.querySelectorAll('.size-opt:not([disabled])').forEach(opt => {
+                    opt.addEventListener('click', () => {
+                        wrap.querySelectorAll('.size-opt').forEach(o => o.classList.remove('!border-black', 'border-2', 'bg-neutral-100'));
+                        opt.classList.add('!border-black', 'border-2', 'bg-neutral-100');
+                        modalVariant = modalProduct.variants.find(v => v.id == opt.getAttribute('data-id'));
+                        modalQty = 1;
+                        refreshModalButton();
+                    });
+                });
+            }
+            refreshModalButton();
+            sizeModal.classList.remove('hidden');
+            sizeModal.classList.add('flex');
+        }
+
+        function closeSizeModal() {
+            sizeModal.classList.add('hidden');
+            sizeModal.classList.remove('flex');
+        }
+
+        document.getElementById('sizeModalClose')?.addEventListener('click', closeSizeModal);
+        sizeModal?.addEventListener('click', (e) => { if (e.target === sizeModal) closeSizeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !sizeModal.classList.contains('hidden')) closeSizeModal(); });
+
+        document.getElementById('sizeQtyMinus')?.addEventListener('click', () => {
+            if (modalQty > 1) { modalQty--; refreshModalButton(); }
+        });
+        document.getElementById('sizeQtyPlus')?.addEventListener('click', () => {
+            if (!modalVariant) return;
+            const sisa = modalVariant.stok - qtyInCart(modalVariant.id);
+            if (modalQty >= sisa) {
+                showFlash('Stok Tidak Cukup', `Ukuran ${modalVariant.ukuran} hanya tersisa ${sisa} pasang.`, 'error');
+                return;
+            }
+            modalQty++;
+            refreshModalButton();
+        });
+
+        document.getElementById('sizeModalAdd')?.addEventListener('click', () => {
+            if (!modalVariant) return;
+            const v = modalVariant, p = modalProduct;
+            const existing = cart.find(c => c.variantId == v.id);
+            if (existing) {
+                existing.qty = Math.min(existing.qty + modalQty, v.stok);
+                existing.stock = v.stok;
+            } else {
+                cart.push({
+                    id: p.id,
+                    variantId: v.id,
+                    name: p.name,
+                    price: p.price,
+                    qty: Math.min(modalQty, v.stok),
+                    stock: v.stok,
+                    image: p.image,
+                    isBlack: p.isBlack,
+                    variant: `Ukuran ${v.ukuran} · ${v.warna}`,
+                    code: v.sku
+                });
+            }
+            saveCart();
+            closeSizeModal();
+            showFlash('Ditambahkan', `${p.name} ukuran ${v.ukuran} (${modalQty} pasang) masuk ke pesanan.`);
+        });
+
+        // Add to Order buttons in catalog -> buka popup ukuran
         document.querySelectorAll('.btn-add-to-order').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = btn.getAttribute('data-product-id');
-                const name = btn.getAttribute('data-product-name');
-                const price = parseFloat(btn.getAttribute('data-product-price'));
-                const image = btn.getAttribute('data-product-image');
-                const isBlack = btn.getAttribute('data-is-black') === '1';
-                const variantId = btn.getAttribute('data-variant-id');
-
-                const existingIndex = cart.findIndex(item => item.id == id);
-                if (existingIndex > -1) {
-                    cart[existingIndex].qty += 1;
-                } else {
-                    cart.push({
-                        id: id,
-                        name: name,
-                        price: price,
-                        qty: 1,
-                        image: image,
-                        isBlack: isBlack,
-                        variantId: variantId,
-                        variant: 'Ukuran 40 · Merah',
-                        code: `kodeprdk0${id}-40-MRH`
-                    });
-                }
-                saveCart();
-                showToast('Ditambahkan', `${name} ditambahkan ke pesanan.`);
+                if (btn.disabled) return;
+                openSizeModal(btn);
             });
         });
 
@@ -1513,42 +1542,7 @@
             }
         });
 
-        // Floating Toast Notification
-        function showToast(title, message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto flex items-start gap-3 p-4 bg-white border ${type === 'success' ? 'border-emerald-200' : 'border-neutral-200'} rounded-2xl shadow-xl transition-all duration-300 transform translate-y-3 opacity-0`;
-
-            const iconSvg = type === 'success' 
-                ? `<div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                   </div>`
-                : `<div class="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center flex-shrink-0">
-                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
-                   </div>`;
-
-            toast.innerHTML = `
-                ${iconSvg}
-                <div class="flex-1">
-                    <div class="text-xs font-bold text-neutral-900">${title}</div>
-                    <div class="text-[11px] text-neutral-500 mt-0.5 leading-snug">${message}</div>
-                </div>
-            `;
-
-            container.appendChild(toast);
-
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-3', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
+        // Notifikasi memakai flash alert standar (layouts/flash-alert.blade.php)
 
         // Initialize on Load
         document.addEventListener('DOMContentLoaded', () => {

@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Login</title>
+    <title>Login - KasirAja</title>
+    <!-- Logo KasirAja di tab browser -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -47,7 +51,7 @@
         <!-- Left Side: Hero Image Banner (Desktop & Tablet) -->
         <div class="hidden lg:relative lg:flex lg:w-1/2 h-full overflow-hidden select-none" style="background-color: #1b1b1b;">
             <img 
-                src="{{ asset('images/auth-banner.png') }}" 
+                src="{{ asset('images/auth-banner.jpg') }}" 
                 alt="KasirAja - Move in Silence." 
                 class="w-auto h-auto object-contain object-left pointer-events-none"
                 loading="eager"

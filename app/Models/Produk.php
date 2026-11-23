@@ -34,6 +34,35 @@ class Produk extends Model
         ];
     }
 
+    /**
+     * Gambar produk bisa berupa file lokal (images/shoes/...) atau URL lengkap (https://...).
+     */
+    public function getGambarIsRemoteAttribute(): bool
+    {
+        return (bool) preg_match('#^https?://#i', (string) $this->gambar);
+    }
+
+    public function getHasGambarAttribute(): bool
+    {
+        if (empty($this->gambar)) {
+            return false;
+        }
+
+        return $this->gambar_is_remote || file_exists(public_path($this->gambar));
+    }
+
+    /**
+     * URL gambar yang siap dipakai di <img src>, dengan gambar cadangan jika kosong/hilang.
+     */
+    public function getGambarUrlAttribute(): string
+    {
+        if ($this->gambar_is_remote) {
+            return $this->gambar;
+        }
+
+        return asset($this->has_gambar ? $this->gambar : 'images/shoes/placeholder.svg');
+    }
+
     public function kategori(): BelongsTo
     {
         return $this->belongsTo(Kategori::class, 'id_kategori', 'id_kategori');

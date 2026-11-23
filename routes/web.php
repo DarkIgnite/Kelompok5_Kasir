@@ -7,6 +7,7 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\PenggunaController;
+use App\Http\Controllers\TransaksiController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -18,22 +19,29 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+    /*
+     * Hak akses mengikuti DFD Level 2:
+     * - Kasir : transaksi penjualan (5.2), riwayat (5.1), batalkan (5.3), detail/cetak struk (6.1).
+     *           Melihat kategori/produk/stok (1.1, 2.1, 3.1) lewat katalog di halaman kasir.
+     * - Admin & Kasir : dashboard.
+     * - Admin : kelola kategori, produk, varian & stok, pengguna (1.2-1.5, 2.2-2.5, 3.3-3.6, 4.3-4.6).
+     */
+    // Dashboard: bisa dilihat admin & kasir (keputusan tim, belum ada di DFD -> tambahkan proses 7.0)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/data', [DashboardController::class, 'getRealtimeData'])->name('dashboard.data');
-    Route::post('/dashboard/simulate-sale', [DashboardController::class, 'simulateSale'])->name('dashboard.simulate');
 
-    // Sidebar Page Routes (Bisa diakses oleh Kasir & Admin)
-    Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
-    Route::post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
-    Route::get('/kasir/{kasir}', [KasirController::class, 'show'])->name('kasir.show');
+    Route::middleware('role:kasir')->group(function () {
+        Route::get('/kasir', [KasirController::class, 'index'])->name('kasir.index');
+        Route::post('/kasir/transaksi', [KasirController::class, 'store'])->name('kasir.store');
 
-    // Route alias /transaksi untuk kompatibilitas tautan / riwayat
-    Route::get('/transaksi', [KasirController::class, 'index'])->name('transaksi.index');
-    Route::post('/transaksi', [KasirController::class, 'store'])->name('transaksi.store');
-    Route::get('/transaksi/{kasir}', [KasirController::class, 'show'])->name('transaksi.show');
+        Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
+        Route::get('/transaksi/{transaksi}', [TransaksiController::class, 'show'])->name('transaksi.show');
+        Route::post('/transaksi/{transaksi}/batal', [TransaksiController::class, 'batal'])->name('transaksi.batal');
+    });
 
-    // Halaman khusus Administrator (Kategori, Produk, Pengguna)
-    Route::middleware('can:admin')->group(function () {
+    // Halaman khusus Admin (Kategori, Produk, Varian, Pengguna)
+    Route::middleware('role:admin')->group(function () {
+
         // Kategori Routes
         Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
         Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');

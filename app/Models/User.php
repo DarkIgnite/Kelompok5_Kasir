@@ -26,7 +26,6 @@ class User extends Authenticatable
         'username',
         'password',
         'role',
-        'jabatan',
         'no_telepon',
         'status',
     ];
@@ -62,84 +61,57 @@ class User extends Authenticatable
     }
 
     /**
-     * Jabatan Accessor dengan fallback cerdas.
+     * Label role untuk ditampilkan di tabel: "Admin" / "Kasir".
      */
-    public function getJabatanAttribute($value): string
+    public function getRoleLabelAttribute(): string
     {
-        if (!empty($value)) {
-            return ucfirst($value);
-        }
-        if ($this->id_pengguna == 1 || $this->username === 'admin') {
-            return 'Owner';
-        }
-        return $this->role === 'admin' ? 'Manager' : 'Kasir';
+        return $this->role === 'admin' ? 'Admin' : 'Kasir';
     }
 
-    /**
-     * Hierarki level jabatan:
-     * Level 3: Owner (Tertinggi)
-     * Level 2: Manager
-     * Level 1: Kasir (Bawahan)
-     */
-    public function getJabatanRank(): int
-    {
-        $j = strtolower($this->jabatan ?? '');
-        if ($j === 'owner' || $this->id_pengguna == 1) {
-            return 3;
-        }
-        if ($j === 'manager' || $this->role === 'admin') {
-            return 2;
-        }
-        return 1; // Kasir
-    }
-
-    /**
-     * Cek apakah user adalah Owner.
-     */
-    public function isOwner(): bool
-    {
-        return $this->getJabatanRank() === 3;
-    }
-
-    /**
-     * Check if user is admin.
-     */
     public function isAdmin(): bool
     {
-        return $this->role === 'admin' || $this->isOwner();
+        return $this->role === 'admin';
     }
 
-    /**
-     * Check if user is kasir.
-     */
     public function isKasir(): bool
     {
-        return $this->role === 'kasir' && !$this->isOwner();
+        return $this->role === 'kasir';
     }
 
     /**
-     * Check if user is active.
+     * Halaman utama setelah login: admin ke dashboard, kasir ke halaman kasir.
      */
+    public function homeRoute(): string
+    {
+        return $this->isAdmin() ? 'dashboard' : 'kasir.index';
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'aktif';
     }
 
     /**
-     * Cek apakah user saat ini dapat mengedit target user.
+     * Admin boleh mengedit akunnya sendiri dan semua akun kasir.
+     * Admin tidak boleh mengedit admin lain (mencegah saling mengambil alih akun).
      */
     public function canEditUser(User $target): bool
     {
-        return true;
+        if (! $this->isAdmin()) {
+            return false;
+        }
+
+        return (int) $this->id_pengguna === (int) $target->id_pengguna || $target->isKasir();
     }
 
     /**
-     * Cek apakah user saat ini dapat menghapus target user.
+     * Admin hanya boleh menghapus/nonaktifkan akun kasir, dan tidak boleh menghapus dirinya sendiri.
      */
     public function canDeleteUser(User $target): bool
     {
-        // Hanya cegah menghapus akun sendiri agar tidak terkunci keluar
-        return $this->id_pengguna !== $target->id_pengguna;
+        return $this->isAdmin()
+            && (int) $this->id_pengguna !== (int) $target->id_pengguna
+            && $target->isKasir();
     }
 
     /**
