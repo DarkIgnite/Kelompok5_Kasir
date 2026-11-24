@@ -225,7 +225,7 @@
 
     <!-- Bottom: Logout Button -->
     <div class="w-full flex justify-center py-1 mb-2">
-        <form action="{{ route('logout') }}" method="POST">
+        <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar dari akun?');">
             @csrf
             <button 
                 type="submit" 

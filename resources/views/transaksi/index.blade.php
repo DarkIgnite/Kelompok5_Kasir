@@ -12,6 +12,7 @@
     <form method="GET" action="{{ route('transaksi.index') }}" class="flex items-center gap-[15px]">
         @if(request('status'))<input type="hidden" name="status" value="{{ request('status') }}">@endif
         @if(request()->boolean('saya'))<input type="hidden" name="saya" value="1">@endif
+        @if(request('limit'))<input type="hidden" name="limit" value="{{ request('limit') }}">@endif
         <div class="relative flex-1">
             <div class="absolute inset-y-0 left-0 pl-[15px] flex items-center pointer-events-none text-neutral-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -62,7 +63,7 @@
         <!-- Tanggal -->
         <label class="h-[46px] px-[10px] bg-white border border-black/30 rounded-[10px] flex items-center gap-[10px] text-[15px] font-semibold text-black cursor-pointer">
             <svg class="w-6 h-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2"></rect><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke-linecap="round"></path></svg>
-            <input type="date" name="tanggal" value="{{ $tanggal }}" max="{{ now()->toDateString() }}" class="bg-transparent focus:outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden">
+            <input type="date" name="tanggal" id="inputTanggal" value="{{ $tanggal }}" max="{{ now()->toDateString() }}" required class="bg-transparent focus:outline-none cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden">
         </label>
 
         <button type="submit" class="h-[46px] px-[10px] bg-black text-white border border-black/30 rounded-[10px] text-[15px] font-semibold hover:bg-neutral-800 cursor-pointer">
@@ -143,6 +144,14 @@
 @push('scripts')
 <script>
     (function () {
+        // Tanggal: klik di mana saja langsung buka kalender, pilih tanggal langsung filter
+        const tgl = document.getElementById('inputTanggal');
+        tgl?.closest('label')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            try { tgl.showPicker(); } catch (_) { tgl.focus(); }
+        });
+        tgl?.addEventListener('change', () => { if (tgl.value) tgl.form.submit(); });
+
         const pairs = [['btnDropdownFilter', 'menuDropdownFilter'], ['btnDropdownShow', 'menuDropdownShow']];
         pairs.forEach(([b, m]) => {
             const btn = document.getElementById(b), menu = document.getElementById(m);
